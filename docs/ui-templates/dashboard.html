@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="th">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Dashboard - AI Ads Review Copilot</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+		/>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							sans: ["Inter", "Sarabun", "sans-serif"],
+							thai: ["Sarabun", "sans-serif"],
+						},
+						colors: {
+							brand: {
+								dark: "#003366",
+								light: "#00CCFF",
+								bg: "#F8FAFC",
+							},
+						},
+					},
+				},
+			};
+		</script>
+		<style>
+			.brand-gradient {
+				background: linear-gradient(135deg, #003366 0%, #0088cc 100%);
+			}
+			/* Custom scrollbar for table container */
+			.custom-scrollbar::-webkit-scrollbar {
+				width: 6px;
+				height: 6px;
+			}
+			.custom-scrollbar::-webkit-scrollbar-track {
+				background: #f1f5f9;
+			}
+			.custom-scrollbar::-webkit-scrollbar-thumb {
+				background: #cbd5e1;
+				border-radius: 3px;
+			}
+			.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+				background: #94a3b8;
+			}
+		</style>
+	</head>
+	<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+		<!-- Navbar -->
+		<nav
+			class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm"
+		>
+			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div class="flex justify-between h-16">
+					<!-- Left: Logo & Brand -->
+					<div class="flex items-center gap-3">
+						<div
+							class="w-10 h-10 brand-gradient rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-blue-900/20"
+						>
+							<i class="fa-solid fa-infinity"></i>
+						</div>
+						<span
+							class="font-bold text-xl tracking-tight text-slate-900"
+							>AI Ads Review
+							<span class="text-blue-600 font-light"
+								>Copilot</span
+							></span
+						>
+					</div>
+
+					<!-- Right: Profile -->
+					<div class="flex items-center gap-4">
+						<button
+							class="text-slate-400 hover:text-slate-600 transition-colors"
+						>
+							<i class="fa-regular fa-bell text-xl"></i>
+						</button>
+						<div class="h-6 w-px bg-slate-200"></div>
+						<div class="flex items-center gap-3">
+							<div
+								class="hidden md:flex flex-col items-end text-sm"
+							>
+								<span class="font-medium text-slate-900"
+									>Media Buyer Team</span
+								>
+								<span class="text-slate-500 text-xs"
+									>Admin Access</span
+								>
+							</div>
+							<div
+								class="w-9 h-9 rounded-full bg-slate-200 overflow-hidden border border-slate-300 shadow-sm"
+							>
+								<img
+									src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
+									alt="User"
+									class="w-full h-full object-cover"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Main Content -->
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<!-- Controls Section (Filter & Header) -->
+			<div
+				class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4"
+			>
+				<div>
+					<h1
+						class="text-2xl font-bold text-slate-900 tracking-tight"
+					>
+						Overview Dashboard
+					</h1>
+					<p class="text-slate-500 text-sm mt-1 font-thai">
+						สรุปภาพรวมและจัดลำดับสิ่งที่ต้องปรับปรุง (Action-First)
+					</p>
+				</div>
+
+				<!-- Filters -->
+				<div
+					class="flex flex-wrap gap-3 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200"
+				>
+					<!-- Account Selector -->
+					<div class="relative group">
+						<div
+							class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+						>
+							<i
+								class="fa-solid fa-briefcase text-slate-400 text-xs"
+							></i>
+						</div>
+						<select
+							class="appearance-none bg-slate-50 border border-slate-200 hover:border-blue-400 text-slate-700 py-2 pl-9 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm font-medium w-48 transition-all cursor-pointer"
+						>
+							<option>Brand A - Official</option>
+							<option>Brand A - Backup</option>
+						</select>
+						<div
+							class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500"
+						>
+							<i class="fa-solid fa-chevron-down text-[10px]"></i>
+						</div>
+					</div>
+
+					<div class="w-px bg-slate-200 my-1 hidden sm:block"></div>
+
+					<!-- Period Selector -->
+					<div
+						class="flex items-center gap-1 bg-slate-100 p-1 rounded"
+					>
+						<button
+							class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-white rounded transition-all"
+						>
+							3 Days
+						</button>
+						<button
+							class="px-3 py-1.5 text-xs font-medium text-blue-700 bg-white shadow-sm rounded border border-slate-200"
+						>
+							7 Days
+						</button>
+						<button
+							class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-white rounded transition-all"
+						>
+							14 Days
+						</button>
+					</div>
+
+					<div
+						class="flex items-center px-2 text-xs text-slate-400 font-medium"
+					>
+						vs Previous Period
+					</div>
+				</div>
+			</div>
+
+			<!-- Summary Cards (KPIs) -->
+			<div
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+			>
+				<!-- Card 1: Spend -->
+				<div
+					class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group"
+				>
+					<div class="flex justify-between items-start mb-3">
+						<div class="flex flex-col">
+							<span
+								class="text-slate-500 text-xs font-semibold uppercase tracking-wider"
+								>Amount Spent</span
+							>
+							<span class="text-2xl font-bold text-slate-900 mt-1"
+								>฿45,200</span
+							>
+						</div>
+						<div
+							class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform"
+						>
+							<i class="fa-solid fa-wallet"></i>
+						</div>
+					</div>
+					<div
+						class="flex items-center text-xs border-t border-slate-50 pt-3"
+					>
+						<span
+							class="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1 mr-2"
+						>
+							<i class="fa-solid fa-arrow-down"></i> 2.5%
+						</span>
+						<span class="text-slate-400">vs ฿46,350</span>
+					</div>
+				</div>
+
+				<!-- Card 2: Cost per Result (Main KPI) -->
+				<div
+					class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group"
+				>
+					<div
+						class="absolute top-0 right-0 w-1 h-full bg-red-500"
+					></div>
+					<!-- Alert Indicator -->
+					<div class="flex justify-between items-start mb-3">
+						<div class="flex flex-col">
+							<span
+								class="text-slate-500 text-xs font-semibold uppercase tracking-wider flex items-center gap-1"
+							>
+								CPR (Cost/Res)
+								<i
+									class="fa-solid fa-circle-info text-slate-300 text-[10px]"
+								></i>
+							</span>
+							<span class="text-2xl font-bold text-slate-900 mt-1"
+								>฿125.50</span
+							>
+						</div>
+						<div
+							class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center group-hover:scale-110 transition-transform"
+						>
+							<i class="fa-solid fa-chart-line"></i>
+						</div>
+					</div>
+					<div
+						class="flex items-center text-xs border-t border-slate-50 pt-3"
+					>
+						<span
+							class="text-red-600 font-bold bg-red-50 px-1.5 py-0.5 rounded flex items-center gap-1 mr-2"
+						>
+							<i class="fa-solid fa-arrow-up"></i> 15.3%
+						</span>
+						<span class="text-slate-400">vs ฿108.20</span>
+					</div>
+				</div>
+
+				<!-- Card 3: ROAS -->
+				<div
+					class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group"
+				>
+					<div class="flex justify-between items-start mb-3">
+						<div class="flex flex-col">
+							<span
+								class="text-slate-500 text-xs font-semibold uppercase tracking-wider"
+								>ROAS (Return)</span
+							>
+							<span class="text-2xl font-bold text-slate-900 mt-1"
+								>3.8x</span
+							>
+						</div>
+						<div
+							class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform"
+						>
+							<i class="fa-solid fa-sack-dollar"></i>
+						</div>
+					</div>
+					<div
+						class="flex items-center text-xs border-t border-slate-50 pt-3"
+					>
+						<span
+							class="text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1 mr-2"
+						>
+							<i class="fa-solid fa-arrow-up"></i> 0.4
+						</span>
+						<span class="text-slate-400">vs 3.4x</span>
+					</div>
+				</div>
+
+				<!-- Card 4: Results -->
+				<div
+					class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group"
+				>
+					<div class="flex justify-between items-start mb-3">
+						<div class="flex flex-col">
+							<span
+								class="text-slate-500 text-xs font-semibold uppercase tracking-wider"
+								>Total Results</span
+							>
+							<span class="text-2xl font-bold text-slate-900 mt-1"
+								>360</span
+							>
+						</div>
+						<div
+							class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform"
+						>
+							<i class="fa-solid fa-bullseye"></i>
+						</div>
+					</div>
+					<div
+						class="flex items-center text-xs border-t border-slate-50 pt-3"
+					>
+						<span
+							class="text-slate-500 font-bold bg-slate-100 px-1.5 py-0.5 rounded flex items-center gap-1 mr-2"
+						>
+							<i class="fa-solid fa-minus"></i> 0.0%
+						</span>
+						<span class="text-slate-400">Stable</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Priority List Section -->
+			<div
+				class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]"
+			>
+				<!-- Header -->
+				<div
+					class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50"
+				>
+					<div>
+						<h2
+							class="text-lg font-bold text-slate-900 flex items-center gap-2"
+						>
+							<i class="fa-solid fa-list-check text-blue-600"></i>
+							Priority Action List
+						</h2>
+						<p class="text-xs text-slate-500 mt-1 font-thai">
+							จัดลำดับความสำคัญโดย AI อิงจาก Cost Efficiency และ
+							Trend
+						</p>
+					</div>
+					<div class="flex gap-2">
+						<button
+							class="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-colors"
+						>
+							<i class="fa-solid fa-filter mr-1"></i> Filter
+						</button>
+						<button
+							class="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded hover:bg-blue-100 transition-colors"
+						>
+							View All
+						</button>
+					</div>
+				</div>
+
+				<!-- Table Container -->
+				<div class="overflow-y-auto custom-scrollbar flex-1">
+					<table class="w-full text-left border-collapse">
+						<thead class="bg-slate-50 sticky top-0 z-10 shadow-sm">
+							<tr
+								class="text-slate-500 text-xs uppercase tracking-wider"
+							>
+								<th class="p-4 font-semibold w-20 text-center">
+									Score
+								</th>
+								<th class="p-4 font-semibold w-1/3">
+									Ad Group Name / Campaign
+								</th>
+								<th class="p-4 font-semibold w-1/4">
+									Status / Issue
+								</th>
+								<th class="p-4 font-semibold text-right">
+									Cost/Res.
+								</th>
+								<th class="p-4 font-semibold text-right">
+									Trend
+								</th>
+								<th class="p-4 font-semibold text-center w-20">
+									Action
+								</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-100 text-sm">
+							<!-- Item 1: High Priority (Red) -->
+							<tr
+								class="hover:bg-red-50/30 transition-colors group cursor-pointer border-l-4 border-l-red-500 bg-red-50/10"
+							>
+								<td class="p-4 text-center">
+									<div
+										class="w-9 h-9 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-bold mx-auto border-2 border-white shadow-sm ring-1 ring-red-200"
+									>
+										32
+									</div>
+								</td>
+								<td class="p-4">
+									<div
+										class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors"
+									>
+										Retargeting_AddCart_7D
+									</div>
+									<div class="text-xs text-slate-400 mt-0.5">
+										<i
+											class="fa-solid fa-folder-open mr-1"
+										></i
+										>Campaign: 2.2_Sales_Conv
+									</div>
+								</td>
+								<td class="p-4">
+									<span
+										class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700 border border-red-200 uppercase tracking-wide"
+									>
+										Needs Attention
+									</span>
+									<div
+										class="text-xs text-slate-500 mt-1.5 flex items-center gap-1 font-thai"
+									>
+										<i
+											class="fa-solid fa-triangle-exclamation text-amber-500"
+										></i>
+										Fatigue Detected
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div class="font-bold text-slate-800">
+										฿185.00
+									</div>
+									<div class="text-[10px] text-slate-400">
+										Target: ฿150
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div
+										class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-600 border border-red-100"
+									>
+										<i
+											class="fa-solid fa-arrow-trend-up mr-1"
+										></i>
+										+22%
+									</div>
+								</td>
+								<td class="p-4 text-center">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<!-- Item 2: Warning (Amber) -->
+							<tr
+								class="hover:bg-amber-50/30 transition-colors group cursor-pointer border-l-4 border-l-amber-400 bg-amber-50/10"
+							>
+								<td class="p-4 text-center">
+									<div
+										class="w-9 h-9 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold mx-auto border-2 border-white shadow-sm ring-1 ring-amber-200"
+									>
+										65
+									</div>
+								</td>
+								<td class="p-4">
+									<div
+										class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors"
+									>
+										Broad_Interest_Tech
+									</div>
+									<div class="text-xs text-slate-400 mt-0.5">
+										<i
+											class="fa-solid fa-folder-open mr-1"
+										></i
+										>Campaign: 2.2_Sales_Conv
+									</div>
+								</td>
+								<td class="p-4">
+									<span
+										class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 uppercase tracking-wide"
+									>
+										Warning
+									</span>
+									<div
+										class="text-xs text-slate-500 mt-1.5 flex items-center gap-1 font-thai"
+									>
+										<i
+											class="fa-solid fa-money-bill-wave text-slate-400"
+										></i>
+										Cost Creeping
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div class="font-bold text-slate-800">
+										฿110.00
+									</div>
+									<div class="text-[10px] text-slate-400">
+										Target: ฿100
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div
+										class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-600 border border-amber-100"
+									>
+										<i
+											class="fa-solid fa-arrow-trend-up mr-1"
+										></i>
+										+5%
+									</div>
+								</td>
+								<td class="p-4 text-center">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<!-- Item 3: Good (Emerald) -->
+							<tr
+								class="hover:bg-emerald-50/30 transition-colors group cursor-pointer border-l-4 border-l-emerald-500"
+							>
+								<td class="p-4 text-center">
+									<div
+										class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold mx-auto border-2 border-white shadow-sm ring-1 ring-emerald-200"
+									>
+										92
+									</div>
+								</td>
+								<td class="p-4">
+									<div
+										class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors"
+									>
+										LAL_1%_Purchasers
+									</div>
+									<div class="text-xs text-slate-400 mt-0.5">
+										<i
+											class="fa-solid fa-folder-open mr-1"
+										></i
+										>Campaign: 2.2_Sales_Conv
+									</div>
+								</td>
+								<td class="p-4">
+									<span
+										class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wide"
+									>
+										Top Performer
+									</span>
+									<div
+										class="text-xs text-slate-500 mt-1.5 flex items-center gap-1 font-thai"
+									>
+										<i
+											class="fa-solid fa-check text-emerald-500"
+										></i>
+										Consistent
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div class="font-bold text-slate-800">
+										฿85.00
+									</div>
+									<div class="text-[10px] text-slate-400">
+										Target: ฿100
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div
+										class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100"
+									>
+										<i
+											class="fa-solid fa-arrow-trend-down mr-1"
+										></i>
+										-10%
+									</div>
+								</td>
+								<td class="p-4 text-center">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<!-- More Items (Mock) -->
+							<tr
+								class="hover:bg-slate-50 transition-colors group cursor-pointer border-l-4 border-l-transparent"
+							>
+								<td class="p-4 text-center">
+									<div
+										class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mx-auto border-2 border-white shadow-sm"
+									>
+										75
+									</div>
+								</td>
+								<td class="p-4">
+									<div
+										class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors"
+									>
+										Interest_Fashion_Shoes
+									</div>
+									<div class="text-xs text-slate-400 mt-0.5">
+										<i
+											class="fa-solid fa-folder-open mr-1"
+										></i
+										>Campaign: Awareness_Brand
+									</div>
+								</td>
+								<td class="p-4">
+									<span
+										class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wide"
+									>
+										Normal
+									</span>
+								</td>
+								<td class="p-4 text-right">
+									<div class="font-bold text-slate-800">
+										฿14.20
+									</div>
+									<div class="text-[10px] text-slate-400">
+										CPM Mode
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div
+										class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200"
+									>
+										<i class="fa-solid fa-minus mr-1"></i>
+										0%
+									</div>
+								</td>
+								<td class="p-4 text-center">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<tr
+								class="hover:bg-slate-50 transition-colors group cursor-pointer border-l-4 border-l-transparent"
+							>
+								<td class="p-4 text-center">
+									<div
+										class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs font-bold mx-auto border-2 border-white shadow-sm"
+									>
+										72
+									</div>
+								</td>
+								<td class="p-4">
+									<div
+										class="font-bold text-slate-900 group-hover:text-blue-600 transition-colors"
+									>
+										Interest_Marketing
+									</div>
+									<div class="text-xs text-slate-400 mt-0.5">
+										<i
+											class="fa-solid fa-folder-open mr-1"
+										></i
+										>Campaign: Lead_Gen_Ebook
+									</div>
+								</td>
+								<td class="p-4">
+									<span
+										class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wide"
+									>
+										Normal
+									</span>
+								</td>
+								<td class="p-4 text-right">
+									<div class="font-bold text-slate-800">
+										฿45.00
+									</div>
+									<div class="text-[10px] text-slate-400">
+										Target: ฿40
+									</div>
+								</td>
+								<td class="p-4 text-right">
+									<div
+										class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold text-amber-600 bg-amber-50 border border-amber-100"
+									>
+										<i
+											class="fa-solid fa-arrow-trend-up mr-1"
+										></i>
+										+2%
+									</div>
+								</td>
+								<td class="p-4 text-center">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Footer/Pagination -->
+				<div
+					class="bg-slate-50 p-4 border-t border-slate-200 text-center text-xs text-slate-500"
+				>
+					Displaying top 5 priority items.
+					<button
+						class="text-blue-600 font-bold hover:underline ml-1"
+					>
+						Load more
+					</button>
+				</div>
+			</div>
+		</main>
+	</body>
+</html>

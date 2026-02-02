@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="th">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Detail - AI Ads Review Copilot</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+		/>
+		<!-- Chart.js for the graph -->
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							sans: ["Inter", "Sarabun", "sans-serif"],
+							thai: ["Sarabun", "sans-serif"],
+						},
+						colors: {
+							ai: {
+								bg: "#F0F9FF",
+								border: "#BAE6FD",
+								text: "#0369A1",
+							},
+						},
+					},
+				},
+			};
+		</script>
+		<style>
+			.brand-gradient {
+				background: linear-gradient(135deg, #003366 0%, #0088cc 100%);
+			}
+		</style>
+	</head>
+	<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+		<!-- Top Navigation (Context Bar) -->
+		<nav
+			class="bg-white border-b border-slate-200 h-16 flex items-center px-4 sm:px-6 lg:px-8 sticky top-0 z-50 shadow-sm"
+		>
+			<a
+				href="#"
+				class="text-slate-400 hover:text-slate-600 mr-4 transition-colors flex items-center gap-1 text-sm font-medium"
+			>
+				<i class="fa-solid fa-arrow-left"></i> Back
+			</a>
+			<div class="h-6 w-px bg-slate-200 mx-2"></div>
+			<div class="flex flex-col ml-2">
+				<span
+					class="text-[10px] text-slate-500 font-medium uppercase tracking-wider"
+					>Campaign: 2.2_Sales_Conv</span
+				>
+				<span
+					class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2"
+				>
+					<i class="fa-regular fa-folder-open text-slate-400"></i> Ad
+					Group: Retargeting_AddCart_7D
+				</span>
+			</div>
+			<div class="ml-auto flex items-center gap-3">
+				<div
+					class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200"
+				>
+					<i class="fa-regular fa-calendar text-slate-400"></i>
+					<span class="text-xs font-bold text-slate-700"
+						>Last 7 Days</span
+					>
+					<span
+						class="text-[10px] text-slate-400 border-l border-slate-300 pl-2"
+						>vs Previous 7 Days</span
+					>
+				</div>
+			</div>
+		</nav>
+
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<!-- Section 1: Score & Evidence (The "Why") -->
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+				<!-- Left: Score Badge -->
+				<div
+					class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden"
+				>
+					<div class="absolute top-0 right-0 p-3">
+						<span
+							class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 uppercase tracking-wide"
+						>
+							Priority Score
+						</span>
+					</div>
+
+					<div class="relative w-32 h-32 mb-4 mt-2">
+						<!-- SVG Circular Progress -->
+						<svg class="w-full h-full transform -rotate-90">
+							<circle
+								cx="64"
+								cy="64"
+								r="56"
+								stroke="#F1F5F9"
+								stroke-width="12"
+								fill="none"
+							/>
+							<!-- Red Progress for Score 32/100 -->
+							<circle
+								cx="64"
+								cy="64"
+								r="56"
+								stroke="#EF4444"
+								stroke-width="12"
+								fill="none"
+								stroke-dasharray="351.8"
+								stroke-dashoffset="239"
+								stroke-linecap="round"
+							/>
+						</svg>
+						<div
+							class="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col"
+						>
+							<span
+								class="text-4xl font-extrabold text-slate-900 tracking-tight"
+								>32</span
+							>
+							<span class="text-xs font-medium text-slate-400"
+								>/100</span
+							>
+						</div>
+					</div>
+
+					<div
+						class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold bg-red-50 text-red-700 border border-red-100 mb-3 shadow-sm"
+					>
+						<span class="relative flex h-2 w-2">
+							<span
+								class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"
+							></span>
+							<span
+								class="relative inline-flex rounded-full h-2 w-2 bg-red-500"
+							></span>
+						</span>
+						Needs Attention
+					</div>
+					<p
+						class="text-xs text-slate-500 font-thai max-w-[200px] leading-relaxed"
+					>
+						ต้นทุนสูงขึ้น
+						<span class="text-red-600 font-bold">+22%</span>
+						และประสิทธิภาพลดลงอย่างมีนัยสำคัญ
+					</p>
+				</div>
+
+				<!-- Right: Evidence Slots (E1-E3) -->
+				<div
+					class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between"
+				>
+					<div class="flex justify-between items-center mb-5">
+						<h3
+							class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2"
+						>
+							<i
+								class="fa-solid fa-magnifying-glass-chart text-blue-500"
+							></i>
+							Evidence-Based Diagnosis
+						</h3>
+						<span class="text-[10px] text-slate-400 font-medium"
+							>Auto-generated from metrics</span
+						>
+					</div>
+
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+						<!-- E1: Main KPI (Cost) -->
+						<div
+							class="p-4 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between group hover:border-red-200 transition-colors"
+						>
+							<div>
+								<div
+									class="flex justify-between items-start mb-1"
+								>
+									<div
+										class="text-[10px] uppercase font-bold text-slate-400 tracking-wider"
+									>
+										E1: Cost Efficiency
+									</div>
+									<i
+										class="fa-solid fa-money-bill-trend-up text-red-400 group-hover:text-red-500"
+									></i>
+								</div>
+								<div
+									class="text-2xl font-bold text-slate-900 mt-1"
+								>
+									฿185.00
+								</div>
+								<div class="text-xs text-slate-500">
+									Cost per Result
+								</div>
+							</div>
+							<div
+								class="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-between"
+							>
+								<span class="text-[10px] text-slate-400"
+									>Prev: ฿151.60</span
+								>
+								<span
+									class="text-xs font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded flex items-center"
+								>
+									<i
+										class="fa-solid fa-arrow-up text-[10px] mr-1"
+									></i>
+									22%
+								</span>
+							</div>
+						</div>
+
+						<!-- E2: Quality (CTR) -->
+						<div
+							class="p-4 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between group hover:border-red-200 transition-colors"
+						>
+							<div>
+								<div
+									class="flex justify-between items-start mb-1"
+								>
+									<div
+										class="text-[10px] uppercase font-bold text-slate-400 tracking-wider"
+									>
+										E2: Audience Quality
+									</div>
+									<i
+										class="fa-solid fa-arrow-pointer text-red-400 group-hover:text-red-500"
+									></i>
+								</div>
+								<div
+									class="text-2xl font-bold text-slate-900 mt-1"
+								>
+									0.85%
+								</div>
+								<div class="text-xs text-slate-500">
+									CTR (Link Click)
+								</div>
+							</div>
+							<div
+								class="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-between"
+							>
+								<span class="text-[10px] text-slate-400"
+									>Prev: 1.20%</span
+								>
+								<span
+									class="text-xs font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded flex items-center"
+								>
+									<i
+										class="fa-solid fa-arrow-down text-[10px] mr-1"
+									></i>
+									29%
+								</span>
+							</div>
+						</div>
+
+						<!-- E3: Saturation (Freq) -->
+						<div
+							class="p-4 rounded-lg bg-slate-50 border border-slate-100 flex flex-col justify-between group hover:border-amber-200 transition-colors"
+						>
+							<div>
+								<div
+									class="flex justify-between items-start mb-1"
+								>
+									<div
+										class="text-[10px] uppercase font-bold text-slate-400 tracking-wider"
+									>
+										E3: Ad Fatigue
+									</div>
+									<i
+										class="fa-solid fa-rotate text-amber-400 group-hover:text-amber-500"
+									></i>
+								</div>
+								<div
+									class="text-2xl font-bold text-slate-900 mt-1"
+								>
+									4.2
+								</div>
+								<div class="text-xs text-slate-500">
+									Frequency
+								</div>
+							</div>
+							<div
+								class="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-between"
+							>
+								<span class="text-[10px] text-slate-400"
+									>Prev: 2.8</span
+								>
+								<span
+									class="text-xs font-bold text-amber-600 bg-amber-100 px-1.5 py-0.5 rounded flex items-center"
+								>
+									High
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Section 2: AI Copilot (2-Stage Analysis) -->
+			<div
+				class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl shadow-sm overflow-hidden mb-8 relative ring-1 ring-indigo-500/10"
+			>
+				<!-- Decorative Accent -->
+				<div
+					class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-blue-500 to-indigo-600"
+				></div>
+				<div
+					class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none"
+				>
+					<i class="fa-solid fa-robot text-9xl text-indigo-900"></i>
+				</div>
+
+				<div class="p-6 relative z-10">
+					<!-- Header -->
+					<div
+						class="flex items-center justify-between mb-6 pb-4 border-b border-indigo-200/50"
+					>
+						<div>
+							<h3
+								class="flex items-center gap-2 text-lg font-bold text-indigo-900"
+							>
+								<i
+									class="fa-solid fa-wand-magic-sparkles text-indigo-500"
+								></i>
+								AI Copilot Analysis
+							</h3>
+							<p
+								class="text-xs text-indigo-600/70 mt-0.5 font-medium ml-7"
+							>
+								Analyzing patterns from evidence to actionable
+								advice
+							</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<span
+								class="text-[10px] text-indigo-500 font-bold bg-white px-2 py-1 rounded border border-indigo-100 shadow-sm"
+							>
+								<span
+									class="w-1.5 h-1.5 bg-green-400 rounded-full inline-block mr-1"
+								></span>
+								Ready
+							</span>
+							<button
+								class="text-indigo-400 hover:text-indigo-600 transition-colors"
+							>
+								<i class="fa-solid fa-rotate-right"></i>
+							</button>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+						<!-- Stage 1: Insight (Analysis) -->
+						<div>
+							<h4
+								class="text-xs font-bold uppercase text-indigo-400 tracking-wider mb-3 flex items-center gap-2"
+							>
+								<span
+									class="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+									>1</span
+								>
+								Situation Analysis
+							</h4>
+							<ul class="space-y-3">
+								<!-- Insight 1 -->
+								<li
+									class="group flex gap-3 text-sm text-slate-700 bg-white/80 p-3.5 rounded-lg border border-indigo-50 hover:border-indigo-200 shadow-sm transition-all hover:shadow-md"
+								>
+									<div
+										class="mt-0.5 bg-amber-100 w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-amber-500"
+									>
+										<i
+											class="fa-solid fa-triangle-exclamation text-xs"
+										></i>
+									</div>
+									<div class="flex-1">
+										<span
+											class="font-bold block text-slate-900 mb-1"
+											>Creative Fatigue Detected</span
+										>
+										<span
+											class="text-slate-600 font-thai text-sm leading-relaxed"
+										>
+											Frequency สูงแตะ
+											<span
+												class="font-medium text-slate-900"
+												>4.2</span
+											>
+											ทำให้ CTR ตกลงอย่างรวดเร็ว
+											<span
+												class="text-red-500 font-medium"
+												>(-29%)</span
+											>
+											เป็นสัญญาณว่ากลุ่มเป้าหมายเดิมเห็นโฆษณาซ้ำจนเกิดอาการ
+											"ตาบอดโฆษณา" (Banner Blindness)
+										</span>
+										<div
+											class="mt-2 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity"
+										>
+											<span
+												class="text-[9px] uppercase font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200"
+												>Ref: E2</span
+											>
+											<span
+												class="text-[9px] uppercase font-bold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded border border-slate-200"
+												>Ref: E3</span
+											>
+										</div>
+									</div>
+								</li>
+								<!-- Insight 2 -->
+								<li
+									class="group flex gap-3 text-sm text-slate-700 bg-white/80 p-3.5 rounded-lg border border-indigo-50 hover:border-indigo-200 shadow-sm transition-all hover:shadow-md"
+								>
+									<div
+										class="mt-0.5 bg-red-100 w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-red-500"
+									>
+										<i
+											class="fa-solid fa-chart-line text-xs"
+										></i>
+									</div>
+									<div class="flex-1">
+										<span
+											class="font-bold block text-slate-900 mb-1"
+											>Cost Efficiency Drop</span
+										>
+										<span
+											class="text-slate-600 font-thai text-sm leading-relaxed"
+										>
+											Cost per Result เพิ่มขึ้น
+											<span
+												class="text-red-500 font-medium"
+												>22%</span
+											>
+											ส่งผลให้ ROAS ต่ำกว่าเป้าหมายที่
+											2.5x อย่างต่อเนื่องในช่วง 3 วันท้าย
+										</span>
+									</div>
+								</li>
+							</ul>
+						</div>
+
+						<!-- Stage 2: Recommendation (Action) -->
+						<div>
+							<h4
+								class="text-xs font-bold uppercase text-indigo-400 tracking-wider mb-3 flex items-center gap-2"
+							>
+								<span
+									class="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]"
+									>2</span
+								>
+								Suggested Actions
+							</h4>
+							<div class="space-y-3">
+								<!-- Reco 1 (Primary) -->
+								<div
+									class="bg-indigo-600 text-white p-4 rounded-lg shadow-md flex gap-3 ring-2 ring-indigo-600 ring-offset-2 ring-offset-indigo-50"
+								>
+									<div
+										class="mt-1 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
+									>
+										<i
+											class="fa-regular fa-lightbulb text-yellow-300 text-xs"
+										></i>
+									</div>
+									<div>
+										<div class="font-bold text-sm mb-1">
+											Refresh Creatives Immediately
+										</div>
+										<p
+											class="text-indigo-100 text-xs font-thai leading-relaxed mb-2"
+										>
+											แนะนำให้ <u>หยุด (Pause)</u> Ads ที่
+											CTR ต่ำกว่า 0.5% ทันที
+											และเพิ่มรูปภาพ/วิดีโอชุดใหม่เพื่อลด
+											Frequency และดึงความสนใจใหม่
+										</p>
+										<div
+											class="flex items-center gap-3 text-[10px] font-medium text-indigo-200 border-t border-indigo-500/50 pt-2"
+										>
+											<span
+												><i
+													class="fa-solid fa-gauge-high mr-1"
+												></i>
+												Impact: High</span
+											>
+											<span
+												><i
+													class="fa-solid fa-shield-halved mr-1"
+												></i>
+												Confidence: High</span
+											>
+										</div>
+									</div>
+								</div>
+
+								<!-- Reco 2 (Secondary) -->
+								<div
+									class="bg-white border border-indigo-100 text-slate-700 p-4 rounded-lg shadow-sm flex gap-3 hover:border-indigo-300 transition-colors"
+								>
+									<div
+										class="mt-1 w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center flex-shrink-0"
+									>
+										<i
+											class="fa-solid fa-people-group text-indigo-500 text-xs"
+										></i>
+									</div>
+									<div>
+										<div
+											class="font-bold text-sm mb-1 text-indigo-900"
+										>
+											Expand Audience (Secondary)
+										</div>
+										<p
+											class="text-slate-500 text-xs font-thai leading-relaxed"
+										>
+											พิจารณาขยาย LAL จาก 1% เป็น 3%
+											หรือเพิ่ม Interest
+											ใกล้เคียงเพื่อลดความถี่ หาก Creative
+											ใหม่ยังไม่พร้อม
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Disclaimer -->
+				<div
+					class="bg-indigo-50/50 px-6 py-2 text-[10px] text-indigo-400 text-center border-t border-indigo-100 font-medium"
+				>
+					<i class="fa-brands fa-markdown mr-1"></i> AI generated
+					suggestions based on metrics snapshot. Please review before
+					applying.
+				</div>
+			</div>
+
+			<!-- Section 3: Daily Breakdown & Ads List -->
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+				<!-- Left: Chart -->
+				<div
+					class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm"
+				>
+					<div class="flex justify-between items-center mb-4">
+						<h3
+							class="font-bold text-slate-900 text-sm flex items-center gap-2"
+						>
+							<i
+								class="fa-solid fa-chart-area text-slate-400"
+							></i>
+							Daily Trend
+						</h3>
+						<div class="flex gap-2">
+							<span
+								class="flex items-center gap-1 text-[10px] text-slate-500"
+							>
+								<span
+									class="w-2 h-2 rounded-full bg-blue-500"
+								></span>
+								Cost/Result
+							</span>
+							<span
+								class="flex items-center gap-1 text-[10px] text-slate-500"
+							>
+								<span
+									class="w-2 h-2 rounded-full bg-slate-300"
+								></span>
+								Spend
+							</span>
+						</div>
+					</div>
+					<!-- Chart Canvas -->
+					<div
+						class="relative h-64 w-full bg-slate-50 rounded-lg border border-slate-100 p-2"
+					>
+						<canvas id="dailyChart"></canvas>
+					</div>
+				</div>
+
+				<!-- Right: Ads Performance List -->
+				<div
+					class="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full"
+				>
+					<div
+						class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center"
+					>
+						<h3 class="font-bold text-slate-900 text-sm">
+							Ads Performance
+						</h3>
+						<span
+							class="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-medium"
+							>6 Active</span
+						>
+					</div>
+
+					<div
+						class="divide-y divide-slate-100 overflow-y-auto max-h-[300px] custom-scrollbar"
+					>
+						<!-- Ad 1: Bad Performance -->
+						<div
+							class="p-3 hover:bg-red-50/30 transition-colors border-l-2 border-l-red-500 bg-red-50/5 cursor-pointer group"
+						>
+							<div class="flex justify-between items-start mb-1">
+								<div
+									class="flex items-center gap-2 overflow-hidden"
+								>
+									<div
+										class="w-6 h-6 bg-slate-200 rounded text-[8px] flex items-center justify-center text-slate-500 font-bold shrink-0"
+									>
+										IMG
+									</div>
+									<span
+										class="text-xs font-bold text-slate-900 truncate"
+										>Ad_Image_Blue_01</span
+									>
+								</div>
+								<span
+									class="text-[10px] bg-red-100 text-red-600 px-1.5 rounded font-bold whitespace-nowrap"
+									>CPR ฿210</span
+								>
+							</div>
+							<div
+								class="flex justify-between text-[10px] text-slate-500 pl-8"
+							>
+								<span class="flex items-center gap-1"
+									><i
+										class="fa-solid fa-arrow-pointer text-slate-300"
+									></i>
+									CTR:
+									<span class="text-red-500 font-bold"
+										>0.45%</span
+									></span
+								>
+								<span>Spent: ฿5,200</span>
+							</div>
+							<div
+								class="pl-8 mt-1 text-[9px] text-red-400 hidden group-hover:block transition-all"
+							>
+								<i class="fa-solid fa-circle-xmark mr-1"></i>
+								Recommendation: Pause
+							</div>
+						</div>
+
+						<!-- Ad 2: Good Performance -->
+						<div
+							class="p-3 hover:bg-emerald-50/30 transition-colors border-l-2 border-l-emerald-500 bg-emerald-50/5 cursor-pointer"
+						>
+							<div class="flex justify-between items-start mb-1">
+								<div
+									class="flex items-center gap-2 overflow-hidden"
+								>
+									<div
+										class="w-6 h-6 bg-slate-200 rounded text-[8px] flex items-center justify-center text-slate-500 font-bold shrink-0"
+									>
+										VID
+									</div>
+									<span
+										class="text-xs font-bold text-slate-900 truncate"
+										>Ad_Video_Review_02</span
+									>
+								</div>
+								<span
+									class="text-[10px] bg-emerald-100 text-emerald-600 px-1.5 rounded font-bold whitespace-nowrap"
+									>CPR ฿95</span
+								>
+							</div>
+							<div
+								class="flex justify-between text-[10px] text-slate-500 pl-8"
+							>
+								<span class="flex items-center gap-1"
+									><i
+										class="fa-solid fa-arrow-pointer text-slate-300"
+									></i>
+									CTR:
+									<span class="text-emerald-600 font-bold"
+										>1.8%</span
+									></span
+								>
+								<span>Spent: ฿2,100</span>
+							</div>
+						</div>
+
+						<!-- Ad 3: Average -->
+						<div
+							class="p-3 hover:bg-slate-50 transition-colors border-l-2 border-l-slate-200 cursor-pointer"
+						>
+							<div class="flex justify-between items-start mb-1">
+								<div
+									class="flex items-center gap-2 overflow-hidden"
+								>
+									<div
+										class="w-6 h-6 bg-slate-200 rounded text-[8px] flex items-center justify-center text-slate-500 font-bold shrink-0"
+									>
+										IMG
+									</div>
+									<span
+										class="text-xs font-medium text-slate-700 truncate"
+										>Ad_Image_Product_03</span
+									>
+								</div>
+								<span
+									class="text-[10px] bg-slate-100 text-slate-600 px-1.5 rounded font-bold whitespace-nowrap"
+									>CPR ฿125</span
+								>
+							</div>
+							<div
+								class="flex justify-between text-[10px] text-slate-500 pl-8"
+							>
+								<span class="flex items-center gap-1"
+									><i
+										class="fa-solid fa-arrow-pointer text-slate-300"
+									></i>
+									CTR: 0.9%</span
+								>
+								<span>Spent: ฿1,500</span>
+							</div>
+						</div>
+					</div>
+
+					<div
+						class="p-3 text-center border-t border-slate-100 mt-auto"
+					>
+						<button
+							class="text-xs text-blue-600 font-bold hover:underline"
+						>
+							View All 6 Ads
+						</button>
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<!-- Script to render Mock Chart -->
+		<script>
+			const ctx = document.getElementById("dailyChart").getContext("2d");
+			new Chart(ctx, {
+				type: "line",
+				data: {
+					labels: [
+						"Day 1",
+						"Day 2",
+						"Day 3",
+						"Day 4",
+						"Day 5",
+						"Day 6",
+						"Day 7",
+					],
+					datasets: [
+						{
+							label: "Cost per Result (฿)",
+							data: [120, 135, 130, 150, 180, 210, 185],
+							borderColor: "#3B82F6", // Blue-500
+							backgroundColor: "rgba(59, 130, 246, 0.1)",
+							borderWidth: 2,
+							yAxisID: "y",
+							tension: 0.3,
+						},
+						{
+							label: "Spend (฿)",
+							data: [2000, 2200, 2100, 2500, 2500, 2500, 2500],
+							borderColor: "#CBD5E1", // Slate-300
+							borderWidth: 1,
+							borderDash: [5, 5],
+							yAxisID: "y1",
+							pointRadius: 0,
+						},
+					],
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: false,
+					interaction: {
+						mode: "index",
+						intersect: false,
+					},
+					plugins: {
+						legend: {
+							display: false,
+						},
+						tooltip: {
+							backgroundColor: "rgba(255, 255, 255, 0.9)",
+							titleColor: "#1e293b",
+							bodyColor: "#475569",
+							borderColor: "#e2e8f0",
+							borderWidth: 1,
+							padding: 10,
+							boxPadding: 4,
+						},
+					},
+					scales: {
+						x: {
+							grid: { display: false },
+						},
+						y: {
+							type: "linear",
+							display: true,
+							position: "left",
+							grid: { borderDash: [2, 4], color: "#f1f5f9" },
+							title: {
+								display: true,
+								text: "CPR (฿)",
+								font: { size: 10 },
+							},
+						},
+						y1: {
+							type: "linear",
+							display: true,
+							position: "right",
+							grid: { display: false },
+							title: {
+								display: true,
+								text: "Spend (฿)",
+								font: { size: 10 },
+							},
+						},
+					},
+				},
+			});
+		</script>
+	</body>
+</html>

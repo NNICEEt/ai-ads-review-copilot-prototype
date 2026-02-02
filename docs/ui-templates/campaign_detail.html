@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="th">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Campaign Comparison - AI Ads Review Copilot</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link
+			href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+		/>
+		<script>
+			tailwind.config = {
+				theme: {
+					extend: {
+						fontFamily: {
+							sans: ["Inter", "Sarabun", "sans-serif"],
+							thai: ["Sarabun", "sans-serif"],
+						},
+						colors: {
+							ai: {
+								bg: "#F0F9FF",
+								border: "#BAE6FD",
+								text: "#0369A1",
+							},
+						},
+					},
+				},
+			};
+		</script>
+	</head>
+	<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+		<!-- Navbar (Simplified) -->
+		<nav
+			class="bg-white border-b border-slate-200 h-16 flex items-center px-4 sm:px-6 lg:px-8 sticky top-0 z-50 shadow-sm"
+		>
+			<a
+				href="#"
+				class="text-slate-400 hover:text-slate-600 mr-4 flex items-center gap-1 text-sm font-medium"
+			>
+				<i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+			</a>
+			<div class="h-6 w-px bg-slate-200 mx-2"></div>
+			<div class="flex flex-col ml-2">
+				<span
+					class="text-[10px] text-slate-500 font-medium uppercase tracking-wider"
+					>Account: Brand A - Official</span
+				>
+				<span
+					class="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2"
+				>
+					<i class="fa-solid fa-layer-group text-blue-600"></i>
+					Campaign: 2.2_Sales_Conv
+				</span>
+			</div>
+		</nav>
+
+		<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+			<!-- Campaign Summary (Context) -->
+			<div
+				class="flex flex-col md:flex-row gap-4 mb-6 items-end justify-between"
+			>
+				<div>
+					<h1 class="text-xl font-bold text-slate-900">
+						Ad Group Comparison
+					</h1>
+					<p class="text-sm text-slate-500 font-thai">
+						เปรียบเทียบประสิทธิภาพรายกลุ่มเป้าหมาย (5 Active Ad
+						Sets)
+					</p>
+				</div>
+				<!-- Global Filter for this view -->
+				<div
+					class="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex items-center text-sm"
+				>
+					<span
+						class="px-3 py-1 text-slate-500 font-medium border-r border-slate-100"
+						>Sort by:</span
+					>
+					<select
+						class="appearance-none bg-transparent py-1 pl-2 pr-6 focus:outline-none font-bold text-slate-700 cursor-pointer"
+					>
+						<option>CPA (High to Low)</option>
+						<option>ROAS (Low to High)</option>
+						<option>Spend (High to Low)</option>
+					</select>
+					<i
+						class="fa-solid fa-chevron-down text-xs text-slate-400 -ml-4 mr-2 pointer-events-none"
+					></i>
+				</div>
+			</div>
+
+			<!-- Comparison Table -->
+			<div
+				class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+			>
+				<div class="overflow-x-auto">
+					<table class="w-full text-left border-collapse">
+						<thead class="bg-slate-50 border-b border-slate-200">
+							<tr
+								class="text-slate-500 text-xs uppercase tracking-wider text-right"
+							>
+								<th class="p-4 text-left w-1/4">
+									Ad Group Name
+								</th>
+								<th class="p-4 text-left w-1/4">
+									AI Diagnosis (Insight)
+								</th>
+								<!-- Key Column for "Insight" -->
+								<th class="p-4">Spend</th>
+								<th class="p-4 text-center">Results</th>
+								<th class="p-4">CPR (Cost)</th>
+								<!-- Comparable Metric 1 -->
+								<th class="p-4">ROAS</th>
+								<!-- Comparable Metric 2 -->
+								<th class="p-4">CTR</th>
+								<!-- Comparable Metric 3 -->
+								<th class="p-4 text-center">Action</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-100 text-sm">
+							<!-- Row 1: The Problem Child (ที่เราเห็นใน Dashboard) -->
+							<tr
+								class="bg-red-50/10 hover:bg-red-50/20 transition-colors group"
+							>
+								<td class="p-4 align-top">
+									<div class="flex items-center gap-2 mb-1">
+										<span
+											class="w-2 h-2 rounded-full bg-red-500"
+										></span>
+										<span class="font-bold text-slate-900"
+											>Retargeting_AddCart_7D</span
+										>
+									</div>
+									<div
+										class="text-[10px] text-slate-400 pl-4"
+									>
+										Learning Limited
+									</div>
+								</td>
+								<td class="p-4 align-top">
+									<!-- Insight Summary in Table -->
+									<div
+										class="bg-red-50 border border-red-100 rounded-lg p-2"
+									>
+										<div
+											class="flex items-center gap-1.5 text-xs font-bold text-red-700 mb-1"
+										>
+											<i
+												class="fa-solid fa-triangle-exclamation"
+											></i>
+											Fatigue Detected
+										</div>
+										<p
+											class="text-[10px] text-slate-600 font-thai leading-snug"
+										>
+											คนเห็นซ้ำเยอะ (Freq 4.2)
+											จนไม่คลิกแล้ว (CTR ร่วง).
+											ต้นทุนแพงสุดในแคมเปญ
+										</p>
+									</div>
+								</td>
+								<td
+									class="p-4 text-right font-medium text-slate-600"
+								>
+									฿8,500
+								</td>
+								<td
+									class="p-4 text-center font-medium text-slate-600"
+								>
+									46
+								</td>
+								<td class="p-4 text-right">
+									<span class="block font-bold text-red-600"
+										>฿185.00</span
+									>
+									<span
+										class="text-[10px] text-red-500 flex justify-end items-center gap-1"
+										><i
+											class="fa-solid fa-arrow-trend-up"
+										></i>
+										+22%</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-slate-500"
+										>1.8x</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span class="block font-medium text-red-500"
+										>0.85%</span
+									>
+								</td>
+								<td class="p-4 text-center align-middle">
+									<button
+										class="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded text-xs font-bold transition-colors"
+									>
+										Fix
+									</button>
+								</td>
+							</tr>
+
+							<!-- Row 2: The Warning (เปรียบเทียบ) -->
+							<tr
+								class="hover:bg-slate-50 transition-colors group"
+							>
+								<td class="p-4 align-top">
+									<div class="flex items-center gap-2 mb-1">
+										<span
+											class="w-2 h-2 rounded-full bg-amber-400"
+										></span>
+										<span class="font-bold text-slate-900"
+											>Broad_Interest_Tech</span
+										>
+									</div>
+									<div
+										class="text-[10px] text-slate-400 pl-4"
+									>
+										Active
+									</div>
+								</td>
+								<td class="p-4 align-top">
+									<div
+										class="bg-amber-50 border border-amber-100 rounded-lg p-2"
+									>
+										<div
+											class="flex items-center gap-1.5 text-xs font-bold text-amber-700 mb-1"
+										>
+											<i
+												class="fa-solid fa-money-bill-wave"
+											></i>
+											Cost Creeping
+										</div>
+										<p
+											class="text-[10px] text-slate-600 font-thai leading-snug"
+										>
+											เริ่มแพงขึ้นทีละนิด อาจต้องเช็ค Bid
+											Cap
+										</p>
+									</div>
+								</td>
+								<td
+									class="p-4 text-right font-medium text-slate-600"
+								>
+									฿12,200
+								</td>
+								<td
+									class="p-4 text-center font-medium text-slate-600"
+								>
+									110
+								</td>
+								<td class="p-4 text-right">
+									<span class="block font-bold text-amber-600"
+										>฿110.00</span
+									>
+									<span
+										class="text-[10px] text-amber-500 flex justify-end items-center gap-1"
+										><i
+											class="fa-solid fa-arrow-trend-up"
+										></i>
+										+5%</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-slate-700"
+										>2.4x</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-slate-700"
+										>1.2%</span
+									>
+								</td>
+								<td class="p-4 text-center align-middle">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<!-- Row 3: The Star (ตัวดี เอาไว้เทียบ Benchmark) -->
+							<tr
+								class="hover:bg-slate-50 transition-colors group bg-emerald-50/10"
+							>
+								<td class="p-4 align-top">
+									<div class="flex items-center gap-2 mb-1">
+										<span
+											class="w-2 h-2 rounded-full bg-emerald-500"
+										></span>
+										<span class="font-bold text-slate-900"
+											>LAL_1%_Purchasers</span
+										>
+									</div>
+									<div
+										class="text-[10px] text-slate-400 pl-4"
+									>
+										Active
+									</div>
+								</td>
+								<td class="p-4 align-top">
+									<div
+										class="bg-emerald-50 border border-emerald-100 rounded-lg p-2"
+									>
+										<div
+											class="flex items-center gap-1.5 text-xs font-bold text-emerald-700 mb-1"
+										>
+											<i class="fa-solid fa-crown"></i>
+											Top Performer
+										</div>
+										<p
+											class="text-[10px] text-slate-600 font-thai leading-snug"
+										>
+											Performance นิ่งมาก แนะนำให้ Scale
+											งบเพิ่ม
+										</p>
+									</div>
+								</td>
+								<td
+									class="p-4 text-right font-medium text-slate-600"
+								>
+									฿15,000
+								</td>
+								<td
+									class="p-4 text-center font-medium text-slate-600"
+								>
+									176
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-bold text-emerald-600"
+										>฿85.00</span
+									>
+									<span
+										class="text-[10px] text-emerald-500 flex justify-end items-center gap-1"
+										><i
+											class="fa-solid fa-arrow-trend-down"
+										></i>
+										-10%</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-bold text-emerald-600"
+										>4.1x</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-emerald-600"
+										>2.1%</span
+									>
+								</td>
+								<td class="p-4 text-center align-middle">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+
+							<!-- Row 4: Average -->
+							<tr
+								class="hover:bg-slate-50 transition-colors group"
+							>
+								<td class="p-4 align-top">
+									<div class="flex items-center gap-2 mb-1">
+										<span
+											class="w-2 h-2 rounded-full bg-slate-400"
+										></span>
+										<span class="font-bold text-slate-700"
+											>Interest_Competitors</span
+										>
+									</div>
+									<div
+										class="text-[10px] text-slate-400 pl-4"
+									>
+										Active
+									</div>
+								</td>
+								<td class="p-4 align-top">
+									<div
+										class="bg-slate-50 border border-slate-100 rounded-lg p-2 opacity-70"
+									>
+										<div
+											class="flex items-center gap-1.5 text-xs font-bold text-slate-500 mb-1"
+										>
+											<i class="fa-solid fa-minus"></i>
+											Stable
+										</div>
+										<p
+											class="text-[10px] text-slate-500 font-thai leading-snug"
+										>
+											ไม่มีความเปลี่ยนแปลงที่มีนัยสำคัญ
+										</p>
+									</div>
+								</td>
+								<td
+									class="p-4 text-right font-medium text-slate-600"
+								>
+									฿5,000
+								</td>
+								<td
+									class="p-4 text-center font-medium text-slate-600"
+								>
+									40
+								</td>
+								<td class="p-4 text-right">
+									<span class="block font-bold text-slate-700"
+										>฿125.00</span
+									>
+									<span
+										class="text-[10px] text-slate-400 flex justify-end items-center gap-1"
+										>0%</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-slate-700"
+										>2.5x</span
+									>
+								</td>
+								<td class="p-4 text-right">
+									<span
+										class="block font-medium text-slate-700"
+										>1.1%</span
+									>
+								</td>
+								<td class="p-4 text-center align-middle">
+									<button
+										class="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all"
+									>
+										<i
+											class="fa-solid fa-chevron-right"
+										></i>
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+				<!-- Quick Compare Tool (Optional but powerful) -->
+				<div class="bg-slate-50 border-t border-slate-200 p-4">
+					<div class="flex items-center gap-3 text-sm">
+						<span class="font-bold text-slate-700"
+							>AI Recommendation for Campaign:</span
+						>
+						<span class="text-slate-600 font-thai"
+							>ควรโยกงบจาก
+							<span class="text-red-600 font-bold"
+								>Retargeting_AddCart</span
+							>
+							(฿8,500) ไปใส่
+							<span class="text-emerald-600 font-bold"
+								>LAL_1%</span
+							>
+							แทน เพราะ CPA ถูกกว่า 50%</span
+						>
+					</div>
+				</div>
+			</div>
+		</main>
+	</body>
+</html>
