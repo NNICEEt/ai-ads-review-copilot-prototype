@@ -1,0 +1,92 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum EntityType {
+  CAMPAIGN
+  AD_GROUP
+  AD
+}
+
+enum CreativeType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  OTHER
+}
+
+enum EntityStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model Account {
+  id        String     @id @default(cuid())
+  name      String
+  campaigns Campaign[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Campaign {
+  id        String       @id @default(cuid())
+  accountId String
+  name      String
+  objective String
+  status    EntityStatus @default(ACTIVE)
+  account   Account      @relation(fields: [accountId], references: [id])
+  adGroups  AdGroup[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([accountId])
+}
+
+model AdGroup {
+  id         String       @id @default(cuid())
+  campaignId String
+  name       String
+  status     EntityStatus @default(ACTIVE)
+  campaign   Campaign     @relation(fields: [campaignId], references: [id])
+  ads        Ad[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([campaignId])
+}
+
+model Ad {
+  id           String       @id @default(cuid())
+  adGroupId    String
+  name         String
+  creativeKey  String?
+  creativeType CreativeType?
+  status       EntityStatus @default(ACTIVE)
+  adGroup      AdGroup      @relation(fields: [adGroupId], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([adGroupId])
+}
+
+model DailyMetric {
+  id          String     @id @default(cuid())
+  entityType  EntityType
+  entityId    String
+  date        DateTime   @db.Date
+  spend       Int
+  impressions Int
+  clicks      Int
+  results     Int
+  reach       Int?
+  revenue     Int?
+  createdAt   DateTime   @default(now())
+
+  @@unique([entityType, entityId, date])
+  @@index([entityType, entityId, date])
+}
