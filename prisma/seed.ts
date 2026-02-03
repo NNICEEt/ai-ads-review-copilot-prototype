@@ -12,7 +12,10 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is required to run the seed script.");
 }
 
-const pool = new Pool({ connectionString: databaseUrl });
+const sslRejectUnauthorized =
+  process.env.DATABASE_SSL_REJECT_UNAUTHORIZED?.toLowerCase() !== "false";
+const ssl = sslRejectUnauthorized ? undefined : { rejectUnauthorized: false };
+const pool = new Pool({ connectionString: databaseUrl, ssl });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

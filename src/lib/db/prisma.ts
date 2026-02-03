@@ -7,13 +7,17 @@ if (!databaseUrl) {
   throw new Error("DATABASE_URL is not set.");
 }
 
+const sslRejectUnauthorized =
+  process.env.DATABASE_SSL_REJECT_UNAUTHORIZED?.toLowerCase() !== "false";
+const ssl = sslRejectUnauthorized ? undefined : { rejectUnauthorized: false };
+
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
   pgPool?: Pool;
 };
 
 const pool =
-  globalForPrisma.pgPool ?? new Pool({ connectionString: databaseUrl });
+  globalForPrisma.pgPool ?? new Pool({ connectionString: databaseUrl, ssl });
 const adapter = new PrismaPg(pool);
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
