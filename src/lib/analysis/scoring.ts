@@ -82,7 +82,7 @@ export const diagnoseAdGroup = (params: {
     return {
       label: "Fatigue Detected",
       severity: "high",
-      reason: "High frequency and CTR drop with rising cost per result",
+      reason: "ความถี่สูง + CTR ลดลง พร้อมต้นทุนต่อผลลัพธ์สูงขึ้น",
     };
   }
 
@@ -90,7 +90,7 @@ export const diagnoseAdGroup = (params: {
     return {
       label: "Cost Creeping",
       severity: "med",
-      reason: "Cost per result trending upward",
+      reason: "ต้นทุนต่อผลลัพธ์มีแนวโน้มเพิ่มขึ้น",
     };
   }
 
@@ -98,7 +98,7 @@ export const diagnoseAdGroup = (params: {
     return {
       label: "Learning Limited",
       severity: "med",
-      reason: "Spend without enough results in learning phase",
+      reason: "มีการใช้จ่าย แต่ผลลัพธ์ยังไม่พอ (ช่วง Learning)",
     };
   }
 
@@ -109,13 +109,13 @@ export const diagnoseAdGroup = (params: {
     return {
       label: "Top Performer",
       severity: "low",
-      reason: "Strong efficiency vs target",
+      reason: "ประสิทธิภาพดีกว่าเป้าหมายอย่างชัดเจน",
     };
   }
 
   return {
     label: "Stable",
     severity: "low",
-    reason: "No significant anomalies detected",
+    reason: "ไม่พบความผิดปกติที่มีนัยสำคัญ",
   };
 };

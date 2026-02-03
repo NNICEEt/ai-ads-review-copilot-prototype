@@ -65,6 +65,15 @@ const issueIcon = (label: string) => {
   return "fa-solid fa-minus text-slate-400";
 };
 
+const diagnosisLabelTh = (label: string) => {
+  if (label === "Fatigue Detected") return "Creative Fatigue";
+  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น";
+  if (label === "Learning Limited") return "Learning จำกัด";
+  if (label === "Top Performer") return "ผลงานโดดเด่น";
+  if (label === "Stable") return "ปกติ";
+  return label;
+};
+
 const DashboardFiltersSkeleton = () => (
   <div className="flex flex-wrap gap-3 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200 animate-pulse">
     <div className="w-48">
@@ -109,10 +118,10 @@ const DashboardPrioritySkeleton = () => (
       <div>
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <i className="fa-solid fa-list-check text-blue-600"></i>
-          Priority Action List
+          รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับความสำคัญโดย AI อิงจาก Cost Efficiency และ Trend
+          จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
         </p>
       </div>
       <div className="flex gap-2 animate-pulse">
@@ -125,14 +134,12 @@ const DashboardPrioritySkeleton = () => (
       <table className="w-full text-left border-collapse">
         <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
           <tr className="text-slate-500 text-xs uppercase tracking-wider">
-            <th className="p-4 font-semibold w-20 text-center">Score</th>
-            <th className="p-4 font-semibold w-1/3">
-              Ad Group Name / Campaign
-            </th>
-            <th className="p-4 font-semibold w-1/4">Status / Issue</th>
-            <th className="p-4 font-semibold text-right">Cost/Res.</th>
-            <th className="p-4 font-semibold text-right">Trend</th>
-            <th className="p-4 font-semibold text-center w-20">Action</th>
+            <th className="p-4 font-semibold w-20 text-center">คะแนน</th>
+            <th className="p-4 font-semibold w-1/3">กลุ่มโฆษณา / แคมเปญ</th>
+            <th className="p-4 font-semibold w-1/4">สถานะ / ประเด็น</th>
+            <th className="p-4 font-semibold text-right">ต้นทุน/ผลลัพธ์</th>
+            <th className="p-4 font-semibold text-right">แนวโน้ม</th>
+            <th className="p-4 font-semibold text-center w-20">ดูรายละเอียด</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
@@ -172,8 +179,10 @@ const DashboardPrioritySkeleton = () => (
     </div>
 
     <div className="bg-slate-50 p-4 border-t border-slate-200 text-center text-xs text-slate-500">
-      Displaying top 5 priority items.
-      <span className="text-blue-600 font-bold ml-1 opacity-50">Load more</span>
+      แสดง 5 รายการสำคัญที่สุด
+      <span className="text-blue-600 font-bold ml-1 opacity-50">
+        ดูเพิ่มเติม
+      </span>
     </div>
   </div>
 );
@@ -229,13 +238,13 @@ const DashboardFilters = async ({
                 : "text-slate-500 hover:text-slate-800 hover:bg-white"
             }`}
           >
-            {days} Days
+            {days} วัน
           </a>
         ))}
       </div>
 
       <div className="flex items-center px-2 text-xs text-slate-400 font-medium">
-        vs Previous Period
+        เทียบช่วงก่อนหน้า
       </div>
     </div>
   );
@@ -253,7 +262,7 @@ const DashboardSummarySection = async ({
   if (!dashboard) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl p-6 text-slate-500 text-sm">
-        No account data available.
+        ไม่พบข้อมูลบัญชี
       </div>
     );
   }
@@ -265,41 +274,45 @@ const DashboardSummarySection = async ({
 
   const summaryCards = [
     {
-      label: "Amount Spent",
+      label: "ยอดใช้จ่าย",
       value: formatCurrency(dashboard.summary.spend.current ?? null),
       iconClass: "fa-solid fa-wallet",
       iconWrapperClass: "bg-blue-50 text-blue-600",
       trendPillClass: spendTrend.className,
       trendIconClass: spendTrend.iconClass,
       trendValue: spendTrend.label,
-      comparisonText: `vs ${formatCurrency(dashboard.summary.spend.previous ?? null)}`,
+      comparisonText: `เทียบกับ ${formatCurrency(dashboard.summary.spend.previous ?? null)}`,
     },
     {
-      label: "CPR (Cost/Res)",
+      label: "CPR (ต้นทุน/ผลลัพธ์)",
       value: formatCurrency(dashboard.summary.costPerResult.current ?? null),
       iconClass: "fa-solid fa-chart-line",
       iconWrapperClass: "bg-red-50 text-red-600",
       trendPillClass: cprTrend.className,
       trendIconClass: cprTrend.iconClass,
       trendValue: cprTrend.label,
-      comparisonText: `vs ${formatCurrency(dashboard.summary.costPerResult.previous ?? null)}`,
+      comparisonText: `เทียบกับ ${formatCurrency(dashboard.summary.costPerResult.previous ?? null)}`,
       accentBarClass: "bg-red-500",
       labelIconClass: "fa-solid fa-circle-info text-slate-300 text-[10px]",
     },
     {
-      label: "ROAS (Return)",
-      value: dashboard.summary.roas.current
-        ? `${dashboard.summary.roas.current.toFixed(1)}x`
-        : "N/A",
+      label: "ROAS (ผลตอบแทน)",
+      value:
+        dashboard.summary.roas.current != null
+          ? `${dashboard.summary.roas.current.toFixed(1)}x`
+          : "ไม่มีข้อมูล",
       iconClass: "fa-solid fa-sack-dollar",
       iconWrapperClass: "bg-emerald-50 text-emerald-600",
       trendPillClass: roasTrend.className,
       trendIconClass: roasTrend.iconClass,
       trendValue: roasTrend.label,
-      comparisonText: `vs ${dashboard.summary.roas.previous?.toFixed(1) ?? "N/A"}x`,
+      comparisonText:
+        dashboard.summary.roas.previous != null
+          ? `เทียบกับ ${dashboard.summary.roas.previous.toFixed(1)}x`
+          : "เทียบกับ ไม่มีข้อมูล",
     },
     {
-      label: "Total Results",
+      label: "ผลลัพธ์รวม",
       value: formatNumber(dashboard.summary.results.current ?? null),
       iconClass: "fa-solid fa-bullseye",
       iconWrapperClass: "bg-indigo-50 text-indigo-600",
@@ -307,7 +320,7 @@ const DashboardSummarySection = async ({
       trendIconClass: resultTrend.iconClass,
       trendValue: resultTrend.label,
       comparisonText:
-        dashboard.summary.results.percent === 0 ? "Stable" : "vs previous",
+        dashboard.summary.results.percent === 0 ? "คงที่" : "เทียบช่วงก่อนหน้า",
     },
   ];
 
@@ -350,7 +363,7 @@ const DashboardPrioritySection = async ({
           : "fa-solid fa-minus";
 
     const variant: "critical" | "warning" | "top" | "normal" =
-      item.label === "Needs attention"
+      item.label === SCORING_CONFIG.labels.needsAttention
         ? "critical"
         : item.diagnosis.label === "Cost Creeping"
           ? "warning"
@@ -365,11 +378,11 @@ const DashboardPrioritySection = async ({
       campaign: item.campaignName,
       campaignHref: `/campaign/${item.campaignId}?periodDays=${periodDays}`,
       issue: {
-        label: item.diagnosis.label,
+        label: diagnosisLabelTh(item.diagnosis.label),
         iconClass: issueIcon(item.diagnosis.label),
       },
       cost: formatCurrency(item.derived.costPerResult ?? null),
-      costSubLabel: `Target: ${formatCurrency(SCORING_CONFIG.thresholds.costPerResultTarget)}`,
+      costSubLabel: `เป้าหมาย: ${formatCurrency(SCORING_CONFIG.thresholds.costPerResultTarget)}`,
       trend: {
         value: `${trendPercent > 0 ? "+" : ""}${trendPercent}%`,
         iconClass: trendIcon,
@@ -377,12 +390,12 @@ const DashboardPrioritySection = async ({
       },
       statusLabel:
         variant === "critical"
-          ? "Needs Attention"
+          ? "ต้องแก้ไข"
           : variant === "warning"
-            ? "Warning"
+            ? "เฝ้าระวัง"
             : variant === "top"
-              ? "Top Performer"
-              : "Normal",
+              ? "ผลงานดี"
+              : "ปกติ",
       href: `/adgroup/${item.adGroupId}?periodDays=${periodDays}`,
     };
   });
@@ -409,10 +422,10 @@ export default async function Home({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Overview Dashboard
+              ภาพรวมแดชบอร์ด
             </h1>
             <p className="text-slate-500 text-sm mt-1 font-thai">
-              สรุปภาพรวมและจัดลำดับสิ่งที่ต้องปรับปรุง (Action-First)
+              สรุปภาพรวมและจัดลำดับสิ่งที่ต้องปรับปรุง (เน้นลงมือทำ)
             </p>
           </div>
           <Suspense fallback={<DashboardFiltersSkeleton />}>

@@ -36,7 +36,7 @@ const evidenceStyles = {
 };
 
 const formatEvidenceValue = (metricLabel: string, value: number | null) => {
-  if (value == null) return "N/A";
+  if (value == null) return "ไม่มีข้อมูล";
   if (metricLabel === "ROAS") return `${value.toFixed(1)}x`;
   if (metricLabel.includes("Rate") || metricLabel.includes("CTR")) {
     return `${(value * 100).toFixed(2)}%`;
@@ -61,15 +61,15 @@ export default async function AdGroupDetailPage({
       <div className="min-h-screen">
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white border border-slate-200 rounded-xl p-6 text-slate-500 text-sm">
-            Ad group not found.
+            ไม่พบกลุ่มโฆษณา
           </div>
         </main>
       </div>
     );
   }
 
-  const periodLabel = `Last ${detail.period.days} Days`;
-  const compareLabel = `vs Previous ${detail.period.days} Days`;
+  const periodLabel = `ย้อนหลัง ${detail.period.days} วัน`;
+  const compareLabel = `เทียบกับ ${detail.period.days} วันก่อนหน้า`;
   const costPercent = detail.costDelta.percent
     ? Math.round(detail.costDelta.percent * 100)
     : 0;
@@ -107,7 +107,7 @@ export default async function AdGroupDetailPage({
       ctr: `${(ctr * 100).toFixed(2)}%`,
       spend: formatCurrency(ad.totals.spend),
       variant,
-      recommendation: variant === "bad" ? "Pause" : undefined,
+      recommendation: variant === "bad" ? "หยุดโฆษณา" : undefined,
     };
   });
 
@@ -115,9 +115,9 @@ export default async function AdGroupDetailPage({
     <div className="min-h-screen">
       <ContextNavbar
         backHref={`/campaign/${detail.campaign.id}?periodDays=${detail.period.days}`}
-        backLabel="Back"
-        contextTop={`Campaign: ${detail.campaign.name}`}
-        contextMain={`Ad Group: ${detail.adGroup.name}`}
+        backLabel="กลับ"
+        contextTop={`แคมเปญ: ${detail.campaign.name}`}
+        contextMain={`กลุ่มโฆษณา: ${detail.adGroup.name}`}
         contextIconClass="fa-regular fa-folder-open text-slate-400"
         period={{
           label: periodLabel,
@@ -140,10 +140,10 @@ export default async function AdGroupDetailPage({
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
                 <i className="fa-solid fa-magnifying-glass-chart text-blue-500"></i>
-                Evidence-Based Diagnosis
+                สรุปจาก Evidence
               </h3>
               <span className="text-[10px] text-slate-400 font-medium">
-                Auto-generated from metrics
+                สรุปอัตโนมัติจากตัวเลข
               </span>
             </div>
 
@@ -170,11 +170,11 @@ export default async function AdGroupDetailPage({
                     iconClass={style.icon}
                     iconClassName={style.iconClass}
                     containerClass={style.container}
-                    prevText={`Prev: ${prevValue}`}
+                    prevText={`ก่อนหน้า: ${prevValue}`}
                     changePill={{
                       text:
                         slot.id === "E3" && slot.metricLabel === "Frequency"
-                          ? "High"
+                          ? "สูง"
                           : `${Math.abs(changePercent)}%`,
                       className: style.pillClass,
                       iconClass: style.pillIcon,
@@ -196,22 +196,22 @@ export default async function AdGroupDetailPage({
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
                 <i className="fa-solid fa-chart-area text-slate-400"></i>
-                Daily Trend
+                แนวโน้มรายวัน
               </h3>
               <div className="flex gap-2">
                 <span className="flex items-center gap-1 text-[10px] text-slate-500">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  Cost/Result
+                  ต้นทุน/ผลลัพธ์
                 </span>
                 <span className="flex items-center gap-1 text-[10px] text-slate-500">
                   <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                  Spend
+                  ยอดใช้จ่าย
                 </span>
               </div>
             </div>
             <div className="relative h-64 w-full bg-slate-50 rounded-lg border border-slate-100 p-2">
               <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
-                Chart placeholder
+                ตัวอย่างกราฟ (placeholder)
               </div>
             </div>
           </div>
@@ -219,10 +219,10 @@ export default async function AdGroupDetailPage({
           <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
             <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
               <h3 className="font-bold text-slate-900 text-sm">
-                Ads Performance
+                ประสิทธิภาพโฆษณา
               </h3>
               <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-medium">
-                6 Active
+                6 โฆษณาใช้งาน
               </span>
             </div>
 
@@ -240,7 +240,7 @@ export default async function AdGroupDetailPage({
 
             <div className="p-3 text-center border-t border-slate-100 mt-auto">
               <button className="text-xs text-blue-600 font-bold hover:underline">
-                View All 6 Ads
+                ดูโฆษณาทั้ง 6 รายการ
               </button>
             </div>
           </div>

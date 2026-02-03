@@ -30,18 +30,18 @@ export const PriorityList = ({ items }: PriorityListProps) => (
       <div>
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
           <i className="fa-solid fa-list-check text-blue-600"></i>
-          Priority Action List
+          รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับความสำคัญโดย AI อิงจาก Cost Efficiency และ Trend
+          จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
         </p>
       </div>
       <div className="flex gap-2">
         <button className="px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded hover:bg-slate-50 transition-colors">
-          <i className="fa-solid fa-filter mr-1"></i> Filter
+          <i className="fa-solid fa-filter mr-1"></i> ตัวกรอง
         </button>
         <button className="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 rounded hover:bg-blue-100 transition-colors">
-          View All
+          ดูทั้งหมด
         </button>
       </div>
     </div>
@@ -50,14 +50,12 @@ export const PriorityList = ({ items }: PriorityListProps) => (
       <table className="w-full text-left border-collapse">
         <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
           <tr className="text-slate-500 text-xs uppercase tracking-wider">
-            <th className="p-4 font-semibold w-20 text-center">Score</th>
-            <th className="p-4 font-semibold w-1/3">
-              Ad Group Name / Campaign
-            </th>
-            <th className="p-4 font-semibold w-1/4">Status / Issue</th>
-            <th className="p-4 font-semibold text-right">Cost/Res.</th>
-            <th className="p-4 font-semibold text-right">Trend</th>
-            <th className="p-4 font-semibold text-center w-20">Action</th>
+            <th className="p-4 font-semibold w-20 text-center">คะแนน</th>
+            <th className="p-4 font-semibold w-1/3">กลุ่มโฆษณา / แคมเปญ</th>
+            <th className="p-4 font-semibold w-1/4">สถานะ / ประเด็น</th>
+            <th className="p-4 font-semibold text-right">ต้นทุน/ผลลัพธ์</th>
+            <th className="p-4 font-semibold text-right">แนวโน้ม</th>
+            <th className="p-4 font-semibold text-center w-20">ดูรายละเอียด</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
@@ -69,7 +67,7 @@ export const PriorityList = ({ items }: PriorityListProps) => (
                 colSpan={6}
                 className="p-10 text-center text-slate-400 text-sm"
               >
-                No priority items for this period.
+                ไม่มีรายการที่ต้องจัดลำดับในช่วงเวลานี้
               </td>
             </tr>
           )}
@@ -78,9 +76,9 @@ export const PriorityList = ({ items }: PriorityListProps) => (
     </div>
 
     <div className="bg-slate-50 p-4 border-t border-slate-200 text-center text-xs text-slate-500">
-      Displaying top 5 priority items.
+      แสดง 5 รายการสำคัญที่สุด
       <button className="text-blue-600 font-bold hover:underline ml-1">
-        Load more
+        ดูเพิ่มเติม
       </button>
     </div>
   </div>

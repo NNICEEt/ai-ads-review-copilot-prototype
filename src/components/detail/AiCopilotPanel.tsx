@@ -105,7 +105,7 @@ const fallbackInsights: AiInsightItem[] = [
     ...insightStyles.high,
   },
   {
-    title: "Cost Efficiency Dropped",
+    title: "ประสิทธิภาพต้นทุนลดลง",
     detail: (
       <>
         Cost per Result เพิ่มขึ้น{" "}
@@ -119,17 +119,17 @@ const fallbackInsights: AiInsightItem[] = [
 
 const fallbackRecommendations: AiRecommendationItem[] = [
   {
-    title: "Refresh Creative Assets",
+    title: "รีเฟรชครีเอทีฟ (Creative)",
     detail: (
       <>
-        แนะนำให้ <u>หยุด (Pause)</u> Ads ที่ CTR ต่ำกว่า 0.6% และทดสอบ Creative
-        ใหม่อย่างน้อย 2–3 ชิ้น
+        แนะนำให้ <u>หยุดโฆษณา (Pause)</u> Ads ที่ CTR ต่ำกว่า 0.6% และทดสอบ
+        Creative ใหม่อย่างน้อย 2–3 ชิ้น
       </>
     ),
     ...recommendationStyles.high,
   },
   {
-    title: "Expand Audience",
+    title: "ขยายกลุ่มเป้าหมาย (Audience)",
     detail: (
       <>
         พิจารณาขยาย LAL จาก 1% เป็น 3% หรือเพิ่ม Interest
@@ -150,12 +150,12 @@ const statusMetaFromResult = (
   }
 
   return params.status === "ok"
-    ? { label: "Ready", dot: "bg-green-400" }
+    ? { label: "พร้อมใช้งาน", dot: "bg-green-400" }
     : params.status === "partial"
-      ? { label: "Partial", dot: "bg-amber-400" }
+      ? { label: "บางส่วน", dot: "bg-amber-400" }
       : params.status === "disabled"
-        ? { label: "Disabled", dot: "bg-slate-400" }
-        : { label: "Fallback", dot: "bg-amber-400" };
+        ? { label: "ปิดใช้งาน", dot: "bg-slate-400" }
+        : { label: "โหมดสำรอง", dot: "bg-amber-400" };
 };
 
 const SkeletonLine = ({ className }: { className: string }) => (
@@ -251,7 +251,7 @@ export const AiCopilotPanel = ({
       return "กำลังวิเคราะห์ evidence เพื่อสรุป insight และคำแนะนำ…";
     return (
       result?.insight?.insightSummary ??
-      "Analyzing patterns from evidence to actionable advice"
+      "สรุปจาก evidence เพื่อหา insight และคำแนะนำที่ทำได้ทันที"
     );
   }, [isLoading, result]);
 
@@ -286,7 +286,7 @@ export const AiCopilotPanel = ({
   const aiFooterText = useMemo(() => {
     if (isLoading) return "กำลังวิเคราะห์…";
     if (result?.status === "ok") {
-      return "AI generated suggestions based on metrics snapshot. Please review before applying.";
+      return "คำแนะนำนี้สร้างโดย AI จากภาพรวมตัวเลข โปรดตรวจสอบก่อนนำไปใช้";
     }
     return "ไม่สามารถสร้างสรุป AI ได้ในขณะนี้ (แสดงผลจาก deterministic logic เท่านั้น)";
   }, [isLoading, result]);
@@ -307,7 +307,7 @@ export const AiCopilotPanel = ({
           <div>
             <h3 className="flex items-center gap-2 text-lg font-bold text-indigo-900">
               <i className="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
-              AI Copilot Analysis
+              AI Copilot วิเคราะห์
             </h3>
             <p className="text-xs text-indigo-600/70 mt-0.5 font-medium ml-7">
               {aiSubtitle}
@@ -329,7 +329,7 @@ export const AiCopilotPanel = ({
               onClick={refresh}
               disabled={isLoading}
               className="text-indigo-400 hover:text-indigo-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Refresh AI analysis"
+              aria-label="รีเฟรชการวิเคราะห์ AI"
             >
               <i className="fa-solid fa-rotate-right"></i>
             </button>
@@ -354,7 +354,7 @@ export const AiCopilotPanel = ({
               <span className="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
                 1
               </span>
-              Situation Analysis
+              สรุปสถานการณ์
             </h4>
             <ul className="space-y-3">
               {aiInsights
@@ -387,7 +387,7 @@ export const AiCopilotPanel = ({
               <span className="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
                 2
               </span>
-              Actionable Recommendations
+              คำแนะนำที่ทำได้ทันที
             </h4>
             <ul className="space-y-3">
               {aiRecommendations

@@ -60,12 +60,12 @@ export const AdsPerformanceItem = ({
         <i className="fa-solid fa-arrow-pointer text-slate-300"></i>
         CTR: <span className={ctrStyles[variant]}>{ctr}</span>
       </span>
-      <span>Spent: {spend}</span>
+      <span>ใช้ไป: {spend}</span>
     </div>
     {recommendation ? (
       <div className="pl-8 mt-1 text-[9px] text-red-400 hidden group-hover:block transition-all">
         <i className="fa-solid fa-circle-xmark mr-1"></i>
-        Recommendation: {recommendation}
+        คำแนะนำ: {recommendation}
       </div>
     ) : null}
   </div>

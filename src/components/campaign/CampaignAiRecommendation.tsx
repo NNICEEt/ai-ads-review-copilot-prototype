@@ -11,7 +11,7 @@ type CampaignAiRecommendationProps = {
 
 const LOADING_MESSAGES = [
   "กำลังวิเคราะห์แนวโน้มค่าใช้จ่าย (Spend) และผลลัพธ์ (Results)…",
-  "กำลังเทียบ CPA/CPR ระหว่าง Ad Group…",
+  "กำลังเทียบ CPA/CPR ระหว่างกลุ่มโฆษณา…",
   "กำลังหาโอกาสโยกงบไปยังกลุ่มที่คุ้มค่ากว่า…",
 ] as const;
 

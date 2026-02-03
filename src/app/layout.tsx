@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI Ads Review Copilot",
-  description: "Action-first dashboard for ad performance review",
+  description: "แดชบอร์ดวิเคราะห์ผลโฆษณาแบบเน้นลงมือทำ สำหรับทีมซื้อสื่อ",
 };
 
 export default function RootLayout({

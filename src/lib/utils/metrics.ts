@@ -14,7 +14,7 @@ export const toCurrency = (value: number | null, decimals = 2) => {
 };
 
 export const formatCurrency = (value: number | null, currency = "THB") => {
-  if (value === null) return "N/A";
+  if (value === null) return "ไม่มีข้อมูล";
   return new Intl.NumberFormat("th-TH", {
     style: "currency",
     currency,
@@ -24,6 +24,6 @@ export const formatCurrency = (value: number | null, currency = "THB") => {
 };
 
 export const formatNumber = (value: number | null) => {
-  if (value === null) return "N/A";
+  if (value === null) return "ไม่มีข้อมูล";
   return new Intl.NumberFormat("th-TH").format(value);
 };

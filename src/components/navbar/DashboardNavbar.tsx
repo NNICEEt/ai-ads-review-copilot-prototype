@@ -21,15 +21,13 @@ export const DashboardNavbar = () => (
           <div className="h-6 w-px bg-slate-200"></div>
           <div className="flex items-center gap-3">
             <div className="hidden md:flex flex-col items-end text-sm">
-              <span className="font-medium text-slate-900">
-                Media Buyer Team
-              </span>
-              <span className="text-slate-500 text-xs">Admin Access</span>
+              <span className="font-medium text-slate-900">Media Team</span>
+              <span className="text-slate-500 text-xs">สิทธิ์แอดมิน</span>
             </div>
             <div className="w-9 h-9 rounded-full bg-slate-200 overflow-hidden border border-slate-300 shadow-sm">
               <Image
                 src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-                alt="User"
+                alt="ผู้ใช้"
                 width={36}
                 height={36}
                 className="w-full h-full object-cover"

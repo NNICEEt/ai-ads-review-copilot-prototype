@@ -25,7 +25,7 @@ export const ScoreBadge = ({
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center justify-center text-center relative overflow-hidden">
       <div className="absolute top-0 right-0 p-3">
         <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 uppercase tracking-wide">
-          Priority Score
+          คะแนนความสำคัญ
         </span>
       </div>
 

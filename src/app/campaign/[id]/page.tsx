@@ -53,20 +53,29 @@ const diagnosisStyles = (label: string) => {
   };
 };
 
+const diagnosisLabelTh = (label: string) => {
+  if (label === "Fatigue Detected") return "Creative Fatigue";
+  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น";
+  if (label === "Learning Limited") return "Learning จำกัด";
+  if (label === "Top Performer") return "ผลงานโดดเด่น";
+  if (label === "Stable") return "ปกติ";
+  return label;
+};
+
 const CampaignBreakdownSkeleton = () => (
   <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-pulse">
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr className="text-slate-500 text-xs uppercase tracking-wider text-right">
-            <th className="p-4 text-left w-1/4">Ad Group Name</th>
-            <th className="p-4 text-left w-1/4">AI Diagnosis (Insight)</th>
-            <th className="p-4">Spend</th>
-            <th className="p-4 text-center">Results</th>
-            <th className="p-4">CPR (Cost)</th>
+            <th className="p-4 text-left w-1/4">ชื่อกลุ่มโฆษณา</th>
+            <th className="p-4 text-left w-1/4">AI วิเคราะห์ (Insight)</th>
+            <th className="p-4">ยอดใช้จ่าย</th>
+            <th className="p-4 text-center">ผลลัพธ์</th>
+            <th className="p-4">CPR</th>
             <th className="p-4">ROAS</th>
             <th className="p-4">CTR</th>
-            <th className="p-4 text-center">Action</th>
+            <th className="p-4 text-center">ดูรายละเอียด</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
@@ -111,7 +120,7 @@ const CampaignBreakdownSkeleton = () => (
     <div className="bg-slate-50 border-t border-slate-200 p-4">
       <div className="flex items-center gap-3 text-sm">
         <span className="font-bold text-slate-700">
-          AI Recommendation for Campaign:
+          คำแนะนำจาก AI สำหรับแคมเปญ:
         </span>
         <SkeletonBlock className="h-3 w-96 max-w-full" />
       </div>
@@ -131,9 +140,9 @@ const CampaignNavbar = async ({
   return (
     <ContextNavbar
       backHref="/"
-      backLabel="Back to Dashboard"
-      contextTop={`Account: ${accountName}`}
-      contextMain={`Campaign: ${campaignName}`}
+      backLabel="กลับสู่แดชบอร์ด"
+      contextTop={`บัญชี: ${accountName}`}
+      contextMain={`แคมเปญ: ${campaignName}`}
       contextIconClass="fa-solid fa-layer-group text-blue-600"
     />
   );
@@ -151,7 +160,7 @@ const CampaignBreakdownCard = async ({
   if (!data.campaign) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl p-6 text-slate-500 text-sm">
-        Campaign not found.
+        ไม่พบแคมเปญ
       </div>
     );
   }
@@ -181,14 +190,14 @@ const CampaignBreakdownCard = async ({
         <table className="w-full text-left border-collapse">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr className="text-slate-500 text-xs uppercase tracking-wider text-right">
-              <th className="p-4 text-left w-1/4">Ad Group Name</th>
-              <th className="p-4 text-left w-1/4">AI Diagnosis (Insight)</th>
-              <th className="p-4">Spend</th>
-              <th className="p-4 text-center">Results</th>
-              <th className="p-4">CPR (Cost)</th>
+              <th className="p-4 text-left w-1/4">ชื่อกลุ่มโฆษณา</th>
+              <th className="p-4 text-left w-1/4">AI วิเคราะห์ (Insight)</th>
+              <th className="p-4">ยอดใช้จ่าย</th>
+              <th className="p-4 text-center">ผลลัพธ์</th>
+              <th className="p-4">CPR</th>
               <th className="p-4">ROAS</th>
               <th className="p-4">CTR</th>
-              <th className="p-4 text-center">Action</th>
+              <th className="p-4 text-center">ดูรายละเอียด</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-sm">
@@ -218,7 +227,7 @@ const CampaignBreakdownCard = async ({
                         </span>
                       </div>
                       <div className="text-[10px] text-slate-400 pl-4">
-                        Active
+                        ใช้งานอยู่
                       </div>
                     </td>
                     <td className="p-4 align-top">
@@ -227,7 +236,7 @@ const CampaignBreakdownCard = async ({
                           className={`flex items-center gap-1.5 text-xs font-bold mb-1 ${styles.text}`}
                         >
                           <i className={styles.icon}></i>
-                          {group.diagnosis.label}
+                          {diagnosisLabelTh(group.diagnosis.label)}
                         </div>
                         <p className="text-[10px] text-slate-600 font-thai leading-snug">
                           {group.diagnosis.reason}
@@ -254,32 +263,24 @@ const CampaignBreakdownCard = async ({
                       <span className="block font-medium text-slate-700">
                         {group.derived.roas
                           ? `${group.derived.roas.toFixed(1)}x`
-                          : "N/A"}
+                          : "ไม่มีข้อมูล"}
                       </span>
                     </td>
                     <td className="p-4 text-right">
                       <span className="block font-medium text-slate-700">
                         {group.derived.ctr
                           ? `${(group.derived.ctr * 100).toFixed(2)}%`
-                          : "N/A"}
+                          : "ไม่มีข้อมูล"}
                       </span>
                     </td>
                     <td className="p-4 text-center align-middle">
-                      {group.diagnosis.label === "Fatigue Detected" ? (
-                        <a
-                          href={`/adgroup/${group.id}?periodDays=${data.period.days}`}
-                          className="text-blue-600 hover:bg-blue-50 px-3 py-1.5 rounded text-xs font-bold transition-colors"
-                        >
-                          Fix
-                        </a>
-                      ) : (
-                        <a
-                          href={`/adgroup/${group.id}?periodDays=${data.period.days}`}
-                          className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all inline-flex items-center justify-center"
-                        >
-                          <i className="fa-solid fa-chevron-right"></i>
-                        </a>
-                      )}
+                      <a
+                        href={`/adgroup/${group.id}?periodDays=${data.period.days}`}
+                        className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all inline-flex items-center justify-center"
+                        aria-label="ดูรายละเอียด"
+                      >
+                        <i className="fa-solid fa-chevron-right"></i>
+                      </a>
                     </td>
                   </tr>
                 );
@@ -290,7 +291,7 @@ const CampaignBreakdownCard = async ({
                   colSpan={8}
                   className="p-10 text-center text-slate-400 text-sm font-thai"
                 >
-                  ยังไม่มีข้อมูล Ad Group สำหรับแคมเปญนี้
+                  ยังไม่มีข้อมูลกลุ่มโฆษณาสำหรับแคมเปญนี้
                 </td>
               </tr>
             )}
@@ -301,7 +302,7 @@ const CampaignBreakdownCard = async ({
       <div className="bg-slate-50 border-t border-slate-200 p-4">
         <div className="flex items-center gap-3 text-sm">
           <span className="font-bold text-slate-700">
-            AI Recommendation for Campaign:
+            คำแนะนำจาก AI สำหรับแคมเปญ:
           </span>
           <CampaignAiRecommendation
             key={`${data.campaign.id}:${fromAdGroup?.id ?? "none"}:${toAdGroup?.id ?? "none"}:${improvementPercent ?? "none"}`}
@@ -335,9 +336,9 @@ export default async function CampaignDetailPage({
         fallback={
           <ContextNavbar
             backHref="/"
-            backLabel="Back to Dashboard"
-            contextTop="Account: Loading…"
-            contextMain="Campaign: Loading…"
+            backLabel="กลับสู่แดชบอร์ด"
+            contextTop="บัญชี: กำลังโหลด…"
+            contextMain="แคมเปญ: กำลังโหลด…"
             contextIconClass="fa-solid fa-layer-group text-blue-600"
           />
         }
@@ -349,7 +350,7 @@ export default async function CampaignDetailPage({
         <div className="flex flex-col md:flex-row gap-4 mb-6 items-end justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900">
-              Ad Group Comparison
+              เปรียบเทียบกลุ่มโฆษณา
             </h1>
             <p className="text-sm text-slate-500 font-thai">
               เปรียบเทียบประสิทธิภาพรายกลุ่มเป้าหมาย
@@ -357,12 +358,12 @@ export default async function CampaignDetailPage({
           </div>
           <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex items-center text-sm">
             <span className="px-3 py-1 text-slate-500 font-medium border-r border-slate-100">
-              Sort by:
+              จัดเรียง:
             </span>
             <select className="appearance-none bg-transparent py-1 pl-2 pr-6 focus:outline-none font-bold text-slate-700 cursor-pointer">
-              <option>CPA (High to Low)</option>
-              <option>ROAS (Low to High)</option>
-              <option>Spend (High to Low)</option>
+              <option>CPA (มาก → น้อย)</option>
+              <option>ROAS (น้อย → มาก)</option>
+              <option>ยอดใช้จ่าย (มาก → น้อย)</option>
             </select>
             <i className="fa-solid fa-chevron-down text-xs text-slate-400 -ml-4 mr-2 pointer-events-none"></i>
           </div>

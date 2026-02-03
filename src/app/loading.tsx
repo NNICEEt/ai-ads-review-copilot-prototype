@@ -12,10 +12,10 @@ export default function Loading() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              Overview Dashboard
+              ภาพรวมแดชบอร์ด
             </h1>
             <p className="text-slate-500 text-sm mt-1 font-thai">
-              สรุปภาพรวมและจัดลำดับสิ่งที่ต้องปรับปรุง (Action-First)
+              สรุปภาพรวมและจัดลำดับสิ่งที่ต้องปรับปรุง (เน้นลงมือทำ)
             </p>
           </div>
 
@@ -59,10 +59,10 @@ export default function Loading() {
             <div>
               <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-list-check text-blue-600"></i>
-                Priority Action List
+                รายการสิ่งที่ต้องทำก่อน
               </h2>
               <p className="text-xs text-slate-500 mt-1 font-thai">
-                จัดลำดับความสำคัญโดย AI อิงจาก Cost Efficiency และ Trend
+                จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
               </p>
             </div>
             <div className="flex gap-2 animate-pulse">
@@ -75,14 +75,18 @@ export default function Loading() {
             <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 sticky top-0 z-10 shadow-sm">
                 <tr className="text-slate-500 text-xs uppercase tracking-wider">
-                  <th className="p-4 font-semibold w-20 text-center">Score</th>
+                  <th className="p-4 font-semibold w-20 text-center">คะแนน</th>
                   <th className="p-4 font-semibold w-1/3">
-                    Ad Group Name / Campaign
+                    กลุ่มโฆษณา / แคมเปญ
                   </th>
-                  <th className="p-4 font-semibold w-1/4">Status / Issue</th>
-                  <th className="p-4 font-semibold text-right">Cost/Res.</th>
-                  <th className="p-4 font-semibold text-right">Trend</th>
-                  <th className="p-4 font-semibold text-center w-20">Action</th>
+                  <th className="p-4 font-semibold w-1/4">สถานะ / ประเด็น</th>
+                  <th className="p-4 font-semibold text-right">
+                    ต้นทุน/ผลลัพธ์
+                  </th>
+                  <th className="p-4 font-semibold text-right">แนวโน้ม</th>
+                  <th className="p-4 font-semibold text-center w-20">
+                    ดูรายละเอียด
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -125,9 +129,9 @@ export default function Loading() {
           </div>
 
           <div className="bg-slate-50 p-4 border-t border-slate-200 text-center text-xs text-slate-500">
-            Displaying top 5 priority items.
+            แสดง 5 รายการสำคัญที่สุด
             <span className="text-blue-600 font-bold ml-1 opacity-50">
-              Load more
+              ดูเพิ่มเติม
             </span>
           </div>
         </div>

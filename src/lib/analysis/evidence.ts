@@ -40,13 +40,13 @@ export const buildEvidenceSlots = ({
   return [
     {
       id: "E1",
-      title: useRoas ? "Cost Efficiency (ROAS)" : "Cost Efficiency",
+      title: useRoas ? "ประสิทธิภาพต้นทุน (ROAS)" : "ประสิทธิภาพต้นทุน",
       metricLabel: useRoas ? "ROAS" : "Cost per Result",
       value: e1Value,
     },
     {
       id: "E2",
-      title: "Audience Quality",
+      title: "คุณภาพกลุ่มเป้าหมาย",
       metricLabel: useConversion ? "Conversion Rate" : "CTR",
       value: e2Value,
     },

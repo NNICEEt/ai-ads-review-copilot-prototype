@@ -13,6 +13,14 @@ type EvidenceSlotProps = {
   };
 };
 
+const metricLabelTh = (label: string) => {
+  if (label === "Cost per Result") return "ต้นทุนต่อผลลัพธ์";
+  if (label === "Conversion Rate") return "อัตรา Conversion";
+  if (label === "Frequency") return "ความถี่";
+  if (label === "CTR Trend") return "แนวโน้ม CTR";
+  return label;
+};
+
 export const EvidenceSlot = ({
   title,
   value,
@@ -34,7 +42,7 @@ export const EvidenceSlot = ({
         <i className={`${iconClass} ${iconClassName}`}></i>
       </div>
       <div className="text-2xl font-bold text-slate-900 mt-1">{value}</div>
-      <div className="text-xs text-slate-500">{metricLabel}</div>
+      <div className="text-xs text-slate-500">{metricLabelTh(metricLabel)}</div>
     </div>
     <div className="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-between">
       <span className="text-[10px] text-slate-400">{prevText}</span>

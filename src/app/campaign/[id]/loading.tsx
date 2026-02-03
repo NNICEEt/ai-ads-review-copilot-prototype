@@ -9,16 +9,16 @@ export default function Loading() {
     <div className="min-h-screen">
       <ContextNavbar
         backHref="/"
-        backLabel="Back to Dashboard"
-        contextTop="Account: Loading…"
-        contextMain="Campaign: Loading…"
+        backLabel="กลับสู่แดชบอร์ด"
+        contextTop="บัญชี: กำลังโหลด…"
+        contextMain="แคมเปญ: กำลังโหลด…"
         contextIconClass="fa-solid fa-layer-group text-blue-600"
       />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row gap-4 mb-6 items-end justify-between">
           <div>
             <h1 className="text-xl font-bold text-slate-900">
-              Ad Group Comparison
+              เปรียบเทียบกลุ่มโฆษณา
             </h1>
             <p className="text-sm text-slate-500 font-thai">
               เปรียบเทียบประสิทธิภาพรายกลุ่มเป้าหมาย
@@ -34,16 +34,16 @@ export default function Loading() {
             <table className="w-full text-left border-collapse">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr className="text-slate-500 text-xs uppercase tracking-wider text-right">
-                  <th className="p-4 text-left w-1/4">Ad Group Name</th>
+                  <th className="p-4 text-left w-1/4">ชื่อกลุ่มโฆษณา</th>
                   <th className="p-4 text-left w-1/4">
-                    AI Diagnosis (Insight)
+                    AI วิเคราะห์ (Insight)
                   </th>
-                  <th className="p-4">Spend</th>
-                  <th className="p-4 text-center">Results</th>
-                  <th className="p-4">CPR (Cost)</th>
+                  <th className="p-4">ยอดใช้จ่าย</th>
+                  <th className="p-4 text-center">ผลลัพธ์</th>
+                  <th className="p-4">CPR</th>
                   <th className="p-4">ROAS</th>
                   <th className="p-4">CTR</th>
-                  <th className="p-4 text-center">Action</th>
+                  <th className="p-4 text-center">ดูรายละเอียด</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-sm">
@@ -88,7 +88,7 @@ export default function Loading() {
           <div className="bg-slate-50 border-t border-slate-200 p-4">
             <div className="flex items-center gap-3 text-sm">
               <span className="font-bold text-slate-700">
-                AI Recommendation for Campaign:
+                คำแนะนำจาก AI สำหรับแคมเปญ:
               </span>
               <SkeletonBlock className="h-3 w-96 max-w-full" />
             </div>

@@ -360,6 +360,6 @@ export const getAdGroupDetail = async (params: {
 
 export const percentText = (value: number | null, decimals = 0) => {
   const percent = formatPercent(value, decimals);
-  if (percent == null) return "N/A";
+  if (percent == null) return "ไม่มีข้อมูล";
   return `${percent}%`;
 };

@@ -18,8 +18,8 @@ export const SCORING_CONFIG = {
     labelNeedsAttention: 50,
   },
   labels: {
-    top: "Top",
-    normal: "Normal",
-    needsAttention: "Needs attention",
+    top: "ผลงานดี",
+    normal: "ปกติ",
+    needsAttention: "ต้องแก้ไข",
   },
 };

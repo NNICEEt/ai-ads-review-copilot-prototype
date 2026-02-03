@@ -62,10 +62,10 @@ const variantStyles: Record<
 };
 
 const statusLabelByVariant: Record<PriorityVariant, string> = {
-  critical: "Needs Attention",
-  warning: "Warning",
-  top: "Top Performer",
-  normal: "Normal",
+  critical: "ต้องแก้ไข",
+  warning: "เฝ้าระวัง",
+  top: "ผลงานดี",
+  normal: "ปกติ",
 };
 
 export const PriorityRow = ({
@@ -92,7 +92,7 @@ export const PriorityRow = ({
           {name}
         </div>
         <div className="text-xs text-slate-400 mt-0.5">
-          <i className="fa-solid fa-folder-open mr-1"></i>Campaign:{" "}
+          <i className="fa-solid fa-folder-open mr-1"></i>แคมเปญ:{" "}
           {campaignHref ? (
             <Link
               href={campaignHref}
