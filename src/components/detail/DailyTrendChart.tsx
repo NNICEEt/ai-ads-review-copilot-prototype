@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { DerivedMetrics, Totals } from "@/lib/types/canonical";
 import { formatCurrency } from "@/lib/utils/metrics";
 
@@ -47,6 +50,8 @@ const buildLinePath = (points: Array<{ x: number; y: number }>) => {
 };
 
 export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   if (!rows.length) {
     return (
       <div className="h-full w-full flex items-center justify-center text-xs text-slate-500 font-thai">
@@ -192,6 +197,7 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
           const spendLabel = formatCurrency(row?.totals.spend ?? null);
           const resultLabel = row?.totals.results ?? 0;
           const dateLabel = formatDayLabel(point.date);
+          const isActive = hoveredIndex === index;
 
           const tooltipLines = [
             dateLabel,
@@ -199,6 +205,7 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
             `ผลลัพธ์: ${resultLabel}`,
             `ใช้จ่าย: ${spendLabel}`,
           ];
+          const titleText = tooltipLines.join("\n");
           const longestLine = tooltipLines.reduce(
             (max, line) => Math.max(max, line.length),
             0,
@@ -215,16 +222,31 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
             point.y + (isNearTopEdge ? 12 : -(tooltipHeight + 12));
 
           return (
-            <g key={`point-${point.date}`}>
+            <g
+              key={`point-${point.date}`}
+              onPointerEnter={() => setHoveredIndex(index)}
+              onPointerLeave={() => {
+                setHoveredIndex((current) =>
+                  current === index ? null : current,
+                );
+              }}
+              onClick={() => {
+                setHoveredIndex((current) =>
+                  current === index ? null : index,
+                );
+              }}
+              className="cursor-pointer"
+            >
               <circle
                 cx={point.x}
                 cy={point.y}
                 r="12"
                 fill="#000"
                 fillOpacity="0"
-                className="peer cursor-pointer"
                 pointerEvents="all"
-              />
+              >
+                <title>{titleText}</title>
+              </circle>
               <circle
                 cx={point.x}
                 cy={point.y}
@@ -240,14 +262,14 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
                 cy={point.y}
                 r="7"
                 fill="#3B82F6"
-                opacity="0"
-                className="peer-hover:opacity-20 transition-opacity"
+                opacity={isActive ? 0.2 : 0}
+                className="transition-opacity"
                 pointerEvents="none"
               />
 
               <g
                 transform={`translate(${tooltipX} ${tooltipY})`}
-                className="opacity-0 peer-hover:opacity-100 transition-opacity duration-150 pointer-events-none"
+                className={`transition-opacity duration-150 pointer-events-none ${isActive ? "opacity-100" : "opacity-0"}`}
               >
                 <rect
                   width={tooltipWidth}

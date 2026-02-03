@@ -1,3 +1,5 @@
+"use client";
+
 type AdsPerformanceItemProps = {
   typeLabel: string;
   name: string;
@@ -6,6 +8,7 @@ type AdsPerformanceItemProps = {
   spend: string;
   variant: "bad" | "good" | "average";
   recommendation?: string;
+  onClick?: () => void;
 };
 
 const variantStyles = {
@@ -34,9 +37,17 @@ export const AdsPerformanceItem = ({
   spend,
   variant,
   recommendation,
+  onClick,
 }: AdsPerformanceItemProps) => (
   <div
     className={`p-3 transition-colors cursor-pointer group ${variantStyles[variant]}`}
+    role="button"
+    tabIndex={0}
+    onClick={onClick}
+    onKeyDown={(event) => {
+      if (!onClick) return;
+      if (event.key === "Enter" || event.key === " ") onClick();
+    }}
   >
     <div className="flex justify-between items-start mb-1">
       <div className="flex items-center gap-2 overflow-hidden">
@@ -60,7 +71,10 @@ export const AdsPerformanceItem = ({
         <i className="fa-solid fa-arrow-pointer text-slate-500"></i>
         CTR: <span className={ctrStyles[variant]}>{ctr}</span>
       </span>
-      <span>ใช้ไป: {spend}</span>
+      <span className="inline-flex items-center gap-1">
+        ใช้ไป: {spend}
+        <i className="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+      </span>
     </div>
     {recommendation ? (
       <div className="pl-8 mt-1 text-[9px] text-red-400 hidden group-hover:block transition-all">

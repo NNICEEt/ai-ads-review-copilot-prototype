@@ -70,7 +70,11 @@ const buildMockDb = (): MockDb => {
     id: "acc_7eleven_th",
     name: "7-Eleven Thailand (7Delivery)",
   };
-  const accounts = [account];
+  const account2: AccountRow = {
+    id: "acc_lotus_th",
+    name: "Lotus's Thailand (Online)",
+  };
+  const accounts = [account, account2];
 
   const campaigns: CampaignWithAccountRow[] = [
     {
@@ -120,6 +124,22 @@ const buildMockDb = (): MockDb => {
       objective: "TRAFFIC",
       status: "ACTIVE",
       account,
+    },
+    {
+      id: "camp_lotus_ao_purchase",
+      accountId: account2.id,
+      name: "Always-on | Lotus's Online | Purchase (Prospecting)",
+      objective: "SALES",
+      status: "ACTIVE",
+      account: account2,
+    },
+    {
+      id: "camp_lotus_rt_purchase",
+      accountId: account2.id,
+      name: "Always-on | Lotus's Online | Retargeting (VC/ATC)",
+      objective: "SALES",
+      status: "ACTIVE",
+      account: account2,
     },
   ];
 
@@ -405,6 +425,60 @@ const buildMockDb = (): MockDb => {
       creativeTheme: "สาขาใกล้คุณ (ภูเก็ต)",
       profile: "learning_limited",
       seriesOverride: { impressionsPerDay: 520, reachPerDay: 280 },
+    },
+    {
+      id: "ag_lotus_ao_broad_18_44",
+      campaignId: "camp_lotus_ao_purchase",
+      name: "Broad | 18–44 | Auto Placements",
+      status: "ACTIVE",
+      creativeTheme: "Lotus's Online ส่งฟรี + ดีลเด่น",
+      profile: "stable",
+      seriesOverride: { roas: 2.9 },
+    },
+    {
+      id: "ag_lotus_ao_lal_1pct_purch",
+      campaignId: "camp_lotus_ao_purchase",
+      name: "LAL 1% | Purchasers 180D",
+      status: "ACTIVE",
+      creativeTheme: "Best Deals (FMCG) + ส่งด่วน",
+      profile: "top",
+      seriesOverride: { roas: 4.1 },
+    },
+    {
+      id: "ag_lotus_ao_interest_home",
+      campaignId: "camp_lotus_ao_purchase",
+      name: "Interest | Home & Living",
+      status: "ACTIVE",
+      creativeTheme: "ของใช้บ้าน + ราคาพิเศษ",
+      profile: "cost_creeping",
+      seriesOverride: { roas: 2.4 },
+    },
+    {
+      id: "ag_lotus_rt_vc_14d",
+      campaignId: "camp_lotus_rt_purchase",
+      name: "Retargeting | ViewContent 14D",
+      status: "ACTIVE",
+      creativeTheme: "กลับมาดูดีลที่คุณสนใจ",
+      profile: "fatigue",
+      seriesOverride: { impressionsPerDay: 4_900, reachPerDay: 980 },
+    },
+    {
+      id: "ag_lotus_rt_atc_7d",
+      campaignId: "camp_lotus_rt_purchase",
+      name: "Retargeting | AddToCart 7D",
+      status: "ACTIVE",
+      creativeTheme: "ใกล้จบโปร! สั่งวันนี้ส่งฟรี",
+      profile: "cost_creeping",
+      seriesOverride: { impressionsPerDay: 4_400, reachPerDay: 1_850 },
+    },
+    {
+      id: "ag_lotus_rt_engagers_30d",
+      campaignId: "camp_lotus_rt_purchase",
+      name: "Retargeting | Page + IG Engagers 30D",
+      status: "ACTIVE",
+      creativeTheme: "รีวิวจริง + โปรเฉพาะสมาชิก",
+      profile: "stable",
+      seriesOverride: { roas: 3.3 },
     },
   ];
 

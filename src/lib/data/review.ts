@@ -332,13 +332,50 @@ export const getAdGroupDetail = async (params: {
   );
 
   const ads = adGroup.ads.map((ad) => {
-    const rows = filterByRange(metricsByAdId.get(ad.id) ?? [], period.current);
-    const totals = sumDailyRows(rows);
+    const allRows = metricsByAdId.get(ad.id) ?? [];
+    const currentRows = filterByRange(allRows, period.current);
+    const previousRows = filterByRange(allRows, period.previous);
+
+    const totals = sumDailyRows(currentRows);
+    const previousTotals = sumDailyRows(previousRows);
+
     const derived = computeDerived(totals);
+    const previousDerived = computeDerived(previousTotals);
+
+    const costDelta = deltaValue(
+      derived.costPerResult ?? null,
+      previousDerived.costPerResult ?? null,
+    );
+    const diagnosis = diagnoseAdGroup({
+      totals,
+      metrics: derived,
+      costPerResultDelta: costDelta,
+    });
+
+    const score = computeScore(derived);
+
     return {
       ...mapAd(ad),
       totals,
       derived,
+      previous: previousDerived,
+      deltas: {
+        costPerResult: costDelta,
+        cpc: deltaValue(derived.cpc ?? null, previousDerived.cpc ?? null),
+        ctr: deltaValue(derived.ctr ?? null, previousDerived.ctr ?? null),
+        frequency: deltaValue(
+          derived.frequency ?? null,
+          previousDerived.frequency ?? null,
+        ),
+        roas: deltaValue(derived.roas ?? null, previousDerived.roas ?? null),
+        conversionRate: deltaValue(
+          derived.conversionRate ?? null,
+          previousDerived.conversionRate ?? null,
+        ),
+      },
+      diagnosis,
+      score,
+      label: labelFromScore(score),
     };
   });
 

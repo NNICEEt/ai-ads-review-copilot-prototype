@@ -24,6 +24,7 @@ describe("metrics", () => {
 
     expect(derived.ctr).toBeCloseTo(0.02);
     expect(derived.costPerResult).toBeCloseTo(100);
+    expect(derived.cpc).toBeCloseTo(5);
     expect(derived.conversionRate).toBeCloseTo(0.05);
     expect(derived.frequency).toBeNull();
     expect(derived.roas).toBeNull();

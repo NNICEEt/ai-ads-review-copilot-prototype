@@ -55,6 +55,7 @@ export type Totals = {
 export type DerivedMetrics = {
   ctr?: number | null;
   costPerResult?: number | null;
+  cpc?: number | null;
   conversionRate?: number | null;
   frequency?: number | null;
   roas?: number | null;

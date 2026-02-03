@@ -1,7 +1,7 @@
 import { ContextNavbar } from "@/components/navbar/ContextNavbar";
 import { ScoreBadge } from "@/components/detail/ScoreBadge";
 import { EvidenceSlot } from "@/components/detail/EvidenceSlot";
-import { AdsPerformanceItem } from "@/components/detail/AdsPerformanceItem";
+import { AdsPerformancePanel } from "@/components/detail/AdsPerformancePanel";
 import { AiCopilotPanel } from "@/components/detail/AiCopilotPanel";
 import { DailyTrendChart } from "@/components/detail/DailyTrendChart";
 import { getAdGroupDetail } from "@/lib/data/review";
@@ -76,41 +76,6 @@ export default async function AdGroupDetailPage({
     : 0;
   const costPercentLabel = `${costPercent > 0 ? "+" : ""}${costPercent}%`;
   const costDescription = costPercent >= 0 ? "ต้นทุนสูงขึ้น" : "ต้นทุนลดลง";
-
-  const adsSorted = [...detail.ads].sort((a, b) => {
-    const cprA = a.derived.costPerResult ?? 0;
-    const cprB = b.derived.costPerResult ?? 0;
-    return cprB - cprA;
-  });
-
-  const medianIndex = Math.floor(adsSorted.length / 2);
-  const selectedAds = [
-    adsSorted[0],
-    adsSorted[adsSorted.length - 1],
-    adsSorted[medianIndex],
-  ]
-    .filter(Boolean)
-    .filter(
-      (ad, index, self) =>
-        self.findIndex((item) => item.id === ad.id) === index,
-    );
-
-  const adsToShow = selectedAds.map((ad, index) => {
-    const cpr = ad.derived.costPerResult ?? 0;
-    const ctr = ad.derived.ctr ?? 0;
-    const variant: "bad" | "good" | "average" =
-      index === 0 ? "bad" : index === 1 ? "good" : "average";
-    return {
-      id: ad.id,
-      name: ad.name,
-      typeLabel: ad.creativeType === "VIDEO" ? "VID" : "IMG",
-      cpr: `CPR ${formatCurrency(cpr)}`,
-      ctr: `${(ctr * 100).toFixed(2)}%`,
-      spend: formatCurrency(ad.totals.spend),
-      variant,
-      recommendation: variant === "bad" ? "หยุดโฆษณา" : undefined,
-    };
-  });
 
   return (
     <div className="min-h-screen">
@@ -215,34 +180,14 @@ export default async function AdGroupDetailPage({
             </div>
           </div>
 
-          <div className="lg:col-span-1 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
-            <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-              <h3 className="font-bold text-slate-900 text-sm">
-                ประสิทธิภาพโฆษณา
-              </h3>
-              <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-medium">
-                6 โฆษณาใช้งาน
-              </span>
-            </div>
-
-            <div className="divide-y divide-slate-100 overflow-y-auto max-h-75 custom-scrollbar">
-              {adsToShow.length > 0 ? (
-                adsToShow.map((ad) => (
-                  <AdsPerformanceItem key={ad.id} {...ad} />
-                ))
-              ) : (
-                <div className="p-6 text-center text-slate-500 text-xs font-thai">
-                  ยังไม่มีข้อมูล Ads ในช่วงเวลานี้
-                </div>
-              )}
-            </div>
-
-            <div className="p-3 text-center border-t border-slate-100 mt-auto">
-              <button className="text-xs text-blue-600 font-bold hover:underline">
-                ดูโฆษณาทั้ง 6 รายการ
-              </button>
-            </div>
-          </div>
+          <AdsPerformancePanel
+            periodDays={detail.period.days}
+            adGroupBaseline={{
+              name: detail.adGroup.name,
+              derived: detail.derived,
+            }}
+            ads={detail.ads}
+          />
         </div>
       </main>
     </div>

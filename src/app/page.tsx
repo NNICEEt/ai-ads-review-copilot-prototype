@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { DashboardNavbar } from "@/components/navbar/DashboardNavbar";
 import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { PriorityList } from "@/components/dashboard/PriorityList";
+import { DashboardFiltersClient } from "@/components/dashboard/DashboardFiltersClient";
 import { getAccounts, getDashboardData } from "@/lib/data/review";
 import { formatCurrency, formatNumber } from "@/lib/utils/metrics";
 import { SCORING_CONFIG } from "@/lib/config/scoring";
@@ -11,6 +12,7 @@ export const dynamic = "force-dynamic";
 type SearchParams = {
   accountId?: string;
   periodDays?: string;
+  q?: string;
 };
 
 const sleep = (ms: number) =>
@@ -190,9 +192,11 @@ const DashboardPrioritySkeleton = () => (
 const DashboardFilters = async ({
   accountsPromise,
   dashboardPromise,
+  query,
 }: {
   accountsPromise: ReturnType<typeof getAccounts>;
   dashboardPromise: ReturnType<typeof getDashboardData>;
+  query: string;
 }) => {
   const delayPromise = sleep(150);
   const [accounts, dashboard] = await Promise.all([
@@ -205,48 +209,12 @@ const DashboardFilters = async ({
   const periodDays = dashboard.period.days;
 
   return (
-    <div className="flex flex-wrap gap-3 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200">
-      <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i className="fa-solid fa-briefcase text-slate-500 text-xs"></i>
-        </div>
-        <select
-          className="appearance-none bg-slate-50 border border-slate-200 hover:border-blue-400 text-slate-700 py-2 pl-9 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm font-medium w-48 transition-all cursor-pointer"
-          defaultValue={dashboard.accountId}
-        >
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.name}
-            </option>
-          ))}
-        </select>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
-          <i className="fa-solid fa-chevron-down text-[10px]"></i>
-        </div>
-      </div>
-
-      <div className="w-px bg-slate-200 my-1 hidden sm:block"></div>
-
-      <div className="flex items-center gap-1 bg-slate-100 p-1 rounded">
-        {[3, 7, 14].map((days) => (
-          <a
-            key={days}
-            href={`/?accountId=${dashboard.accountId}&periodDays=${days}`}
-            className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
-              days === periodDays
-                ? "text-blue-700 bg-white shadow-sm border border-slate-200"
-                : "text-slate-500 hover:text-slate-800 hover:bg-white"
-            }`}
-          >
-            {days} วัน
-          </a>
-        ))}
-      </div>
-
-      <div className="flex items-center px-2 text-xs text-slate-500 font-medium">
-        เทียบช่วงก่อนหน้า
-      </div>
-    </div>
+    <DashboardFiltersClient
+      accounts={accounts}
+      accountId={dashboard.accountId}
+      periodDays={periodDays}
+      query={query}
+    />
   );
 };
 
@@ -335,8 +303,10 @@ const DashboardSummarySection = async ({
 
 const DashboardPrioritySection = async ({
   dashboardPromise,
+  query,
 }: {
   dashboardPromise: ReturnType<typeof getDashboardData>;
+  query: string;
 }) => {
   const delayPromise = sleep(650);
   const dashboard = await dashboardPromise;
@@ -345,7 +315,16 @@ const DashboardPrioritySection = async ({
   if (!dashboard) return null;
   const periodDays = dashboard.period.days;
 
-  const priorityItems = dashboard.priority.slice(0, 5).map((item) => {
+  const normalizedQuery = query.trim().toLowerCase();
+  const filtered = normalizedQuery
+    ? dashboard.priority.filter((item) => {
+        const haystack =
+          `${item.adGroupName} ${item.campaignName}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      })
+    : dashboard.priority;
+
+  const priorityItems = filtered.slice(0, 5).map((item) => {
     const trendPercent = item.deltas.costPerResult.percent
       ? Math.round(item.deltas.costPerResult.percent * 100)
       : 0;
@@ -501,6 +480,7 @@ export default async function Home({
     accountId: resolvedParams.accountId ?? null,
     periodDays: resolvedParams.periodDays ?? null,
   });
+  const query = resolvedParams.q ?? "";
 
   return (
     <div className="min-h-screen">
@@ -519,6 +499,7 @@ export default async function Home({
             <DashboardFilters
               accountsPromise={accountsPromise}
               dashboardPromise={dashboardPromise}
+              query={query}
             />
           </Suspense>
         </div>
@@ -528,7 +509,10 @@ export default async function Home({
         </Suspense>
 
         <Suspense fallback={<DashboardPrioritySkeleton />}>
-          <DashboardPrioritySection dashboardPromise={dashboardPromise} />
+          <DashboardPrioritySection
+            dashboardPromise={dashboardPromise}
+            query={query}
+          />
         </Suspense>
       </main>
     </div>

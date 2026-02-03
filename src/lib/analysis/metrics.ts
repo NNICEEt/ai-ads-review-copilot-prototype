@@ -41,6 +41,7 @@ export const sumTotals = (totals: Totals[]) =>
 export const computeDerived = (totals: Totals): DerivedMetrics => ({
   ctr: safeDivide(totals.clicks, totals.impressions),
   costPerResult: safeDivide(totals.spend, totals.results),
+  cpc: safeDivide(totals.spend, totals.clicks),
   conversionRate: safeDivide(totals.results, totals.clicks),
   frequency: totals.reach ? safeDivide(totals.impressions, totals.reach) : null,
   roas: totals.revenue ? safeDivide(totals.revenue, totals.spend) : null,
