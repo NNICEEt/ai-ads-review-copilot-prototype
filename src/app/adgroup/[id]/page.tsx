@@ -3,6 +3,7 @@ import { ScoreBadge } from "@/components/detail/ScoreBadge";
 import { EvidenceSlot } from "@/components/detail/EvidenceSlot";
 import { AdsPerformanceItem } from "@/components/detail/AdsPerformanceItem";
 import { AiCopilotPanel } from "@/components/detail/AiCopilotPanel";
+import { DailyTrendChart } from "@/components/detail/DailyTrendChart";
 import { getAdGroupDetail } from "@/lib/data/review";
 import { formatCurrency } from "@/lib/utils/metrics";
 
@@ -210,9 +211,7 @@ export default async function AdGroupDetailPage({
               </div>
             </div>
             <div className="relative h-64 w-full bg-slate-50 rounded-lg border border-slate-100 p-2">
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
-                ตัวอย่างกราฟ (placeholder)
-              </div>
+              <DailyTrendChart rows={detail.daily} />
             </div>
           </div>
 
