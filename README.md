@@ -2,7 +2,7 @@
 
 Action-first dashboard for Media Buyers with deterministic KPIs and optional AI insights.
 
-## Setup
+## Setup (Fresh Prisma + Supabase)
 
 1. Install dependencies
 
@@ -10,20 +10,52 @@ Action-first dashboard for Media Buyers with deterministic KPIs and optional AI 
 npm install
 ```
 
-2. Configure environment
+2. Create a Supabase project and copy connection strings
+
+- Use **Transaction Pooler** for `DATABASE_URL` (serverless-friendly) and append `pgbouncer=true`.
+- Use **Direct connection** for `DIRECT_URL` (used by Prisma Migrate/Seed).
+
+3. Configure environment (Supabase + Prisma)
 
 Copy `.env.example` → `.env` and fill values:
 
-- `DATABASE_URL`
+- `DATABASE_URL` → Supabase **Transaction Pooler** URL + `pgbouncer=true`
+- `DIRECT_URL` → Supabase **Direct** URL
+- `DATABASE_SSL_REJECT_UNAUTHORIZED` → `true` (Supabase uses valid TLS)
 - `AISHOP24H_API_KEY` or `AISHOP24H_API_KEY_INSIGHT` / `AISHOP24H_API_KEY_RECO`
 - `AISHOP24H_MODEL_INSIGHT` / `AISHOP24H_MODEL_RECO`
 
-3. Database + seed
+4. Database + seed
 
 ```bash
 npm run prisma:migrate
 npm run prisma:seed
 ```
+
+Example Supabase URLs:
+
+```
+DATABASE_URL="postgresql://prisma.<project_ref>:<PASSWORD>@aws-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=verify-full"
+DIRECT_URL="postgresql://prisma:<PASSWORD>@db.<project_ref>.supabase.co:5432/postgres?sslmode=verify-full"
+```
+
+## Deploy to Vercel
+
+1. Add env vars in Vercel (Production + Preview):
+
+- `DATABASE_URL`, `DIRECT_URL`, `DATABASE_SSL_REJECT_UNAUTHORIZED`
+- AI keys / model settings if you use AI
+
+2. Build & migrate on deploy
+
+Set Vercel **Build Command** to:
+
+```
+npm run vercel-build
+```
+
+This runs `prisma generate`, `prisma migrate deploy`, and `next build`.
+Alternatively, keep the default `next build` and run `prisma migrate deploy` in CI.
 
 ## Run
 

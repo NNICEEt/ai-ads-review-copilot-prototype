@@ -7,9 +7,11 @@ import {
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl = process.env.DIRECT_URL ?? process.env.DATABASE_URL;
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required to run the seed script.");
+  throw new Error(
+    "DIRECT_URL or DATABASE_URL is required to run the seed script.",
+  );
 }
 
 const sslRejectUnauthorized =
