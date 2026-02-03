@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AiInsightSnippet } from "@/components/ai/AiInsightSnippet";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 type PriorityVariant = "critical" | "warning" | "top" | "normal";
 
@@ -8,10 +10,22 @@ type PriorityRowProps = {
   name: string;
   campaign: string;
   campaignHref?: string;
+  ai?: {
+    adGroupId: string;
+    periodDays: number;
+  };
   issue?: {
     label: string;
     iconClass: string;
+    detail?: string | null;
   };
+  signals?: Array<{
+    label: string;
+    value: string;
+    iconClass?: string;
+    className: string;
+    helpText?: string | null;
+  }>;
   cost: string;
   costSubLabel: string;
   trend: {
@@ -74,7 +88,9 @@ export const PriorityRow = ({
   name,
   campaign,
   campaignHref,
+  ai,
   issue,
+  signals,
   cost,
   costSubLabel,
   trend,
@@ -82,6 +98,14 @@ export const PriorityRow = ({
   href,
 }: PriorityRowProps) => {
   const styles = variantStyles[variant];
+  const aiTone =
+    variant === "critical"
+      ? "danger"
+      : variant === "warning"
+        ? "warn"
+        : variant === "top"
+          ? "success"
+          : "neutral";
   return (
     <tr className={styles.row}>
       <td className="p-4 text-center">
@@ -91,7 +115,7 @@ export const PriorityRow = ({
         <div className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
           {name}
         </div>
-        <div className="text-xs text-slate-400 mt-0.5">
+        <div className="text-xs text-slate-500 mt-0.5">
           <i className="fa-solid fa-folder-open mr-1"></i>แคมเปญ:{" "}
           {campaignHref ? (
             <Link
@@ -109,16 +133,59 @@ export const PriorityRow = ({
         <span className={styles.badge}>
           {statusLabel ?? statusLabelByVariant[variant]}
         </span>
-        {issue ? (
-          <div className="text-xs text-slate-500 mt-1.5 flex items-center gap-1 font-thai">
-            <i className={issue.iconClass}></i>
-            {issue.label}
+        {ai ? (
+          <div className="mt-2">
+            <AiInsightSnippet
+              adGroupId={ai.adGroupId}
+              periodDays={ai.periodDays}
+              fallbackTitle={issue?.label ?? "Insight"}
+              fallbackDetail={issue?.detail ?? null}
+              variant="card"
+              tone={aiTone}
+            />
+          </div>
+        ) : issue ? (
+          <div className="mt-2 text-xs text-slate-500 font-thai">
+            <div className="flex items-center gap-1">
+              <i className={issue.iconClass}></i>
+              <span className="font-bold text-slate-700">{issue.label}</span>
+            </div>
+            {issue.detail ? (
+              <p className="mt-1 text-[10px] text-slate-600 leading-snug">
+                {issue.detail}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        {signals && signals.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {signals.map((signal) => (
+              <span
+                key={signal.label}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${signal.className}`}
+              >
+                {signal.iconClass ? (
+                  <i className={`${signal.iconClass} text-[10px]`}></i>
+                ) : null}
+                <span className="inline-flex items-center gap-1">
+                  {signal.label} {signal.value}
+                  {signal.helpText ? (
+                    <InfoTooltip
+                      label={`คำอธิบาย ${signal.label}`}
+                      content={signal.helpText}
+                      className="ml-0.5"
+                    />
+                  ) : null}
+                </span>
+              </span>
+            ))}
           </div>
         ) : null}
       </td>
       <td className="p-4 text-right">
         <div className="font-bold text-slate-800">{cost}</div>
-        <div className="text-[10px] text-slate-400">{costSubLabel}</div>
+        <div className="text-[10px] text-slate-500">{costSubLabel}</div>
       </td>
       <td className="p-4 text-right">
         <div
@@ -134,12 +201,12 @@ export const PriorityRow = ({
         {href ? (
           <Link
             href={href}
-            className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
+            className="text-slate-500 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto"
           >
             <i className="fa-solid fa-chevron-right"></i>
           </Link>
         ) : (
-          <button className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto">
+          <button className="text-slate-500 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all flex items-center justify-center mx-auto">
             <i className="fa-solid fa-chevron-right"></i>
           </button>
         )}

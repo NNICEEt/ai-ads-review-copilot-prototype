@@ -15,7 +15,7 @@ export const DashboardNavbar = () => (
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button className="text-slate-500 hover:text-slate-700 transition-colors">
             <i className="fa-regular fa-bell text-xl"></i>
           </button>
           <div className="h-6 w-px bg-slate-200"></div>

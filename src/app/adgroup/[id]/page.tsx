@@ -119,7 +119,7 @@ export default async function AdGroupDetailPage({
         backLabel="กลับ"
         contextTop={`แคมเปญ: ${detail.campaign.name}`}
         contextMain={`กลุ่มโฆษณา: ${detail.adGroup.name}`}
-        contextIconClass="fa-regular fa-folder-open text-slate-400"
+        contextIconClass="fa-regular fa-folder-open text-slate-500"
         period={{
           label: periodLabel,
           compareLabel,
@@ -143,7 +143,7 @@ export default async function AdGroupDetailPage({
                 <i className="fa-solid fa-magnifying-glass-chart text-blue-500"></i>
                 สรุปจาก Evidence
               </h3>
-              <span className="text-[10px] text-slate-400 font-medium">
+              <span className="text-[10px] text-slate-500 font-medium">
                 สรุปอัตโนมัติจากตัวเลข
               </span>
             </div>
@@ -196,7 +196,7 @@ export default async function AdGroupDetailPage({
           <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <i className="fa-solid fa-chart-area text-slate-400"></i>
+                <i className="fa-solid fa-chart-area text-slate-500"></i>
                 แนวโน้มรายวัน
               </h3>
               <div className="flex gap-2">
@@ -231,7 +231,7 @@ export default async function AdGroupDetailPage({
                   <AdsPerformanceItem key={ad.id} {...ad} />
                 ))
               ) : (
-                <div className="p-6 text-center text-slate-400 text-xs font-thai">
+                <div className="p-6 text-center text-slate-500 text-xs font-thai">
                   ยังไม่มีข้อมูล Ads ในช่วงเวลานี้
                 </div>
               )}

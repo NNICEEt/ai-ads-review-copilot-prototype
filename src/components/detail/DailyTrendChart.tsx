@@ -49,7 +49,7 @@ const buildLinePath = (points: Array<{ x: number; y: number }>) => {
 export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
   if (!rows.length) {
     return (
-      <div className="h-full w-full flex items-center justify-center text-xs text-slate-400 font-thai">
+      <div className="h-full w-full flex items-center justify-center text-xs text-slate-500 font-thai">
         ยังไม่มีข้อมูลแนวโน้มรายวัน
       </div>
     );

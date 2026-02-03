@@ -57,7 +57,7 @@ export const AdsPerformanceItem = ({
     </div>
     <div className="flex justify-between text-[10px] text-slate-500 pl-8">
       <span className="flex items-center gap-1">
-        <i className="fa-solid fa-arrow-pointer text-slate-300"></i>
+        <i className="fa-solid fa-arrow-pointer text-slate-500"></i>
         CTR: <span className={ctrStyles[variant]}>{ctr}</span>
       </span>
       <span>ใช้ไป: {spend}</span>

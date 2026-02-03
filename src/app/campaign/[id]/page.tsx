@@ -1,6 +1,8 @@
 import { Suspense } from "react";
+import { AiInsightSnippet } from "@/components/ai/AiInsightSnippet";
 import { CampaignAiRecommendation } from "@/components/campaign/CampaignAiRecommendation";
 import { ContextNavbar } from "@/components/navbar/ContextNavbar";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { getCampaignBreakdown } from "@/lib/data/review";
 import { formatCurrency, formatNumber } from "@/lib/utils/metrics";
 
@@ -191,12 +193,66 @@ const CampaignBreakdownCard = async ({
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr className="text-slate-500 text-xs uppercase tracking-wider text-right">
               <th className="p-4 text-left w-1/4">ชื่อกลุ่มโฆษณา</th>
-              <th className="p-4 text-left w-1/4">AI วิเคราะห์ (Insight)</th>
-              <th className="p-4">ยอดใช้จ่าย</th>
-              <th className="p-4 text-center">ผลลัพธ์</th>
-              <th className="p-4">CPR</th>
-              <th className="p-4">ROAS</th>
-              <th className="p-4">CTR</th>
+              <th className="p-4 text-left w-1/4">
+                <div className="inline-flex items-center gap-1">
+                  AI วิเคราะห์ (Insight)
+                  <InfoTooltip
+                    label="คำอธิบาย AI วิเคราะห์"
+                    content={
+                      "AI ช่วยสรุป Insight จากตัวเลขและ evidence ของกลุ่มโฆษณานี้\nเพื่อให้ตัดสินใจได้เร็วขึ้น (ยังควรตรวจสอบก่อนลงมือทำจริง)"
+                    }
+                  />
+                </div>
+              </th>
+              <th className="p-4">
+                <div className="inline-flex items-center gap-1 justify-end w-full">
+                  ยอดใช้จ่าย
+                  <InfoTooltip
+                    label="คำอธิบายยอดใช้จ่าย"
+                    content={"ยอดเงินที่ใช้จริงในช่วงเวลาที่เลือก (Spend)"}
+                  />
+                </div>
+              </th>
+              <th className="p-4 text-center">
+                <div className="inline-flex items-center gap-1 justify-center w-full">
+                  ผลลัพธ์
+                  <InfoTooltip
+                    label="คำอธิบายผลลัพธ์"
+                    content={
+                      "จำนวนผลลัพธ์หลักตาม Objective เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยัง"
+                    }
+                  />
+                </div>
+              </th>
+              <th className="p-4">
+                <div className="inline-flex items-center gap-1 justify-end w-full">
+                  CPR
+                  <InfoTooltip
+                    label="คำอธิบาย CPR"
+                    content={
+                      "CPR (Cost per Result)\n= ยอดใช้จ่าย ÷ ผลลัพธ์\nยิ่งต่ำยิ่งดี"
+                    }
+                  />
+                </div>
+              </th>
+              <th className="p-4">
+                <div className="inline-flex items-center gap-1 justify-end w-full">
+                  ROAS
+                  <InfoTooltip
+                    label="คำอธิบาย ROAS"
+                    content={"ROAS (Revenue ÷ Spend)\nยิ่งสูงยิ่งดี"}
+                  />
+                </div>
+              </th>
+              <th className="p-4">
+                <div className="inline-flex items-center gap-1 justify-end w-full">
+                  CTR
+                  <InfoTooltip
+                    label="คำอธิบาย CTR"
+                    content={"CTR (Clicks ÷ Impressions)\nยิ่งสูงยิ่งดี"}
+                  />
+                </div>
+              </th>
               <th className="p-4 text-center">ดูรายละเอียด</th>
             </tr>
           </thead>
@@ -215,6 +271,15 @@ const CampaignBreakdownCard = async ({
                       : group.diagnosis.label === "Top Performer"
                         ? "bg-emerald-500"
                         : "bg-slate-400";
+                const aiTone =
+                  group.diagnosis.label === "Top Performer"
+                    ? "success"
+                    : group.diagnosis.label === "Stable"
+                      ? "neutral"
+                      : group.diagnosis.label === "Cost Creeping" ||
+                          group.diagnosis.label === "Learning Limited"
+                        ? "warn"
+                        : "danger";
                 return (
                   <tr key={group.id} className={styles.row}>
                     <td className="p-4 align-top">
@@ -226,22 +291,19 @@ const CampaignBreakdownCard = async ({
                           {group.name}
                         </span>
                       </div>
-                      <div className="text-[10px] text-slate-400 pl-4">
+                      <div className="text-[10px] text-slate-500 pl-4">
                         ใช้งานอยู่
                       </div>
                     </td>
                     <td className="p-4 align-top">
-                      <div className={`rounded-lg p-2 ${styles.badge}`}>
-                        <div
-                          className={`flex items-center gap-1.5 text-xs font-bold mb-1 ${styles.text}`}
-                        >
-                          <i className={styles.icon}></i>
-                          {diagnosisLabelTh(group.diagnosis.label)}
-                        </div>
-                        <p className="text-[10px] text-slate-600 font-thai leading-snug">
-                          {group.diagnosis.reason}
-                        </p>
-                      </div>
+                      <AiInsightSnippet
+                        adGroupId={group.id}
+                        periodDays={data.period.days}
+                        fallbackTitle={diagnosisLabelTh(group.diagnosis.label)}
+                        fallbackDetail={group.diagnosis.reason}
+                        variant="card"
+                        tone={aiTone}
+                      />
                     </td>
                     <td className="p-4 text-right font-medium text-slate-600">
                       {formatCurrency(group.totals.spend)}
@@ -253,7 +315,7 @@ const CampaignBreakdownCard = async ({
                       <span className="block font-bold text-slate-700">
                         {formatCurrency(group.derived.costPerResult ?? null)}
                       </span>
-                      <span className="text-[10px] text-slate-400 flex justify-end items-center gap-1">
+                      <span className="text-[10px] text-slate-500 flex justify-end items-center gap-1">
                         <i className="fa-solid fa-arrow-trend-up"></i>
                         {costTrend > 0 ? "+" : ""}
                         {costTrend}%
@@ -276,7 +338,7 @@ const CampaignBreakdownCard = async ({
                     <td className="p-4 text-center align-middle">
                       <a
                         href={`/adgroup/${group.id}?periodDays=${data.period.days}`}
-                        className="text-slate-400 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all inline-flex items-center justify-center"
+                        className="text-slate-500 hover:text-blue-600 hover:bg-blue-50 w-8 h-8 rounded-full transition-all inline-flex items-center justify-center"
                         aria-label="ดูรายละเอียด"
                       >
                         <i className="fa-solid fa-chevron-right"></i>
@@ -289,7 +351,7 @@ const CampaignBreakdownCard = async ({
               <tr>
                 <td
                   colSpan={8}
-                  className="p-10 text-center text-slate-400 text-sm font-thai"
+                  className="p-10 text-center text-slate-500 text-sm font-thai"
                 >
                   ยังไม่มีข้อมูลกลุ่มโฆษณาสำหรับแคมเปญนี้
                 </td>
@@ -306,6 +368,8 @@ const CampaignBreakdownCard = async ({
           </span>
           <CampaignAiRecommendation
             key={`${data.campaign.id}:${fromAdGroup?.id ?? "none"}:${toAdGroup?.id ?? "none"}:${improvementPercent ?? "none"}`}
+            fromAdGroupId={fromAdGroup?.id ?? null}
+            periodDays={data.period.days}
             fromAdGroupName={fromAdGroup?.name ?? null}
             fromSpendLabel={
               fromAdGroup ? formatCurrency(fromAdGroup.totals.spend) : null
@@ -365,7 +429,7 @@ export default async function CampaignDetailPage({
               <option>ROAS (น้อย → มาก)</option>
               <option>ยอดใช้จ่าย (มาก → น้อย)</option>
             </select>
-            <i className="fa-solid fa-chevron-down text-xs text-slate-400 -ml-4 mr-2 pointer-events-none"></i>
+            <i className="fa-solid fa-chevron-down text-xs text-slate-500 -ml-4 mr-2 pointer-events-none"></i>
           </div>
         </div>
 

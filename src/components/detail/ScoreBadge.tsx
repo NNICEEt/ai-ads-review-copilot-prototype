@@ -56,7 +56,7 @@ export const ScoreBadge = ({
           <span className="text-4xl font-extrabold text-slate-900 tracking-tight">
             {score}
           </span>
-          <span className="text-xs font-medium text-slate-400">/{max}</span>
+          <span className="text-xs font-medium text-slate-500">/{max}</span>
         </div>
       </div>
 

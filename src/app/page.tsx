@@ -57,12 +57,12 @@ const issueIcon = (label: string) => {
     return "fa-solid fa-triangle-exclamation text-amber-500";
   }
   if (label === "Cost Creeping") {
-    return "fa-solid fa-money-bill-wave text-slate-400";
+    return "fa-solid fa-money-bill-wave text-slate-500";
   }
   if (label === "Top Performer") {
     return "fa-solid fa-check text-emerald-500";
   }
-  return "fa-solid fa-minus text-slate-400";
+  return "fa-solid fa-minus text-slate-500";
 };
 
 const diagnosisLabelTh = (label: string) => {
@@ -121,7 +121,7 @@ const DashboardPrioritySkeleton = () => (
           รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
+          จัดลำดับด้วยคะแนนจากตัวเลขและแนวโน้ม • AI ช่วยสรุป Insight ต่อรายการ
         </p>
       </div>
       <div className="flex gap-2 animate-pulse">
@@ -208,7 +208,7 @@ const DashboardFilters = async ({
     <div className="flex flex-wrap gap-3 bg-white p-1.5 rounded-lg shadow-sm border border-slate-200">
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <i className="fa-solid fa-briefcase text-slate-400 text-xs"></i>
+          <i className="fa-solid fa-briefcase text-slate-500 text-xs"></i>
         </div>
         <select
           className="appearance-none bg-slate-50 border border-slate-200 hover:border-blue-400 text-slate-700 py-2 pl-9 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm font-medium w-48 transition-all cursor-pointer"
@@ -243,7 +243,7 @@ const DashboardFilters = async ({
         ))}
       </div>
 
-      <div className="flex items-center px-2 text-xs text-slate-400 font-medium">
+      <div className="flex items-center px-2 text-xs text-slate-500 font-medium">
         เทียบช่วงก่อนหน้า
       </div>
     </div>
@@ -293,7 +293,7 @@ const DashboardSummarySection = async ({
       trendValue: cprTrend.label,
       comparisonText: `เทียบกับ ${formatCurrency(dashboard.summary.costPerResult.previous ?? null)}`,
       accentBarClass: "bg-red-500",
-      labelIconClass: "fa-solid fa-circle-info text-slate-300 text-[10px]",
+      labelIconClass: "fa-solid fa-circle-info text-slate-500 text-[10px]",
     },
     {
       label: "ROAS (ผลตอบแทน)",
@@ -345,7 +345,7 @@ const DashboardPrioritySection = async ({
   if (!dashboard) return null;
   const periodDays = dashboard.period.days;
 
-  const priorityItems = dashboard.priority.map((item) => {
+  const priorityItems = dashboard.priority.slice(0, 5).map((item) => {
     const trendPercent = item.deltas.costPerResult.percent
       ? Math.round(item.deltas.costPerResult.percent * 100)
       : 0;
@@ -371,16 +371,103 @@ const DashboardPrioritySection = async ({
             ? "top"
             : "normal";
 
+    const chipNeutral = "bg-white/80 text-slate-600 border-slate-200";
+    const chipWarn = "bg-amber-50 text-amber-800 border-amber-200";
+    const chipDanger = "bg-red-50 text-red-700 border-red-200";
+    const chipSuccess = "bg-emerald-50 text-emerald-700 border-emerald-200";
+
+    const ctrLabel =
+      item.derived.ctr != null
+        ? `${(item.derived.ctr * 100).toFixed(2)}%`
+        : "—";
+    const ctrDeltaLabel =
+      item.deltas.ctr.percent != null
+        ? `${item.deltas.ctr.percent > 0 ? "+" : ""}${Math.round(item.deltas.ctr.percent * 100)}%`
+        : null;
+    const ctrDeltaClass =
+      ctrDeltaLabel == null
+        ? chipNeutral
+        : item.deltas.ctr.percent && item.deltas.ctr.percent > 0
+          ? chipSuccess
+          : item.deltas.ctr.percent && item.deltas.ctr.percent < 0
+            ? chipDanger
+            : chipNeutral;
+
+    const freq = item.derived.frequency;
+    const freqLabel = freq != null ? freq.toFixed(1) : "—";
+    const freqClass =
+      freq != null && freq >= SCORING_CONFIG.thresholds.frequencyHigh
+        ? chipDanger
+        : freq != null && freq >= SCORING_CONFIG.thresholds.frequencyWarning
+          ? chipWarn
+          : chipNeutral;
+
+    const resultsClass =
+      item.totals.spend > 0 && item.totals.results < 50
+        ? chipWarn
+        : chipNeutral;
+
+    const roasLabel =
+      item.derived.roas != null ? `${item.derived.roas.toFixed(1)}x` : null;
+    const roasClass =
+      item.derived.roas != null &&
+      item.derived.roas >= SCORING_CONFIG.thresholds.roasTarget
+        ? chipSuccess
+        : chipWarn;
+
     return {
       variant,
       score: String(item.score),
       name: item.adGroupName,
       campaign: item.campaignName,
       campaignHref: `/campaign/${item.campaignId}?periodDays=${periodDays}`,
+      ai: {
+        adGroupId: item.adGroupId,
+        periodDays,
+      },
       issue: {
         label: diagnosisLabelTh(item.diagnosis.label),
         iconClass: issueIcon(item.diagnosis.label),
+        detail: item.diagnosis.reason,
       },
+      signals: [
+        {
+          label: "CTR",
+          value: ctrDeltaLabel ? `${ctrLabel} (${ctrDeltaLabel})` : ctrLabel,
+          iconClass: "fa-solid fa-arrow-pointer",
+          className: ctrDeltaClass,
+          helpText:
+            "CTR (Click-through rate)\n= Clicks ÷ Impressions\nยิ่งสูงยิ่งดี (คนสนใจ/กดคลิกมากขึ้น)\nตัวเลขในวงเล็บคือ % เทียบช่วงก่อนหน้า",
+        },
+        {
+          label: "Freq",
+          value: freqLabel,
+          iconClass: "fa-solid fa-repeat",
+          className: freqClass,
+          helpText:
+            "Frequency (ความถี่)\n= Impressions ÷ Reach\nเฉลี่ย 1 คนเห็นโฆษณากี่ครั้ง\nสูงเกินไปอาจเสี่ยง Creative Fatigue",
+        },
+        {
+          label: "ผลลัพธ์",
+          value: formatNumber(item.totals.results),
+          iconClass: "fa-solid fa-bullseye",
+          className: resultsClass,
+          helpText:
+            "ผลลัพธ์ (Results)\nคือจำนวนเหตุการณ์หลักตาม Objective เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยังในช่วงเวลานี้",
+        },
+        ...(roasLabel
+          ? [
+              {
+                label: "ROAS",
+                value: roasLabel,
+                iconClass: "fa-solid fa-sack-dollar",
+                className: roasClass,
+                helpText:
+                  "ROAS (Return on Ad Spend)\n= Revenue ÷ Spend\nเช่น 3.0x แปลว่าใช้ 1 บาท ได้รายได้ 3 บาท\nยิ่งสูงยิ่งดี",
+              },
+            ]
+          : []),
+      ],
       cost: formatCurrency(item.derived.costPerResult ?? null),
       costSubLabel: `เป้าหมาย: ${formatCurrency(SCORING_CONFIG.thresholds.costPerResultTarget)}`,
       trend: {

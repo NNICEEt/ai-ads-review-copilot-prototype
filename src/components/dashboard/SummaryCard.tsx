@@ -49,7 +49,7 @@ export const SummaryCard = ({
       >
         <i className={trendIconClass}></i> {trendValue}
       </span>
-      <span className="text-slate-400">{comparisonText}</span>
+      <span className="text-slate-500">{comparisonText}</span>
     </div>
   </div>
 );

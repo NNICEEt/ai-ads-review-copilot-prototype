@@ -1,4 +1,5 @@
 import { PriorityRow } from "./PriorityRow";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 
 type PriorityItem = {
   variant: "critical" | "warning" | "top" | "normal";
@@ -6,10 +7,22 @@ type PriorityItem = {
   name: string;
   campaign: string;
   campaignHref?: string;
+  ai?: {
+    adGroupId: string;
+    periodDays: number;
+  };
   issue?: {
     label: string;
     iconClass: string;
+    detail?: string | null;
   };
+  signals?: Array<{
+    label: string;
+    value: string;
+    iconClass?: string;
+    className: string;
+    helpText?: string | null;
+  }>;
   cost: string;
   costSubLabel: string;
   trend: {
@@ -33,7 +46,7 @@ export const PriorityList = ({ items }: PriorityListProps) => (
           รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
+          จัดลำดับด้วยคะแนนจากตัวเลขและแนวโน้ม • AI ช่วยสรุป Insight ต่อรายการ
         </p>
       </div>
       <div className="flex gap-2">
@@ -52,9 +65,39 @@ export const PriorityList = ({ items }: PriorityListProps) => (
           <tr className="text-slate-500 text-xs uppercase tracking-wider">
             <th className="p-4 font-semibold w-20 text-center">คะแนน</th>
             <th className="p-4 font-semibold w-1/3">กลุ่มโฆษณา / แคมเปญ</th>
-            <th className="p-4 font-semibold w-1/4">สถานะ / ประเด็น</th>
-            <th className="p-4 font-semibold text-right">ต้นทุน/ผลลัพธ์</th>
-            <th className="p-4 font-semibold text-right">แนวโน้ม</th>
+            <th className="p-4 font-semibold w-1/4">
+              <div className="inline-flex items-center gap-1">
+                สถานะ / ประเด็น
+                <InfoTooltip
+                  label="คำอธิบายสถานะ/ประเด็น"
+                  content={
+                    "สรุปสิ่งที่ควรสนใจของกลุ่มโฆษณานี้\n- แสดงสถานะรวม (ต้องแก้ไข/เฝ้าระวัง/ผลงานดี)\n- AI ช่วยสรุป Insight แบบกระชับ\n- มีสัญญาณสำคัญ (CTR/Frequency/ผลลัพธ์/ROAS) เพื่อช่วยตัดสินใจก่อนกดดูรายละเอียด"
+                  }
+                />
+              </div>
+            </th>
+            <th className="p-4 font-semibold text-right">
+              <div className="inline-flex items-center gap-1 justify-end w-full">
+                ต้นทุน/ผลลัพธ์
+                <InfoTooltip
+                  label="คำอธิบายต้นทุนต่อผลลัพธ์"
+                  content={
+                    "CPR (Cost per Result)\n= ยอดใช้จ่าย ÷ จำนวนผลลัพธ์\nยิ่งต่ำยิ่งดี (คุ้มกว่า)"
+                  }
+                />
+              </div>
+            </th>
+            <th className="p-4 font-semibold text-right">
+              <div className="inline-flex items-center gap-1 justify-end w-full">
+                แนวโน้ม
+                <InfoTooltip
+                  label="คำอธิบายแนวโน้ม"
+                  content={
+                    "เทียบ CPR กับช่วงก่อนหน้า (จำนวนวันเท่ากัน)\n- สีแดง: CPR แย่ลง (+)\n- สีเขียว: CPR ดีขึ้น (-)"
+                  }
+                />
+              </div>
+            </th>
             <th className="p-4 font-semibold text-center w-20">ดูรายละเอียด</th>
           </tr>
         </thead>
@@ -65,7 +108,7 @@ export const PriorityList = ({ items }: PriorityListProps) => (
             <tr>
               <td
                 colSpan={6}
-                className="p-10 text-center text-slate-400 text-sm"
+                className="p-10 text-center text-slate-500 text-sm"
               >
                 ไม่มีรายการที่ต้องจัดลำดับในช่วงเวลานี้
               </td>

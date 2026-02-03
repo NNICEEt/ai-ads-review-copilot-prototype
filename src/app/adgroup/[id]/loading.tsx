@@ -8,7 +8,7 @@ export default function Loading() {
         backLabel="กลับ"
         contextTop="แคมเปญ: -"
         contextMain="กลุ่มโฆษณา: -"
-        contextIconClass="fa-regular fa-folder-open text-slate-400"
+        contextIconClass="fa-regular fa-folder-open text-slate-500"
       />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white border border-slate-200 rounded-xl p-6 text-slate-500 text-sm">

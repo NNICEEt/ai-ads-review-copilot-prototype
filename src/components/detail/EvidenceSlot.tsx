@@ -36,7 +36,7 @@ export const EvidenceSlot = ({
   >
     <div>
       <div className="flex justify-between items-start mb-1">
-        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+        <div className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
           {title}
         </div>
         <i className={`${iconClass} ${iconClassName}`}></i>
@@ -45,7 +45,7 @@ export const EvidenceSlot = ({
       <div className="text-xs text-slate-500">{metricLabelTh(metricLabel)}</div>
     </div>
     <div className="mt-3 pt-3 border-t border-slate-200/60 flex items-center justify-between">
-      <span className="text-[10px] text-slate-400">{prevText}</span>
+      <span className="text-[10px] text-slate-500">{prevText}</span>
       <span
         className={`text-xs font-bold px-1.5 py-0.5 rounded flex items-center ${changePill.className}`}
       >

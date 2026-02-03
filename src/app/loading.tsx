@@ -62,7 +62,8 @@ export default function Loading() {
                 รายการสิ่งที่ต้องทำก่อน
               </h2>
               <p className="text-xs text-slate-500 mt-1 font-thai">
-                จัดลำดับความสำคัญโดย AI อิงจากประสิทธิภาพต้นทุนและแนวโน้ม
+                จัดลำดับด้วยคะแนนจากตัวเลขและแนวโน้ม • AI ช่วยสรุป Insight
+                ต่อรายการ
               </p>
             </div>
             <div className="flex gap-2 animate-pulse">
