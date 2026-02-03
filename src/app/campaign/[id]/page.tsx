@@ -3,8 +3,8 @@ import { getCampaignBreakdown } from "@/lib/data/review";
 import { formatCurrency, formatNumber } from "@/lib/utils/metrics";
 
 type Params = {
-  params: { id: string } | Promise<{ id: string }>;
-  searchParams: { periodDays?: string } | Promise<{ periodDays?: string }>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ periodDays?: string }>;
 };
 
 const diagnosisStyles = (label: string) => {

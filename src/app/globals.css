@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-	--font-sans: var(--font-inter), var(--font-sarabun), sans-serif;
-	--font-thai: var(--font-sarabun), sans-serif;
+	--font-sans:
+		var(--font-inter, ui-sans-serif), var(--font-sarabun, ui-sans-serif),
+		ui-sans-serif, system-ui, sans-serif;
+	--font-thai:
+		var(--font-sarabun, ui-sans-serif), ui-sans-serif, system-ui, sans-serif;
 	--color-brand-dark: #003366;
 	--color-brand-light: #00ccff;
 	--color-brand-bg: #f8fafc;

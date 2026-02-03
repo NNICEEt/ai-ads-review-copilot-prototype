@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getCampaignBreakdown } from "@/lib/data/review";
 
 type Params = {
-  params: { id: string } | Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 };
 
 export async function GET(request: NextRequest, { params }: Params) {

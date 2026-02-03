@@ -56,7 +56,7 @@ const issueIcon = (label: string) => {
 export default async function Home({
   searchParams,
 }: {
-  searchParams: SearchParams | Promise<SearchParams>;
+  searchParams: Promise<SearchParams>;
 }) {
   const resolvedParams = await searchParams;
   const [accounts, dashboard] = await Promise.all([

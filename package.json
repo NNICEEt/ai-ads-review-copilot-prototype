@@ -5,21 +5,12 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"vercel-build": "prisma generate && next build",
 		"start": "next start",
 		"lint": "eslint",
-		"postinstall": "prisma generate",
-		"test": "vitest run",
-		"prisma:generate": "prisma generate",
-		"prisma:migrate": "prisma migrate dev",
-		"prisma:seed": "prisma db seed",
-		"db:seed": "prisma db seed"
+		"test": "vitest run"
 	},
 	"dependencies": {
-		"@prisma/adapter-pg": "latest",
-		"@prisma/client": "latest",
 		"next": "16.1.6",
-		"pg": "latest",
 		"react": "19.2.3",
 		"react-dom": "19.2.3",
 		"zod": "latest"
@@ -27,20 +18,15 @@
 	"devDependencies": {
 		"@tailwindcss/postcss": "^4",
 		"@types/node": "^20",
-		"@types/pg": "^8.16.0",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"babel-plugin-react-compiler": "1.0.0",
 		"dotenv": "latest",
 		"eslint": "^9",
 		"eslint-config-next": "16.1.6",
-		"prisma": "latest",
 		"tailwindcss": "^4",
 		"tsx": "latest",
 		"typescript": "^5",
 		"vitest": "latest"
-	},
-	"prisma": {
-		"seed": "tsx prisma/seed.ts"
 	}
 }

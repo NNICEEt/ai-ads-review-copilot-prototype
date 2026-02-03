@@ -2,14 +2,13 @@ import { ContextNavbar } from "@/components/navbar/ContextNavbar";
 import { ScoreBadge } from "@/components/detail/ScoreBadge";
 import { EvidenceSlot } from "@/components/detail/EvidenceSlot";
 import { AdsPerformanceItem } from "@/components/detail/AdsPerformanceItem";
+import { AiCopilotPanel } from "@/components/detail/AiCopilotPanel";
 import { getAdGroupDetail } from "@/lib/data/review";
 import { formatCurrency } from "@/lib/utils/metrics";
-import { getAiSummary } from "@/lib/ai/summary";
-import type { ReactNode } from "react";
 
 type Params = {
-  params: { id: string } | Promise<{ id: string }>;
-  searchParams: { periodDays?: string } | Promise<{ periodDays?: string }>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ periodDays?: string }>;
 };
 
 const evidenceStyles = {
@@ -46,105 +45,6 @@ const formatEvidenceValue = (metricLabel: string, value: number | null) => {
   return value.toFixed(2);
 };
 
-type AiInsightItem = {
-  title: string;
-  detail: ReactNode;
-  iconWrapperClass: string;
-  iconClass: string;
-};
-
-type AiRecommendationItem = {
-  title: string;
-  detail: ReactNode;
-  iconWrapperClass: string;
-  iconClass: string;
-};
-
-const insightStyles = {
-  high: {
-    iconWrapperClass:
-      "mt-0.5 bg-amber-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-amber-500",
-    iconClass: "fa-solid fa-triangle-exclamation text-xs",
-  },
-  med: {
-    iconWrapperClass:
-      "mt-0.5 bg-red-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-red-500",
-    iconClass: "fa-solid fa-arrow-trend-up text-xs",
-  },
-  low: {
-    iconWrapperClass:
-      "mt-0.5 bg-slate-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-slate-500",
-    iconClass: "fa-solid fa-minus text-xs",
-  },
-};
-
-const recommendationStyles = {
-  high: {
-    iconWrapperClass:
-      "mt-0.5 bg-indigo-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-indigo-500",
-    iconClass: "fa-solid fa-wand-magic-sparkles text-xs",
-  },
-  med: {
-    iconWrapperClass:
-      "mt-0.5 bg-blue-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-blue-500",
-    iconClass: "fa-solid fa-users text-xs",
-  },
-  low: {
-    iconWrapperClass:
-      "mt-0.5 bg-slate-100 w-6 h-6 rounded shrink-0 flex items-center justify-center text-slate-500",
-    iconClass: "fa-solid fa-lightbulb text-xs",
-  },
-};
-
-const fallbackInsights: AiInsightItem[] = [
-  {
-    title: "Creative Fatigue Detected",
-    detail: (
-      <>
-        Frequency สูงแตะ <span className="font-medium text-slate-900">4.2</span>{" "}
-        ทำให้ CTR ตกลงอย่างรวดเร็ว{" "}
-        <span className="text-red-500 font-medium">(-29%)</span> เป็นสัญญาณว่า
-        กลุ่มเป้าหมายเดิมเห็นโฆษณาซ้ำจนเกิดอาการ “ตาบอดโฆษณา” (Banner Blindness)
-      </>
-    ),
-    ...insightStyles.high,
-  },
-  {
-    title: "Cost Efficiency Dropped",
-    detail: (
-      <>
-        Cost per Result เพิ่มขึ้น{" "}
-        <span className="text-red-500 font-medium">+22%</span> ทำให้ประสิทธิภาพ
-        โดยรวมของแคมเปญลดลง
-      </>
-    ),
-    ...insightStyles.med,
-  },
-];
-
-const fallbackRecommendations: AiRecommendationItem[] = [
-  {
-    title: "Refresh Creative Assets",
-    detail: (
-      <>
-        แนะนำให้ <u>หยุด (Pause)</u> Ads ที่ CTR ต่ำกว่า 0.6% และทดสอบ Creative
-        ใหม่อย่างน้อย 2–3 ชิ้น
-      </>
-    ),
-    ...recommendationStyles.high,
-  },
-  {
-    title: "Expand Audience",
-    detail: (
-      <>
-        พิจารณาขยาย LAL จาก 1% เป็น 3% หรือเพิ่ม Interest
-        ใกล้เคียงเพื่อลดความถี่ หาก Creative ใหม่ยังไม่พร้อม
-      </>
-    ),
-    ...recommendationStyles.med,
-  },
-];
-
 export default async function AdGroupDetailPage({
   params,
   searchParams,
@@ -167,12 +67,6 @@ export default async function AdGroupDetailPage({
       </div>
     );
   }
-
-  const aiSummary = await getAiSummary({
-    adGroupId: resolvedParams.id,
-    periodDays: detail.period.days,
-    detail,
-  });
 
   const periodLabel = `Last ${detail.period.days} Days`;
   const compareLabel = `vs Previous ${detail.period.days} Days`;
@@ -216,41 +110,6 @@ export default async function AdGroupDetailPage({
       recommendation: variant === "bad" ? "Pause" : undefined,
     };
   });
-
-  const aiStatus =
-    aiSummary.status === "ok"
-      ? { label: "Ready", dot: "bg-green-400" }
-      : aiSummary.status === "partial"
-        ? { label: "Partial", dot: "bg-amber-400" }
-        : aiSummary.status === "disabled"
-          ? { label: "Disabled", dot: "bg-slate-400" }
-          : { label: "Fallback", dot: "bg-amber-400" };
-
-  const aiSubtitle =
-    aiSummary.insight?.insightSummary ??
-    "Analyzing patterns from evidence to actionable advice";
-
-  const aiInsights: AiInsightItem[] = aiSummary.insight?.insights?.length
-    ? aiSummary.insight.insights.map((insight) => ({
-        title: insight.title,
-        detail: insight.detail,
-        ...insightStyles[insight.severity],
-      }))
-    : fallbackInsights;
-
-  const aiRecommendations: AiRecommendationItem[] = aiSummary.recommendation
-    ?.recommendations?.length
-    ? aiSummary.recommendation.recommendations.map((item) => ({
-        title: item.action,
-        detail: item.reason,
-        ...recommendationStyles[item.confidence],
-      }))
-    : fallbackRecommendations;
-
-  const aiFooterText =
-    aiSummary.status === "ok"
-      ? "AI generated suggestions based on metrics snapshot. Please review before applying."
-      : "ไม่สามารถสร้างสรุป AI ได้ในขณะนี้ (แสดงผลจาก deterministic logic เท่านั้น)";
 
   return (
     <div className="min-h-screen">
@@ -327,101 +186,10 @@ export default async function AdGroupDetailPage({
           </div>
         </div>
 
-        <div className="bg-linear-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-xl shadow-sm overflow-hidden mb-8 relative ring-1 ring-indigo-500/10">
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-linear-to-b from-blue-500 to-indigo-600"></div>
-          <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-            <i className="fa-solid fa-robot text-9xl text-indigo-900"></i>
-          </div>
-
-          <div className="p-6 relative z-10">
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-indigo-200/50">
-              <div>
-                <h3 className="flex items-center gap-2 text-lg font-bold text-indigo-900">
-                  <i className="fa-solid fa-wand-magic-sparkles text-indigo-500"></i>
-                  AI Copilot Analysis
-                </h3>
-                <p className="text-xs text-indigo-600/70 mt-0.5 font-medium ml-7">
-                  {aiSubtitle}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] text-indigo-500 font-bold bg-white px-2 py-1 rounded border border-indigo-100 shadow-sm">
-                  <span
-                    className={`w-1.5 h-1.5 ${aiStatus.dot} rounded-full inline-block mr-1`}
-                  ></span>
-                  {aiStatus.label}
-                </span>
-                <button className="text-indigo-400 hover:text-indigo-600 transition-colors">
-                  <i className="fa-solid fa-rotate-right"></i>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-xs font-bold uppercase text-indigo-400 tracking-wider mb-3 flex items-center gap-2">
-                  <span className="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
-                    1
-                  </span>
-                  Situation Analysis
-                </h4>
-                <ul className="space-y-3">
-                  {aiInsights.map((item, index) => (
-                    <li
-                      key={`${item.title}-${index}`}
-                      className="group flex gap-3 text-sm text-slate-700 bg-white/80 p-3.5 rounded-lg border border-indigo-50 hover:border-indigo-200 shadow-sm transition-all hover:shadow-md"
-                    >
-                      <div className={item.iconWrapperClass}>
-                        <i className={item.iconClass}></i>
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-bold block text-slate-900 mb-1">
-                          {item.title}
-                        </span>
-                        <span className="text-slate-600 font-thai text-sm leading-relaxed">
-                          {item.detail}
-                        </span>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-xs font-bold uppercase text-indigo-400 tracking-wider mb-3 flex items-center gap-2">
-                  <span className="bg-indigo-100 w-5 h-5 rounded-full flex items-center justify-center text-[10px]">
-                    2
-                  </span>
-                  Actionable Recommendations
-                </h4>
-                <ul className="space-y-3">
-                  {aiRecommendations.map((item, index) => (
-                    <li
-                      key={`${item.title}-${index}`}
-                      className="group flex gap-3 text-sm text-slate-700 bg-white p-3.5 rounded-lg border border-indigo-100 hover:border-indigo-200 shadow-sm transition-all hover:shadow-md"
-                    >
-                      <div className={item.iconWrapperClass}>
-                        <i className={item.iconClass}></i>
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-bold block text-slate-900 mb-1">
-                          {item.title}
-                        </span>
-                        <p className="text-slate-500 text-xs font-thai leading-relaxed">
-                          {item.detail}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-indigo-50/50 px-6 py-2 text-[10px] text-indigo-400 text-center border-t border-indigo-100 font-medium">
-            <i className="fa-brands fa-markdown mr-1"></i> {aiFooterText}
-          </div>
-        </div>
+        <AiCopilotPanel
+          adGroupId={resolvedParams.id}
+          periodDays={detail.period.days}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

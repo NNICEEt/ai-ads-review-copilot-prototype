@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getReviewDataSource } from "@/lib/data/reviewSource";
 import {
   buildPeriodRange,
   normalizePeriodDays,
@@ -23,8 +23,7 @@ import {
   mapAdGroup,
   mapCampaign,
 } from "@/lib/adapters/dbToCanonical";
-
-type DateRange = { start: Date; end: Date };
+import type { DailyMetricRow, DateRange } from "@/lib/data/reviewSource";
 
 const sumNullable = (values: Array<number | null | undefined>) => {
   const hasValue = values.some((value) => value != null);
@@ -40,17 +39,6 @@ const sumDailyRows = (rows: DailyMetricRow[]): Totals => ({
   reach: sumNullable(rows.map((row) => row.reach)),
   revenue: sumNullable(rows.map((row) => row.revenue)),
 });
-
-type DailyMetricRow = {
-  entityId: string;
-  date: Date;
-  spend: number;
-  impressions: number;
-  clicks: number;
-  results: number;
-  reach: number | null;
-  revenue: number | null;
-};
 
 const groupRowsByDate = (rows: DailyMetricRow[]) => {
   const map = new Map<string, DailyMetricRow[]>();
@@ -72,44 +60,34 @@ const filterByRange = (rows: DailyMetricRow[], range: DateRange) =>
   rows.filter((row) => isWithinRange(row.date, range));
 
 const getLatestMetricDate = async () => {
-  const result = await prisma.dailyMetric.aggregate({
-    _max: { date: true },
-  });
-  if (!result._max.date) {
-    return new Date();
-  }
-  return result._max.date;
+  const source = getReviewDataSource();
+  return (await source.getLatestMetricDate()) ?? new Date();
 };
 
 const getAccountId = async (accountId?: string | null) => {
-  if (accountId) return accountId;
-  const first = await prisma.account.findFirst({ orderBy: { name: "asc" } });
-  return first?.id ?? null;
+  const source = getReviewDataSource();
+  if (accountId) {
+    const accounts = await source.getAccounts();
+    const exists = accounts.some((row) => row.id === accountId);
+    if (exists) return accountId;
+  }
+  return source.getFirstAccountId();
 };
 
 export const getAccounts = async () => {
-  const rows = await prisma.account.findMany({ orderBy: { name: "asc" } });
+  const source = getReviewDataSource();
+  const rows = await source.getAccounts();
   return rows.map(mapAccount);
 };
 
 const loadAdGroupsForAccount = async (accountId: string) => {
-  return prisma.adGroup.findMany({
-    where: { campaign: { accountId } },
-    include: {
-      campaign: true,
-      ads: { select: { id: true } },
-    },
-  });
+  const source = getReviewDataSource();
+  return source.getAdGroupsForAccount(accountId);
 };
 
 const loadAdGroupsForCampaign = async (campaignId: string) => {
-  return prisma.adGroup.findMany({
-    where: { campaignId },
-    include: {
-      campaign: { include: { account: true } },
-      ads: { select: { id: true } },
-    },
-  });
+  const source = getReviewDataSource();
+  return source.getAdGroupsForCampaign(campaignId);
 };
 
 const loadMetricsForAds = async (
@@ -117,23 +95,8 @@ const loadMetricsForAds = async (
   range: DateRange,
 ): Promise<DailyMetricRow[]> => {
   if (adIds.length === 0) return [];
-  return prisma.dailyMetric.findMany({
-    where: {
-      entityType: "AD",
-      entityId: { in: adIds },
-      date: { gte: range.start, lte: range.end },
-    },
-    select: {
-      entityId: true,
-      date: true,
-      spend: true,
-      impressions: true,
-      clicks: true,
-      results: true,
-      reach: true,
-      revenue: true,
-    },
-  });
+  const source = getReviewDataSource();
+  return source.getDailyMetricsForAds(adIds, range);
 };
 
 const mapRowsByAdId = (rows: DailyMetricRow[]) => {
@@ -333,13 +296,8 @@ export const getAdGroupDetail = async (params: {
   const endDate = await getLatestMetricDate();
   const period = buildPeriodRange(endDate, periodDays);
 
-  const adGroup = await prisma.adGroup.findUnique({
-    where: { id: params.adGroupId },
-    include: {
-      campaign: true,
-      ads: true,
-    },
-  });
+  const source = getReviewDataSource();
+  const adGroup = await source.getAdGroupById(params.adGroupId);
   if (!adGroup) return null;
 
   const adIds = adGroup.ads.map((ad) => ad.id);
