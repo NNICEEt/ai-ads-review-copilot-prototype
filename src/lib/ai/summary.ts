@@ -187,7 +187,7 @@ const setCached = async (
 
 const buildInsightMessages = (payload: Record<string, unknown>) => {
   const system =
-    "You are an AI analyst for media buyers. Return only valid JSON. Do not invent numbers. Use only provided values. Every insight and bullet must reference evidenceRef entries (E1-E3).";
+    "You are an ads performance analyst assisting marketing teams (media buyers, marketers, analysts). Return only valid JSON. Do not invent numbers. Use only provided values. Every insight and bullet must reference evidenceRef entries (E1-E3).";
 
   const user = JSON.stringify({
     task: "Generate InsightJSON from provided derived metrics and evidence.",
@@ -226,7 +226,7 @@ const buildRecommendationMessages = (
   businessContext?: string | null,
 ) => {
   const system =
-    "You are an AI strategist. Return only valid JSON. Do not use raw metrics or add new numbers. Base every recommendation on insight and evidence references.";
+    "You are an ads optimization strategist assisting marketing teams (media buyers, marketers, analysts). Return only valid JSON. You will receive only InsightJSON and optional businessContext (no raw metrics). Do not invent numbers, thresholds, or new facts. Every recommendation must include basedOn references to at least one insight:* and one evidence:E1-E3.";
 
   const user = JSON.stringify({
     task: "Generate RecommendationJSON from InsightJSON only.",
