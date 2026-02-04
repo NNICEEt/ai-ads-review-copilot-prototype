@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { InsightJSON, RecommendationJSON } from "@/lib/ai/contracts";
 import type { EvidenceSlot } from "@/lib/analysis/evidence";
 import { formatCurrency } from "@/lib/utils/metrics";
+import { readBusinessContextFromStorage } from "@/components/ai/businessContextStorage";
 
 const MIN_LOADING_MS = 900;
 const LOADING_STEP_MS = 900;
@@ -275,10 +276,16 @@ export const AiCopilotPanel = ({
       setIsLoading(true);
       setLoadingStep(0);
       try {
+        const businessContext = readBusinessContextFromStorage().trim();
         const response = await fetch("/api/ai/summary", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ adGroupId, periodDays, mode: "full" }),
+          body: JSON.stringify({
+            adGroupId,
+            periodDays,
+            mode: "full",
+            ...(businessContext ? { businessContext } : null),
+          }),
           signal,
         });
 

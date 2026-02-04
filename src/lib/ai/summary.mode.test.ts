@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { getAdGroupDetail } from "@/lib/data/review";
+import { deltaValue } from "@/lib/analysis/metrics";
 
 const callAishop24h = vi.fn(async (params: { model: string }) => {
   if (params.model === "insight-model") {
@@ -199,6 +200,28 @@ describe("AI summary mode", () => {
             frequency: 2.5,
             roas: 2,
           },
+          previous: {
+            ctr: 0.018,
+            costPerResult: 90,
+            conversionRate: 0.06,
+            frequency: 2.2,
+            roas: 2.2,
+          },
+          deltas: {
+            costPerResult: deltaValue(100, 90),
+            cpc: deltaValue(null, null),
+            ctr: deltaValue(0.02, 0.018),
+            frequency: deltaValue(2.5, 2.2),
+            roas: deltaValue(2, 2.2),
+            conversionRate: deltaValue(0.05, 0.06),
+          },
+          diagnosis: {
+            label: "Stable",
+            severity: "low",
+            reason: "Test fixture",
+          },
+          score: 80,
+          label: "Normal",
         },
       ],
     };

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BusinessContextButton } from "@/components/ai/BusinessContextButton";
 
 type ContextNavbarProps = {
   backHref: string;
@@ -36,8 +37,9 @@ export const ContextNavbar = ({
         <i className={contextIconClass}></i> {contextMain}
       </span>
     </div>
-    {period ? (
-      <div className="ml-auto flex items-center gap-3">
+    <div className="ml-auto flex items-center gap-3">
+      <BusinessContextButton />
+      {period ? (
         <div className="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
           <i className="fa-regular fa-calendar text-slate-500"></i>
           <span className="text-xs font-bold text-slate-700">
@@ -47,7 +49,7 @@ export const ContextNavbar = ({
             {period.compareLabel}
           </span>
         </div>
-      </div>
-    ) : null}
+      ) : null}
+    </div>
   </nav>
 );

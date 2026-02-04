@@ -157,9 +157,9 @@ Owner: Team Hackathon
 
 ### P2 — NICE (ถ้าทันจริง ๆ)
 
-- [ ] persistent AI cache (KV/table) เพื่อให้ serverless นิ่ง
-- [ ] batch AI: วิเคราะห์ Top N ใน call เดียว (ลด network roundtrips)
-- [ ] business context form แบบเบา ๆ (เก็บ local/config) แล้วแนบไป stage A/B
+- [x] persistent AI cache (KV/table) เพื่อให้ serverless นิ่ง
+- [x] batch AI: วิเคราะห์ Top N ใน call เดียว (ลด network roundtrips)
+- [x] business context form แบบเบา ๆ (เก็บ local/config) แล้วแนบไป stage A/B
 
 ---
 

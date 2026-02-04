@@ -1,18 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { InsightJSON, RecommendationJSON } from "@/lib/ai/contracts";
-
-type AiSummaryStatus = "ok" | "partial" | "fallback" | "disabled";
-type AiSummarySource = "live" | "cache";
-
-type AiSummaryResult = {
-  status: AiSummaryStatus;
-  source: AiSummarySource;
-  insight: InsightJSON | null;
-  recommendation: RecommendationJSON | null;
-  reason?: "missing_config" | "invalid_json" | "timeout" | "error";
-};
+import {
+  buildAiInsightCacheKey,
+  getAiInsightCached,
+  publishAiInsightCached,
+  subscribeAiInsightCache,
+  type AiSummaryResult,
+} from "@/components/ai/aiClientCache";
+import {
+  readBusinessContextFromStorage,
+  readBusinessContextKeyFromStorage,
+  subscribeBusinessContextUpdates,
+} from "@/components/ai/businessContextStorage";
 
 type AiInsightSnippetProps = {
   adGroupId: string;
@@ -49,7 +49,7 @@ const statusMeta = (
   params:
     | { phase: "idle" }
     | { phase: "loading" }
-    | { phase: "loaded"; status: AiSummaryStatus },
+    | { phase: "loaded"; status: AiSummaryResult["status"] },
 ) => {
   if (params.phase === "idle") {
     return { label: "สรุปด้วย AI", dot: "bg-slate-400" };
@@ -102,8 +102,26 @@ export const AiInsightSnippet = ({
   tone = "neutral",
   autoLoad = true,
 }: AiInsightSnippetProps) => {
-  const [result, setResult] = useState<AiSummaryResult | null>(null);
-  const [isLoading, setIsLoading] = useState(autoLoad);
+  const [contextKey, setContextKey] = useState(() =>
+    readBusinessContextKeyFromStorage(),
+  );
+
+  useEffect(() => {
+    return subscribeBusinessContextUpdates(() => {
+      setContextKey(readBusinessContextKeyFromStorage());
+    });
+  }, []);
+
+  const cacheKey = useMemo(() => {
+    return buildAiInsightCacheKey({ adGroupId, periodDays, contextKey });
+  }, [adGroupId, contextKey, periodDays]);
+
+  const [result, setResult] = useState<AiSummaryResult | null>(() => {
+    return getAiInsightCached(cacheKey);
+  });
+  const [isLoading, setIsLoading] = useState(() => {
+    return autoLoad && !getAiInsightCached(cacheKey);
+  });
   const [loadingStep, setLoadingStep] = useState(0);
   const controllerRef = useRef<AbortController | null>(null);
 
@@ -113,10 +131,16 @@ export const AiInsightSnippet = ({
       setIsLoading(true);
 
       try {
+        const businessContext = readBusinessContextFromStorage().trim();
         const response = await fetch("/api/ai/summary", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ adGroupId, periodDays, mode: "insight" }),
+          body: JSON.stringify({
+            adGroupId,
+            periodDays,
+            mode: "insight",
+            ...(businessContext ? { businessContext } : null),
+          }),
           signal,
         });
         if (!response.ok) {
@@ -124,17 +148,20 @@ export const AiInsightSnippet = ({
         }
         const data = (await response.json()) as AiSummaryResult;
         if (signal?.aborted) return;
+        publishAiInsightCached(cacheKey, data);
         setResult(data);
       } catch (error) {
         if (signal?.aborted) return;
         console.warn("[ai] summary request error", { adGroupId, error });
-        setResult({
+        const fallback: AiSummaryResult = {
           status: "fallback",
           source: "live",
           insight: null,
           recommendation: null,
           reason: "error",
-        });
+        };
+        publishAiInsightCached(cacheKey, fallback);
+        setResult(fallback);
       }
 
       const elapsedMs = Date.now() - startedAt;
@@ -144,24 +171,38 @@ export const AiInsightSnippet = ({
       if (signal?.aborted) return;
       setIsLoading(false);
     },
-    [adGroupId, periodDays],
+    [adGroupId, cacheKey, periodDays],
   );
 
   useEffect(() => {
-    if (!autoLoad) {
-      setIsLoading(false);
-      return;
-    }
+    const cached = getAiInsightCached(cacheKey);
+    setResult(cached);
+    setIsLoading(autoLoad && !cached);
+    setLoadingStep(0);
+  }, [autoLoad, cacheKey]);
+
+  useEffect(() => {
+    if (!autoLoad) return;
+    if (getAiInsightCached(cacheKey)) return;
 
     const controller = new AbortController();
     controllerRef.current = controller;
     void load(controller.signal);
     return () => controller.abort();
-  }, [autoLoad, load]);
+  }, [autoLoad, cacheKey, load]);
 
   useEffect(() => {
     return () => controllerRef.current?.abort();
   }, []);
+
+  useEffect(() => {
+    return subscribeAiInsightCache((key, value) => {
+      if (key !== cacheKey) return;
+      controllerRef.current?.abort();
+      setResult(value);
+      setIsLoading(false);
+    });
+  }, [cacheKey]);
 
   useEffect(() => {
     if (!isLoading) return;

@@ -1,5 +1,6 @@
 import { getAdGroupDetail } from "@/lib/data/review";
 import { AI_CONFIG } from "@/lib/config/ai";
+import { z } from "zod";
 import {
   InsightJSONSchema,
   RecommendationJSONSchema,
@@ -29,6 +30,33 @@ type CacheEntry = {
 
 type AiLogLevel = "info" | "warn" | "error";
 
+const AI_CACHE_VERSION = "v2";
+
+const normalizeBusinessContext = (value: string | null | undefined) => {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, 2000);
+};
+
+const hashText = (value: string) => {
+  let hash = 5381;
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash * 33) ^ value.charCodeAt(index);
+  }
+  return (hash >>> 0).toString(36);
+};
+
+const AiSummaryResultSchema = z.object({
+  status: z.enum(["ok", "partial", "fallback", "disabled"]),
+  source: z.enum(["live", "cache"]).default("cache"),
+  insight: InsightJSONSchema.nullable(),
+  recommendation: RecommendationJSONSchema.nullable(),
+  reason: z
+    .enum(["missing_config", "invalid_json", "timeout", "error"])
+    .optional(),
+});
+
 const logAiEvent = (
   level: AiLogLevel,
   event: string,
@@ -41,7 +69,20 @@ const logAiEvent = (
 const cache = new Map<string, CacheEntry>();
 const inflight = new Map<string, Promise<AiSummaryResult>>();
 
-const getCached = (key: string) => {
+const stripTrailingSlash = (value: string) => value.replace(/\/+$/, "");
+
+const remoteCache =
+  AI_CONFIG.cacheRemoteEnabled &&
+  AI_CONFIG.cacheRestUrl &&
+  AI_CONFIG.cacheRestToken
+    ? {
+        url: stripTrailingSlash(AI_CONFIG.cacheRestUrl),
+        token: AI_CONFIG.cacheRestToken,
+        timeoutMs: AI_CONFIG.cacheRemoteTimeoutMs,
+      }
+    : null;
+
+const readCachedLocal = (key: string) => {
   const entry = cache.get(key);
   if (!entry) return null;
   if (Date.now() > entry.expiresAt) {
@@ -51,8 +92,97 @@ const getCached = (key: string) => {
   return entry.value;
 };
 
-const setCached = (key: string, value: AiSummaryResult, ttlMs: number) => {
+const writeCachedLocal = (
+  key: string,
+  value: AiSummaryResult,
+  ttlMs: number,
+) => {
   cache.set(key, { value, expiresAt: Date.now() + ttlMs });
+};
+
+type UpstashPipelineItem = { result?: unknown; error?: unknown };
+
+const upstashExtractResult = (item: unknown) => {
+  if (!item) return null;
+  if (typeof item === "object" && "result" in item) {
+    return (item as UpstashPipelineItem).result ?? null;
+  }
+  return item;
+};
+
+const upstashPipeline = async (commands: unknown[][]) => {
+  if (!remoteCache) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), remoteCache.timeoutMs);
+  try {
+    const response = await fetch(`${remoteCache.url}/pipeline`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${remoteCache.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(commands),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+    const payload = (await response.json().catch(() => null)) as unknown;
+    return Array.isArray(payload) ? payload : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+const readCachedRemote = async (
+  key: string,
+): Promise<AiSummaryResult | null> => {
+  const items = await upstashPipeline([["GET", key]]);
+  if (!items) return null;
+  const raw = upstashExtractResult(items[0]);
+  if (typeof raw !== "string") return null;
+
+  try {
+    const parsedJson = JSON.parse(raw) as unknown;
+    const parsed = AiSummaryResultSchema.safeParse(parsedJson);
+    if (!parsed.success) return null;
+    return parsed.data;
+  } catch {
+    return null;
+  }
+};
+
+const writeCachedRemote = async (
+  key: string,
+  value: AiSummaryResult,
+  ttlMs: number,
+) => {
+  const ttl = Math.max(1000, Math.round(ttlMs));
+  const payload = JSON.stringify(value);
+  await upstashPipeline([["SET", key, payload, "PX", ttl]]).catch(() => null);
+};
+
+const getCached = async (key: string) => {
+  const local = readCachedLocal(key);
+  if (local) return local;
+
+  const remote = await readCachedRemote(key);
+  if (!remote) return null;
+
+  writeCachedLocal(key, remote, AI_CONFIG.cacheTtlMs);
+  return remote;
+};
+
+const setCached = async (
+  key: string,
+  value: AiSummaryResult,
+  ttlMs: number,
+) => {
+  writeCachedLocal(key, value, ttlMs);
+  if (remoteCache) {
+    await writeCachedRemote(key, value, ttlMs);
+  }
 };
 
 const buildInsightMessages = (payload: Record<string, unknown>) => {
@@ -90,13 +220,18 @@ const buildInsightMessages = (payload: Record<string, unknown>) => {
   ];
 };
 
-const buildRecommendationMessages = (insight: InsightJSON, locale: string) => {
+const buildRecommendationMessages = (
+  insight: InsightJSON,
+  locale: string,
+  businessContext?: string | null,
+) => {
   const system =
     "You are an AI strategist. Return only valid JSON. Do not use raw metrics or add new numbers. Base every recommendation on insight and evidence references.";
 
   const user = JSON.stringify({
     task: "Generate RecommendationJSON from InsightJSON only.",
     locale,
+    businessContext: businessContext ?? null,
     constraints: {
       noRawMetrics: true,
       noNewNumbers: true,
@@ -218,6 +353,7 @@ const errorMeta = (error: unknown) => {
 
 const buildInsightPayload = (
   detail: Awaited<ReturnType<typeof getAdGroupDetail>>,
+  businessContext?: string | null,
 ) => {
   if (!detail) return null;
   return {
@@ -230,6 +366,7 @@ const buildInsightPayload = (
       label: detail.label,
       currency: "THB",
       currencyMinorUnit: "satang",
+      businessContext: businessContext ?? null,
     },
     derivedMetrics: detail.derived,
     evidence: detail.evidence.map((slot) => ({
@@ -316,7 +453,7 @@ const callInsightStage = async (
 
 const callRecommendationStage = async (
   insight: InsightJSON,
-  meta: { adGroupId: string },
+  meta: { adGroupId: string; businessContext?: string | null },
 ): Promise<
   | { ok: true; data: RecommendationJSON }
   | { ok: false; reason: AiErrorReason; data: null }
@@ -341,7 +478,11 @@ const callRecommendationStage = async (
       apiUrl: AI_CONFIG.apiUrl,
       apiKey,
       model: AI_CONFIG.modelReco,
-      messages: buildRecommendationMessages(insight, AI_CONFIG.locale),
+      messages: buildRecommendationMessages(
+        insight,
+        AI_CONFIG.locale,
+        meta.businessContext ?? null,
+      ),
       temperature: 0.3,
       timeoutMs: AI_CONFIG.timeoutMs,
       useResponseFormat: AI_CONFIG.useResponseFormat,
@@ -390,13 +531,16 @@ export const getAiSummary = async (params: {
   periodDays?: number;
   mode?: AiSummaryMode;
   detail?: Awaited<ReturnType<typeof getAdGroupDetail>> | null;
+  businessContext?: string | null;
 }): Promise<AiSummaryResult> => {
   const mode = params.mode ?? "full";
-  const baseKey = `${params.adGroupId}:${params.periodDays ?? "default"}:${AI_CONFIG.locale}`;
+  const businessContext = normalizeBusinessContext(params.businessContext);
+  const contextKey = businessContext ? `:bc:${hashText(businessContext)}` : "";
+  const baseKey = `ai_summary:${AI_CACHE_VERSION}:${params.adGroupId}:${params.periodDays ?? "default"}:${AI_CONFIG.locale}${contextKey}`;
   const insightKey = `${baseKey}:insight`;
   const fullKey = `${baseKey}:full`;
   const cacheKey = mode === "full" ? fullKey : insightKey;
-  const cached = getCached(cacheKey);
+  const cached = await getCached(cacheKey);
   if (cached) {
     logAiEvent("info", "cache_hit", {
       adGroupId: params.adGroupId,
@@ -408,7 +552,7 @@ export const getAiSummary = async (params: {
   }
 
   if (mode === "insight") {
-    const cachedFull = getCached(fullKey);
+    const cachedFull = await getCached(fullKey);
     if (cachedFull?.insight) {
       return {
         status: "partial",
@@ -446,7 +590,7 @@ export const getAiSummary = async (params: {
         };
       }
 
-      const payload = buildInsightPayload(detail);
+      const payload = buildInsightPayload(detail, businessContext);
       if (!payload) {
         return {
           status: "fallback",
@@ -458,7 +602,7 @@ export const getAiSummary = async (params: {
       }
 
       const cachedInsight =
-        mode === "full" ? getCached(insightKey)?.insight : null;
+        mode === "full" ? (await getCached(insightKey))?.insight : null;
       const insightStage = cachedInsight
         ? { ok: true as const, data: cachedInsight }
         : await callInsightStage(payload, {
@@ -475,13 +619,13 @@ export const getAiSummary = async (params: {
           recommendation: null,
           reason: insightStage.reason,
         };
-        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        await setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
         return result;
       }
 
       const clampedInsight = clampInsight(insightStage.data);
       if (!cachedInsight) {
-        setCached(
+        await setCached(
           insightKey,
           {
             status: "partial",
@@ -500,7 +644,7 @@ export const getAiSummary = async (params: {
           insight: clampedInsight,
           recommendation: null,
         };
-        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        await setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
         return result;
       }
 
@@ -508,6 +652,7 @@ export const getAiSummary = async (params: {
         clampedInsight,
         {
           adGroupId: params.adGroupId,
+          businessContext,
         },
       );
       if (!recommendationStage.ok || !recommendationStage.data) {
@@ -518,7 +663,7 @@ export const getAiSummary = async (params: {
           recommendation: null,
           reason: recommendationStage.reason,
         };
-        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        await setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
         return result;
       }
 
@@ -528,7 +673,7 @@ export const getAiSummary = async (params: {
         insight: clampedInsight,
         recommendation: clampRecommendation(recommendationStage.data),
       };
-      setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+      await setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
       return result;
     })();
 

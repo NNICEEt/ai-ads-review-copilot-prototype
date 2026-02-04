@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BusinessContextButton } from "@/components/ai/BusinessContextButton";
 
 export const DashboardNavbar = () => (
   <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
@@ -15,6 +16,7 @@ export const DashboardNavbar = () => (
         </div>
 
         <div className="flex items-center gap-4">
+          <BusinessContextButton />
           <button
             type="button"
             className="text-slate-500 hover:text-slate-700 transition-colors"

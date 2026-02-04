@@ -19,6 +19,18 @@ export const AI_CONFIG = {
   modelReco: process.env.AISHOP24H_MODEL_RECO ?? "",
   timeoutMs: toNumber(process.env.AI_TIMEOUT_MS, 8000),
   cacheTtlMs: toNumber(process.env.AI_CACHE_TTL_MS, 300000),
+  cacheRemoteEnabled: toBoolean(process.env.AI_CACHE_REMOTE_ENABLED, true),
+  cacheRemoteTimeoutMs: toNumber(process.env.AI_CACHE_REMOTE_TIMEOUT_MS, 700),
+  cacheRestUrl:
+    process.env.AI_CACHE_REST_URL ??
+    process.env.KV_REST_API_URL ??
+    process.env.UPSTASH_REDIS_REST_URL ??
+    "",
+  cacheRestToken:
+    process.env.AI_CACHE_REST_TOKEN ??
+    process.env.KV_REST_API_TOKEN ??
+    process.env.UPSTASH_REDIS_REST_TOKEN ??
+    "",
   locale: process.env.APP_LOCALE ?? "th-TH",
   useResponseFormat: toBoolean(process.env.AI_USE_RESPONSE_FORMAT, false),
 };
