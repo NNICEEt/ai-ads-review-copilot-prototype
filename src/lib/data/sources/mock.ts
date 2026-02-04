@@ -504,7 +504,7 @@ const buildMockDb = (): MockDb => {
     };
   });
 
-  const creativeSuffixes = ["A", "B", "C"] as const;
+  type CreativeSuffix = "A" | "B" | "C";
 
   const buildCreativesForTheme = (theme: string) => {
     return [
@@ -524,7 +524,7 @@ const buildMockDb = (): MockDb => {
         name: `CAR | ${theme} | Bundle`,
       },
     ] satisfies Array<{
-      suffix: (typeof creativeSuffixes)[number];
+      suffix: CreativeSuffix;
       creativeType: CreativeType;
       name: string;
     }>;

@@ -6,9 +6,10 @@ import {
   type InsightJSON,
   type RecommendationJSON,
 } from "@/lib/ai/contracts";
-import { callAishop24h } from "@/lib/ai/client";
+import { AiHttpError, callAishop24h } from "@/lib/ai/client";
 
 export type AiSummaryStatus = "ok" | "partial" | "fallback" | "disabled";
+export type AiSummaryMode = "insight" | "full";
 export type AiSummarySource = "live" | "cache";
 
 export type AiSummaryResult = {
@@ -38,6 +39,7 @@ const logAiEvent = (
 };
 
 const cache = new Map<string, CacheEntry>();
+const inflight = new Map<string, Promise<AiSummaryResult>>();
 
 const getCached = (key: string) => {
   const entry = cache.get(key);
@@ -59,6 +61,12 @@ const buildInsightMessages = (payload: Record<string, unknown>) => {
 
   const user = JSON.stringify({
     task: "Generate InsightJSON from provided derived metrics and evidence.",
+    constraints: {
+      noNewNumbers: true,
+      maxInsights: 2,
+      maxEvidenceBullets: 3,
+      maxLimits: 3,
+    },
     schema: {
       insightSummary: "string",
       evidenceBullets: [{ text: "string", evidenceRef: ["E1"] }],
@@ -115,9 +123,97 @@ const buildRecommendationMessages = (insight: InsightJSON, locale: string) => {
   ];
 };
 
+const clampInsight = (insight: InsightJSON): InsightJSON => ({
+  ...insight,
+  evidenceBullets: insight.evidenceBullets.slice(0, 3),
+  insights: insight.insights.slice(0, 2),
+  limits: insight.limits.slice(0, 3),
+});
+
+const clampRecommendation = (
+  recommendation: RecommendationJSON,
+): RecommendationJSON => ({
+  ...recommendation,
+  recommendations: recommendation.recommendations.slice(0, 3),
+});
+
 const classifyError = (error: unknown): AiErrorReason => {
   if (error instanceof Error && error.name === "AbortError") return "timeout";
   return "error";
+};
+
+const truncate = (value: string, max = 600) => {
+  if (value.length <= max) return value;
+  return `${value.slice(0, max)}…`;
+};
+
+const safeJsonStringify = (value: unknown) => {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return null;
+  }
+};
+
+const safeHost = (value: string) => {
+  try {
+    return new URL(value).host;
+  } catch {
+    return value;
+  }
+};
+
+const errorMeta = (error: unknown) => {
+  if (error instanceof AiHttpError) {
+    return {
+      type: "http",
+      status: error.status,
+      statusText: error.statusText,
+      host: safeHost(error.url),
+      requestId: error.requestId,
+      bodySnippet: error.bodyText ? truncate(error.bodyText, 800) : null,
+    };
+  }
+
+  if (error instanceof Error) {
+    const cause = (error as Error & { cause?: unknown }).cause;
+    const causeMeta =
+      cause instanceof AiHttpError
+        ? {
+            type: "http",
+            status: cause.status,
+            statusText: cause.statusText,
+            host: safeHost(cause.url),
+            requestId: cause.requestId,
+            bodySnippet: cause.bodyText ? truncate(cause.bodyText, 800) : null,
+          }
+        : cause instanceof Error
+          ? { name: cause.name, message: cause.message }
+          : typeof cause === "string"
+            ? { message: cause }
+            : cause
+              ? {
+                  value:
+                    truncate(safeJsonStringify(cause) ?? String(cause), 400) ??
+                    null,
+                }
+              : null;
+
+    return {
+      type: "exception",
+      name: error.name,
+      message: error.message,
+      stack: error.stack ? truncate(error.stack, 1200) : null,
+      cause: causeMeta,
+    };
+  }
+
+  if (typeof error === "string") return { type: "unknown", message: error };
+  try {
+    return { type: "unknown", value: truncate(JSON.stringify(error), 400) };
+  } catch {
+    return { type: "unknown", value: String(error) };
+  }
 };
 
 const buildInsightPayload = (
@@ -184,6 +280,18 @@ const callInsightStage = async (
       logAiEvent("warn", "invalid_json", {
         stage: "insight",
         adGroupId: meta.adGroupId,
+        model: AI_CONFIG.modelInsight,
+        host: safeHost(AI_CONFIG.apiUrl ?? ""),
+        issues: parsed.error.issues.slice(0, 3).map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+        resultPreview: truncate(
+          typeof result === "string"
+            ? result
+            : (safeJsonStringify(result) ?? "[unserializable result]"),
+          800,
+        ),
       });
       return { ok: false, reason: "invalid_json" as const, data: null };
     }
@@ -198,6 +306,9 @@ const callInsightStage = async (
       stage: "insight",
       adGroupId: meta.adGroupId,
       reason,
+      model: AI_CONFIG.modelInsight,
+      host: safeHost(AI_CONFIG.apiUrl ?? ""),
+      error: errorMeta(error),
     });
     return { ok: false, reason, data: null };
   }
@@ -240,6 +351,18 @@ const callRecommendationStage = async (
       logAiEvent("warn", "invalid_json", {
         stage: "recommendation",
         adGroupId: meta.adGroupId,
+        model: AI_CONFIG.modelReco,
+        host: safeHost(AI_CONFIG.apiUrl ?? ""),
+        issues: parsed.error.issues.slice(0, 3).map((issue) => ({
+          path: issue.path.join("."),
+          message: issue.message,
+        })),
+        resultPreview: truncate(
+          typeof result === "string"
+            ? result
+            : (safeJsonStringify(result) ?? "[unserializable result]"),
+          800,
+        ),
       });
       return { ok: false, reason: "invalid_json" as const, data: null };
     }
@@ -254,6 +377,9 @@ const callRecommendationStage = async (
       stage: "recommendation",
       adGroupId: meta.adGroupId,
       reason,
+      model: AI_CONFIG.modelReco,
+      host: safeHost(AI_CONFIG.apiUrl ?? ""),
+      error: errorMeta(error),
     });
     return { ok: false, reason, data: null };
   }
@@ -262,84 +388,154 @@ const callRecommendationStage = async (
 export const getAiSummary = async (params: {
   adGroupId: string;
   periodDays?: number;
+  mode?: AiSummaryMode;
   detail?: Awaited<ReturnType<typeof getAdGroupDetail>> | null;
 }): Promise<AiSummaryResult> => {
-  const cacheKey = `${params.adGroupId}:${params.periodDays ?? "default"}:${AI_CONFIG.locale}`;
+  const mode = params.mode ?? "full";
+  const baseKey = `${params.adGroupId}:${params.periodDays ?? "default"}:${AI_CONFIG.locale}`;
+  const insightKey = `${baseKey}:insight`;
+  const fullKey = `${baseKey}:full`;
+  const cacheKey = mode === "full" ? fullKey : insightKey;
   const cached = getCached(cacheKey);
   if (cached) {
     logAiEvent("info", "cache_hit", {
       adGroupId: params.adGroupId,
       periodDays: params.periodDays ?? null,
+      mode,
       status: cached.status,
     });
     return { ...cached, source: "cache" };
   }
 
-  const detail =
-    params.detail ??
-    (await getAdGroupDetail({
-      adGroupId: params.adGroupId,
-      periodDays: params.periodDays ?? null,
-    }));
-  if (!detail) {
-    return {
-      status: "fallback",
-      source: "live",
-      insight: null,
-      recommendation: null,
-      reason: "error",
-    };
+  if (mode === "insight") {
+    const cachedFull = getCached(fullKey);
+    if (cachedFull?.insight) {
+      return {
+        status: "partial",
+        source: "cache",
+        insight: cachedFull.insight,
+        recommendation: null,
+        reason:
+          cachedFull.status === "partial" || cachedFull.status === "fallback"
+            ? cachedFull.reason
+            : undefined,
+      };
+    }
   }
 
-  const payload = buildInsightPayload(detail);
-  if (!payload) {
-    return {
-      status: "fallback",
-      source: "live",
-      insight: null,
-      recommendation: null,
-      reason: "error",
-    };
+  const pending = inflight.get(cacheKey);
+  if (pending) {
+    return pending;
   }
 
-  const insightStage = await callInsightStage(payload, {
-    adGroupId: params.adGroupId,
-  });
-  if (!insightStage.ok || !insightStage.data) {
-    const status =
-      insightStage.reason === "missing_config" ? "disabled" : "fallback";
-    const result: AiSummaryResult = {
-      status,
-      source: "live",
-      insight: null,
-      recommendation: null,
-      reason: insightStage.reason,
-    };
-    setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
-    return result;
-  }
+  const promise: Promise<AiSummaryResult> =
+    (async (): Promise<AiSummaryResult> => {
+      const detail =
+        params.detail ??
+        (await getAdGroupDetail({
+          adGroupId: params.adGroupId,
+          periodDays: params.periodDays ?? null,
+        }));
+      if (!detail) {
+        return {
+          status: "fallback",
+          source: "live",
+          insight: null,
+          recommendation: null,
+          reason: "error",
+        };
+      }
 
-  const recommendationStage = await callRecommendationStage(insightStage.data, {
-    adGroupId: params.adGroupId,
-  });
-  if (!recommendationStage.ok || !recommendationStage.data) {
-    const result: AiSummaryResult = {
-      status: "partial",
-      source: "live",
-      insight: insightStage.data,
-      recommendation: null,
-      reason: recommendationStage.reason,
-    };
-    setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
-    return result;
-  }
+      const payload = buildInsightPayload(detail);
+      if (!payload) {
+        return {
+          status: "fallback",
+          source: "live",
+          insight: null,
+          recommendation: null,
+          reason: "error",
+        };
+      }
 
-  const result: AiSummaryResult = {
-    status: "ok",
-    source: "live",
-    insight: insightStage.data,
-    recommendation: recommendationStage.data,
-  };
-  setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
-  return result;
+      const cachedInsight =
+        mode === "full" ? getCached(insightKey)?.insight : null;
+      const insightStage = cachedInsight
+        ? { ok: true as const, data: cachedInsight }
+        : await callInsightStage(payload, {
+            adGroupId: params.adGroupId,
+          });
+
+      if (!insightStage.ok || !insightStage.data) {
+        const status =
+          insightStage.reason === "missing_config" ? "disabled" : "fallback";
+        const result: AiSummaryResult = {
+          status,
+          source: "live",
+          insight: null,
+          recommendation: null,
+          reason: insightStage.reason,
+        };
+        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        return result;
+      }
+
+      const clampedInsight = clampInsight(insightStage.data);
+      if (!cachedInsight) {
+        setCached(
+          insightKey,
+          {
+            status: "partial",
+            source: "live",
+            insight: clampedInsight,
+            recommendation: null,
+          },
+          AI_CONFIG.cacheTtlMs,
+        );
+      }
+
+      if (mode === "insight") {
+        const result: AiSummaryResult = {
+          status: "partial",
+          source: "live",
+          insight: clampedInsight,
+          recommendation: null,
+        };
+        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        return result;
+      }
+
+      const recommendationStage = await callRecommendationStage(
+        clampedInsight,
+        {
+          adGroupId: params.adGroupId,
+        },
+      );
+      if (!recommendationStage.ok || !recommendationStage.data) {
+        const result: AiSummaryResult = {
+          status: "partial",
+          source: "live",
+          insight: clampedInsight,
+          recommendation: null,
+          reason: recommendationStage.reason,
+        };
+        setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+        return result;
+      }
+
+      const result: AiSummaryResult = {
+        status: "ok",
+        source: "live",
+        insight: clampedInsight,
+        recommendation: clampRecommendation(recommendationStage.data),
+      };
+      setCached(cacheKey, result, AI_CONFIG.cacheTtlMs);
+      return result;
+    })();
+
+  inflight.set(cacheKey, promise);
+  try {
+    return await promise;
+  } finally {
+    inflight.delete(cacheKey);
+  }
 };

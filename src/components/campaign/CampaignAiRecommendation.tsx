@@ -79,7 +79,11 @@ export const CampaignAiRecommendation = ({
           const response = await fetch("/api/ai/summary", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ adGroupId: fromAdGroupId, periodDays }),
+            body: JSON.stringify({
+              adGroupId: fromAdGroupId,
+              periodDays,
+              mode: "full",
+            }),
             signal: controller.signal,
           });
           if (!response.ok) {

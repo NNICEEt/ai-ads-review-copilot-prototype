@@ -6,6 +6,7 @@ import { getAiSummary } from "@/lib/ai/summary";
 const RequestSchema = z.object({
   adGroupId: z.string().min(1),
   periodDays: z.union([z.number(), z.string()]).optional(),
+  mode: z.enum(["insight", "full"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -19,6 +20,7 @@ export async function POST(request: Request) {
   const result = await getAiSummary({
     adGroupId: parsed.data.adGroupId,
     periodDays,
+    mode: parsed.data.mode,
   });
   return NextResponse.json(result);
 }

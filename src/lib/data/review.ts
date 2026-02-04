@@ -16,6 +16,7 @@ import {
   diagnoseAdGroup,
   labelFromScore,
 } from "@/lib/analysis/scoring";
+import { SCORING_CONFIG } from "@/lib/config/scoring";
 import { Totals } from "@/lib/types/canonical";
 import {
   mapAccount,
@@ -214,6 +215,38 @@ export const getDashboardData = async (params: {
   const currentDerived = computeDerived(currentTotals);
   const previousDerived = computeDerived(previousTotals);
 
+  const impactSpendTotal = currentTotals.spend;
+  const priority = adGroupSummaries
+    .map((item) => {
+      const spendShare =
+        impactSpendTotal > 0 ? item.totals.spend / impactSpendTotal : null;
+
+      const severityRatio = Math.max(
+        0,
+        (SCORING_CONFIG.thresholds.labelTop - item.score) /
+          SCORING_CONFIG.thresholds.labelTop,
+      );
+      const severityWeight = severityRatio ** 2;
+      const impactWeight = spendShare != null ? Math.sqrt(spendShare) : 1;
+
+      return {
+        ...item,
+        impact: {
+          spendShare,
+        },
+        priorityScore: severityWeight * impactWeight,
+      };
+    })
+    .sort((a, b) => {
+      if (b.priorityScore !== a.priorityScore) {
+        return b.priorityScore - a.priorityScore;
+      }
+      if (a.score !== b.score) {
+        return a.score - b.score;
+      }
+      return b.totals.spend - a.totals.spend;
+    });
+
   return {
     accountId,
     period,
@@ -229,7 +262,7 @@ export const getDashboardData = async (params: {
         previousDerived.roas ?? null,
       ),
     },
-    priority: adGroupSummaries.sort((a, b) => a.score - b.score),
+    priority,
   };
 };
 
@@ -250,41 +283,168 @@ export const getCampaignBreakdown = async (params: {
   });
   const metricsByAdId = mapRowsByAdId(allMetrics);
 
+  const breakdownAdGroups = adGroups.map((group) => {
+    const adIdList = group.ads.map((ad) => ad.id);
+    const current = buildAdGroupMetrics(
+      adIdList,
+      metricsByAdId,
+      period.current,
+    );
+    const previous = buildAdGroupMetrics(
+      adIdList,
+      metricsByAdId,
+      period.previous,
+    );
+    const costDelta = deltaValue(
+      current.derived.costPerResult ?? null,
+      previous.derived.costPerResult ?? null,
+    );
+    const diagnosis = diagnoseAdGroup({
+      totals: current.totals,
+      metrics: current.derived,
+      costPerResultDelta: costDelta,
+    });
+
+    return {
+      id: group.id,
+      name: group.name,
+      totals: current.totals,
+      derived: current.derived,
+      costDelta,
+      diagnosis,
+      label: labelFromScore(computeScore(current.derived)),
+    };
+  });
+
+  const diagnosisCounts = breakdownAdGroups.reduce(
+    (acc, group) => {
+      if (group.diagnosis.label === "Fatigue Detected") acc.fatigue += 1;
+      else if (group.diagnosis.label === "Learning Limited")
+        acc.learningLimited += 1;
+      else if (group.diagnosis.label === "Cost Creeping") acc.costCreeping += 1;
+      else if (group.diagnosis.label === "Top Performer") acc.topPerformer += 1;
+      else acc.stable += 1;
+      return acc;
+    },
+    {
+      fatigue: 0,
+      learningLimited: 0,
+      costCreeping: 0,
+      topPerformer: 0,
+      stable: 0,
+    },
+  );
+
+  const cprGroups = breakdownAdGroups.filter(
+    (group) => group.derived.costPerResult != null,
+  );
+  const bestCpr =
+    cprGroups.length > 0
+      ? cprGroups.reduce((best, group) => {
+          const currentBest =
+            best.derived.costPerResult ?? Number.POSITIVE_INFINITY;
+          const next = group.derived.costPerResult ?? Number.POSITIVE_INFINITY;
+          return next < currentBest ? group : best;
+        })
+      : null;
+  const worstCpr =
+    cprGroups.length > 0
+      ? cprGroups.reduce((worst, group) => {
+          const currentWorst =
+            worst.derived.costPerResult ?? Number.NEGATIVE_INFINITY;
+          const next = group.derived.costPerResult ?? Number.NEGATIVE_INFINITY;
+          return next > currentWorst ? group : worst;
+        })
+      : null;
+
+  const roasGroups = breakdownAdGroups.filter(
+    (group) => group.derived.roas != null,
+  );
+  const bestRoas =
+    roasGroups.length > 0
+      ? roasGroups.reduce((best, group) => {
+          const currentBest = best.derived.roas ?? Number.NEGATIVE_INFINITY;
+          const next = group.derived.roas ?? Number.NEGATIVE_INFINITY;
+          return next > currentBest ? group : best;
+        })
+      : null;
+  const worstRoas =
+    roasGroups.length > 0
+      ? roasGroups.reduce((worst, group) => {
+          const currentWorst = worst.derived.roas ?? Number.POSITIVE_INFINITY;
+          const next = group.derived.roas ?? Number.POSITIVE_INFINITY;
+          return next < currentWorst ? group : worst;
+        })
+      : null;
+
+  const actions: string[] = [];
+  if (
+    bestCpr?.derived.costPerResult != null &&
+    worstCpr?.derived.costPerResult != null &&
+    worstCpr.derived.costPerResult > 0 &&
+    bestCpr.id !== worstCpr.id
+  ) {
+    const improvementPercent = Math.max(
+      0,
+      Math.round(
+        (1 - bestCpr.derived.costPerResult / worstCpr.derived.costPerResult) *
+          100,
+      ),
+    );
+    if (improvementPercent >= 15) {
+      actions.push(
+        `มีช่องว่าง CPR ระหว่างกลุ่มที่แพงสุด/คุ้มสุด ~${improvementPercent}% • พิจารณาโยกงบจาก "${worstCpr.name}" ไป "${bestCpr.name}" (ถ้า objective/creative ใกล้เคียงกัน)`,
+      );
+    }
+  }
+  if (diagnosisCounts.fatigue > 0) {
+    actions.push(
+      `พบ Creative Fatigue ${diagnosisCounts.fatigue} กลุ่ม • วางแผนรีเฟรชครีเอทีฟ/หมุนเวียนชิ้นงาน และตรวจดูความถี่การเห็นซ้ำ`,
+    );
+  }
+  if (diagnosisCounts.learningLimited > 0) {
+    actions.push(
+      `พบ Learning จำกัด ${diagnosisCounts.learningLimited} กลุ่ม • พิจารณาลดการแตกกลุ่ม (fragmentation) หรือรวมชุดโฆษณาเพื่อเพิ่มสัญญาณต่อชุด`,
+    );
+  }
+  if (diagnosisCounts.costCreeping > 0) {
+    actions.push(
+      `ต้นทุนเริ่มไหลขึ้น ${diagnosisCounts.costCreeping} กลุ่ม • ตรวจสอบ bid/placement/ช่วงเวลา และดูว่า Cost per Result แย่ลงจาก traffic หรือจาก conversion`,
+    );
+  }
+
+  const summary = {
+    spendTotal: breakdownAdGroups.reduce(
+      (sum, group) => sum + group.totals.spend,
+      0,
+    ),
+    diagnosisCounts,
+    highlights: {
+      cpr:
+        bestCpr && worstCpr
+          ? { bestId: bestCpr.id, worstId: worstCpr.id }
+          : null,
+      roas:
+        bestRoas && worstRoas
+          ? { bestId: bestRoas.id, worstId: worstRoas.id }
+          : null,
+    },
+    bestCpr: bestCpr?.derived.costPerResult ?? null,
+    bestCprName: bestCpr?.name ?? null,
+    worstCpr: worstCpr?.derived.costPerResult ?? null,
+    worstCprName: worstCpr?.name ?? null,
+    bestRoas: bestRoas?.derived.roas ?? null,
+    bestRoasName: bestRoas?.name ?? null,
+    worstRoas: worstRoas?.derived.roas ?? null,
+    worstRoasName: worstRoas?.name ?? null,
+    actions: actions.slice(0, 3),
+  };
+
   return {
     period,
     campaign: adGroups[0]?.campaign ?? null,
-    adGroups: adGroups.map((group) => {
-      const adIdList = group.ads.map((ad) => ad.id);
-      const current = buildAdGroupMetrics(
-        adIdList,
-        metricsByAdId,
-        period.current,
-      );
-      const previous = buildAdGroupMetrics(
-        adIdList,
-        metricsByAdId,
-        period.previous,
-      );
-      const costDelta = deltaValue(
-        current.derived.costPerResult ?? null,
-        previous.derived.costPerResult ?? null,
-      );
-      const diagnosis = diagnoseAdGroup({
-        totals: current.totals,
-        metrics: current.derived,
-        costPerResultDelta: costDelta,
-      });
-
-      return {
-        id: group.id,
-        name: group.name,
-        totals: current.totals,
-        derived: current.derived,
-        costDelta,
-        diagnosis,
-        label: labelFromScore(computeScore(current.derived)),
-      };
-    }),
+    summary,
+    adGroups: breakdownAdGroups,
   };
 };
 

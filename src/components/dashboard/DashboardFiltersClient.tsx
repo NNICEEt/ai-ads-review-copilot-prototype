@@ -59,7 +59,11 @@ export const DashboardFiltersClient = ({
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <i className="fa-solid fa-briefcase text-slate-500 text-xs"></i>
         </div>
+        <label htmlFor="dashboard-account" className="sr-only">
+          เลือกบัญชีโฆษณา
+        </label>
         <select
+          id="dashboard-account"
           className="appearance-none bg-slate-50 border border-slate-200 hover:border-blue-400 text-slate-700 py-2 pl-9 pr-8 rounded leading-tight focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-sm font-medium w-48 transition-all cursor-pointer"
           value={accountId}
           onChange={(event) => {
@@ -91,7 +95,11 @@ export const DashboardFiltersClient = ({
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           <i className="fa-solid fa-magnifying-glass text-slate-500 text-xs"></i>
         </div>
+        <label htmlFor="dashboard-search" className="sr-only">
+          ค้นหาแคมเปญหรือกลุ่มโฆษณา
+        </label>
         <input
+          id="dashboard-search"
           value={localQuery}
           onChange={(event) => setLocalQuery(event.target.value)}
           placeholder="ค้นหาแคมเปญ/กลุ่มโฆษณา…"

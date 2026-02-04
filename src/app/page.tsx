@@ -123,7 +123,7 @@ const DashboardPrioritySkeleton = () => (
           รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับด้วยคะแนนจากตัวเลขและแนวโน้ม • AI ช่วยสรุป Insight ต่อรายการ
+          จัดลำดับแบบ Severity × Impact (คะแนน × ขนาดงบ) • AI เป็นตัวช่วยเสริม
         </p>
       </div>
       <div className="flex gap-2 animate-pulse">
@@ -139,6 +139,7 @@ const DashboardPrioritySkeleton = () => (
             <th className="p-4 font-semibold w-20 text-center">คะแนน</th>
             <th className="p-4 font-semibold w-1/3">กลุ่มโฆษณา / แคมเปญ</th>
             <th className="p-4 font-semibold w-1/4">สถานะ / ประเด็น</th>
+            <th className="p-4 font-semibold text-right">ยอดใช้จ่าย</th>
             <th className="p-4 font-semibold text-right">ต้นทุน/ผลลัพธ์</th>
             <th className="p-4 font-semibold text-right">แนวโน้ม</th>
             <th className="p-4 font-semibold text-center w-20">ดูรายละเอียด</th>
@@ -160,6 +161,12 @@ const DashboardPrioritySkeleton = () => (
                 <SkeletonBlock className="h-5 w-24 rounded-full" />
                 <div className="mt-2">
                   <SkeletonBlock className="h-2.5 w-28" />
+                </div>
+              </td>
+              <td className="p-4 text-right">
+                <SkeletonBlock className="h-3 w-20 ml-auto" />
+                <div className="mt-2">
+                  <SkeletonBlock className="h-2.5 w-12 ml-auto" />
                 </div>
               </td>
               <td className="p-4 text-right">
@@ -324,7 +331,7 @@ const DashboardPrioritySection = async ({
       })
     : dashboard.priority;
 
-  const priorityItems = filtered.slice(0, 5).map((item) => {
+  const priorityItems = filtered.slice(0, 5).map((item, index) => {
     const trendPercent = item.deltas.costPerResult.percent
       ? Math.round(item.deltas.costPerResult.percent * 100)
       : 0;
@@ -400,9 +407,17 @@ const DashboardPrioritySection = async ({
       name: item.adGroupName,
       campaign: item.campaignName,
       campaignHref: `/campaign/${item.campaignId}?periodDays=${periodDays}`,
+      impact: {
+        spend: formatCurrency(item.totals.spend),
+        spendShare:
+          item.impact?.spendShare != null
+            ? `${Math.round(item.impact.spendShare * 100)}%`
+            : null,
+      },
       ai: {
         adGroupId: item.adGroupId,
         periodDays,
+        autoLoad: index < 2,
       },
       issue: {
         label: diagnosisLabelTh(item.diagnosis.label),

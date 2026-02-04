@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { InsightJSON, RecommendationJSON } from "@/lib/ai/contracts";
+import type { EvidenceSlot } from "@/lib/analysis/evidence";
+import { formatCurrency } from "@/lib/utils/metrics";
 
 const MIN_LOADING_MS = 900;
 const LOADING_STEP_MS = 900;
@@ -39,6 +41,7 @@ type AiSummaryResult = {
 type AiCopilotPanelProps = {
   adGroupId: string;
   periodDays: number;
+  fallbackEvidence?: EvidenceSlot[] | null;
 };
 
 type AiInsightItem = {
@@ -91,54 +94,136 @@ const recommendationStyles = {
   },
 };
 
-const fallbackInsights: AiInsightItem[] = [
-  {
-    title: "Creative Fatigue Detected",
-    detail: (
-      <>
-        Frequency สูงแตะ <span className="font-medium text-slate-900">4.2</span>{" "}
-        ทำให้ CTR ตกลงอย่างรวดเร็ว{" "}
-        <span className="text-red-500 font-medium">(-29%)</span> เป็นสัญญาณว่า
-        กลุ่มเป้าหมายเดิมเห็นโฆษณาซ้ำจนเกิดอาการ “ตาบอดโฆษณา” (Banner Blindness)
-      </>
-    ),
-    ...insightStyles.high,
-  },
-  {
-    title: "ประสิทธิภาพต้นทุนลดลง",
-    detail: (
-      <>
-        Cost per Result เพิ่มขึ้น{" "}
-        <span className="text-red-500 font-medium">+22%</span> ทำให้ประสิทธิภาพ
-        โดยรวมของแคมเปญลดลง
-      </>
-    ),
-    ...insightStyles.med,
-  },
-];
+const formatEvidenceValue = (metricLabel: string, value: number | null) => {
+  if (value == null) return "ไม่มีข้อมูล";
+  if (metricLabel === "ROAS") return `${value.toFixed(1)}x`;
+  if (metricLabel.includes("Rate") || metricLabel.includes("CTR")) {
+    return `${(value * 100).toFixed(2)}%`;
+  }
+  if (metricLabel === "Cost per Result") return formatCurrency(value);
+  return value.toFixed(2);
+};
 
-const fallbackRecommendations: AiRecommendationItem[] = [
-  {
-    title: "รีเฟรชครีเอทีฟ (Creative)",
-    detail: (
-      <>
-        แนะนำให้ <u>หยุดโฆษณา (Pause)</u> Ads ที่ CTR ต่ำกว่า 0.6% และทดสอบ
-        Creative ใหม่อย่างน้อย 2–3 ชิ้น
-      </>
-    ),
-    ...recommendationStyles.high,
-  },
-  {
-    title: "ขยายกลุ่มเป้าหมาย (Audience)",
-    detail: (
-      <>
-        พิจารณาขยาย LAL จาก 1% เป็น 3% หรือเพิ่ม Interest
-        ใกล้เคียงเพื่อลดความถี่ หาก Creative ใหม่ยังไม่พร้อม
-      </>
-    ),
-    ...recommendationStyles.med,
-  },
-];
+const metricPolarity = (metricLabel: string) => {
+  if (metricLabel === "Cost per Result") return "lower_is_better";
+  if (metricLabel === "Frequency") return "lower_is_better";
+  if (metricLabel === "ROAS") return "higher_is_better";
+  if (metricLabel.includes("Rate") || metricLabel.includes("CTR"))
+    return "higher_is_better";
+  return "neutral";
+};
+
+const classifyEvidenceSeverity = (slot: EvidenceSlot) => {
+  const polarity = metricPolarity(slot.metricLabel);
+  const percent = slot.value.percent;
+  if (percent == null || polarity === "neutral") return "low" as const;
+
+  const isWorse =
+    (polarity === "lower_is_better" && percent > 0) ||
+    (polarity === "higher_is_better" && percent < 0);
+
+  if (!isWorse) return "low" as const;
+  return Math.abs(percent) >= 0.2 ? ("high" as const) : ("med" as const);
+};
+
+const buildFallbackInsights = (fallbackEvidence?: EvidenceSlot[] | null) => {
+  if (!fallbackEvidence || fallbackEvidence.length === 0) {
+    return [
+      {
+        title: "AI ไม่พร้อมใช้งาน",
+        detail:
+          "แสดงสรุปจาก deterministic logic เท่านั้น (โปรดดู Evidence E1–E3 และแนวโน้มรายวันเพื่อประกอบการตัดสินใจ)",
+        ...insightStyles.low,
+      },
+    ] satisfies AiInsightItem[];
+  }
+
+  return fallbackEvidence.map((slot) => {
+    const current = formatEvidenceValue(slot.metricLabel, slot.value.current);
+    const previous = formatEvidenceValue(slot.metricLabel, slot.value.previous);
+    const percent =
+      slot.value.percent != null
+        ? `${slot.value.percent > 0 ? "+" : ""}${Math.round(slot.value.percent * 100)}%`
+        : null;
+
+    const severity = classifyEvidenceSeverity(slot);
+    return {
+      title: `${slot.id}: ${slot.title}`,
+      detail: (
+        <span className="font-thai text-sm leading-relaxed text-slate-600">
+          <span className="font-medium text-slate-800">{slot.metricLabel}</span>
+          : {current}
+          {slot.value.previous != null ? (
+            <span className="text-slate-500"> (ก่อนหน้า {previous})</span>
+          ) : null}
+          {percent ? (
+            <span className="text-slate-500"> • {percent}</span>
+          ) : null}
+        </span>
+      ),
+      ...insightStyles[severity],
+    } satisfies AiInsightItem;
+  });
+};
+
+const buildFallbackRecommendations = (
+  fallbackEvidence?: EvidenceSlot[] | null,
+) => {
+  const evidenceById = new Map(
+    (fallbackEvidence ?? []).map((slot) => [slot.id, slot]),
+  );
+  const e1 = evidenceById.get("E1");
+  const e2 = evidenceById.get("E2");
+  const e3 = evidenceById.get("E3");
+
+  const isWorse = (slot: EvidenceSlot | undefined) => {
+    if (!slot) return false;
+    const polarity = metricPolarity(slot.metricLabel);
+    const percent = slot.value.percent;
+    if (percent == null || polarity === "neutral") return false;
+    return (
+      (polarity === "lower_is_better" && percent > 0) ||
+      (polarity === "higher_is_better" && percent < 0)
+    );
+  };
+
+  const items: AiRecommendationItem[] = [];
+  if (isWorse(e3)) {
+    items.push({
+      title: "รีเฟรชครีเอทีฟ (Creative)",
+      detail:
+        "มีสัญญาณล้า/เห็นซ้ำจาก Evidence E3 • พิจารณาเปลี่ยนมุมข้อความ/ภาพ และกระจายชุดโฆษณาให้หลากหลายขึ้น",
+      ...recommendationStyles.high,
+    });
+  }
+  if (isWorse(e1)) {
+    items.push({
+      title: "คุมต้นทุนการส่งมอบ",
+      detail:
+        "Evidence E1 บ่งชี้ว่าประสิทธิภาพต้นทุนแย่ลง • ตรวจสอบการกระจายงบ, placement, และตัวแปรที่ทำให้ Cost per Result/ROAS เปลี่ยน",
+      ...recommendationStyles.med,
+    });
+  }
+  if (isWorse(e2)) {
+    items.push({
+      title: "ทบทวนคุณภาพทราฟฟิก/กลุ่มเป้าหมาย",
+      detail:
+        "Evidence E2 ชี้ว่าคุณภาพการคลิก/การคอนเวิร์สลดลง • ตรวจสอบ creative-message fit และการกำหนดกลุ่มเป้าหมาย",
+      ...recommendationStyles.low,
+    });
+  }
+
+  if (items.length > 0) return items.slice(0, 3);
+
+  return [
+    {
+      title: "ตรวจสอบสัญญาณจาก Evidence",
+      detail:
+        "AI ไม่พร้อมใช้งาน • ใช้ Evidence E1–E3 + แนวโน้มรายวันเพื่อหาสาเหตุหลักก่อนตัดสินใจปรับแคมเปญ",
+      ...recommendationStyles.low,
+    },
+  ];
+};
 
 const statusMetaFromResult = (
   params:
@@ -178,6 +263,7 @@ const SkeletonCard = () => (
 export const AiCopilotPanel = ({
   adGroupId,
   periodDays,
+  fallbackEvidence = null,
 }: AiCopilotPanelProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [result, setResult] = useState<AiSummaryResult | null>(null);
@@ -192,7 +278,7 @@ export const AiCopilotPanel = ({
         const response = await fetch("/api/ai/summary", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ adGroupId, periodDays }),
+          body: JSON.stringify({ adGroupId, periodDays, mode: "full" }),
           signal,
         });
 
@@ -268,8 +354,8 @@ export const AiCopilotPanel = ({
         ...insightStyles[insight.severity],
       }));
     }
-    return fallbackInsights;
-  }, [isLoading, result]);
+    return buildFallbackInsights(fallbackEvidence);
+  }, [fallbackEvidence, isLoading, result]);
 
   const aiRecommendations: AiRecommendationItem[] | null = useMemo(() => {
     if (isLoading) return null;
@@ -280,8 +366,8 @@ export const AiCopilotPanel = ({
         ...recommendationStyles[item.confidence],
       }));
     }
-    return fallbackRecommendations;
-  }, [isLoading, result]);
+    return buildFallbackRecommendations(fallbackEvidence);
+  }, [fallbackEvidence, isLoading, result]);
 
   const aiFooterText = useMemo(() => {
     if (isLoading) return "กำลังวิเคราะห์…";

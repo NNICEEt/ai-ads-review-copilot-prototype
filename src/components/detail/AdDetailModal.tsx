@@ -212,6 +212,7 @@ export const AdDetailModal = ({
 
   const diagnosis = content.diagnosis;
   const compareLabel = `เทียบกับ ${periodDays} วันก่อนหน้า`;
+  const titleId = `ad-detail-title-${ad.id}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -225,6 +226,7 @@ export const AdDetailModal = ({
       <div
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
         className="relative w-full max-w-3xl bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden"
       >
         <div className="p-5 border-b border-slate-100 bg-slate-50 flex items-start justify-between gap-4">
@@ -243,7 +245,9 @@ export const AdDetailModal = ({
                 </span>
               ) : null}
             </div>
-            <h4 className="font-bold text-slate-900 truncate">{ad.name}</h4>
+            <h4 id={titleId} className="font-bold text-slate-900 truncate">
+              {ad.name}
+            </h4>
             <p className="text-xs text-slate-600 font-thai mt-0.5">
               {compareLabel}
             </p>

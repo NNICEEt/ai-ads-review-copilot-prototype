@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { InsightJSON, RecommendationJSON } from "@/lib/ai/contracts";
 
 type AiSummaryStatus = "ok" | "partial" | "fallback" | "disabled";
@@ -21,6 +21,7 @@ type AiInsightSnippetProps = {
   fallbackDetail?: string | null;
   variant?: "compact" | "card";
   tone?: "danger" | "warn" | "success" | "neutral";
+  autoLoad?: boolean;
 };
 
 const MIN_LOADING_MS = 700;
@@ -45,8 +46,15 @@ const sleep = (ms: number, signal?: AbortSignal) =>
   });
 
 const statusMeta = (
-  params: { phase: "loading" } | { phase: "loaded"; status: AiSummaryStatus },
+  params:
+    | { phase: "idle" }
+    | { phase: "loading" }
+    | { phase: "loaded"; status: AiSummaryStatus },
 ) => {
+  if (params.phase === "idle") {
+    return { label: "สรุปด้วย AI", dot: "bg-slate-400" };
+  }
+
   if (params.phase === "loading") {
     return { label: "กำลังวิเคราะห์", dot: "bg-indigo-500" };
   }
@@ -92,10 +100,12 @@ export const AiInsightSnippet = ({
   fallbackDetail = null,
   variant = "compact",
   tone = "neutral",
+  autoLoad = true,
 }: AiInsightSnippetProps) => {
   const [result, setResult] = useState<AiSummaryResult | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(autoLoad);
   const [loadingStep, setLoadingStep] = useState(0);
+  const controllerRef = useRef<AbortController | null>(null);
 
   const load = useCallback(
     async (signal?: AbortSignal) => {
@@ -106,7 +116,7 @@ export const AiInsightSnippet = ({
         const response = await fetch("/api/ai/summary", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ adGroupId, periodDays }),
+          body: JSON.stringify({ adGroupId, periodDays, mode: "insight" }),
           signal,
         });
         if (!response.ok) {
@@ -138,10 +148,20 @@ export const AiInsightSnippet = ({
   );
 
   useEffect(() => {
+    if (!autoLoad) {
+      setIsLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
+    controllerRef.current = controller;
     void load(controller.signal);
     return () => controller.abort();
-  }, [load]);
+  }, [autoLoad, load]);
+
+  useEffect(() => {
+    return () => controllerRef.current?.abort();
+  }, []);
 
   useEffect(() => {
     if (!isLoading) return;
@@ -156,10 +176,17 @@ export const AiInsightSnippet = ({
     return result?.insight?.insights?.[0] ?? null;
   }, [isLoading, result]);
 
+  const requestAi = useCallback(() => {
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    void load(controller.signal);
+  }, [load]);
+
   const meta = useMemo(() => {
-    return isLoading || !result
-      ? statusMeta({ phase: "loading" })
-      : statusMeta({ phase: "loaded", status: result.status });
+    if (isLoading) return statusMeta({ phase: "loading" });
+    if (!result) return statusMeta({ phase: "idle" });
+    return statusMeta({ phase: "loaded", status: result.status });
   }, [isLoading, result]);
 
   const title = insight?.title ?? fallbackTitle;
@@ -188,17 +215,45 @@ export const AiInsightSnippet = ({
               className={isLoading ? "text-slate-700" : toneStyle.title}
               title={title}
             >
-              {isLoading ? "AI กำลังวิเคราะห์" : title}
+              {isLoading ? fallbackTitle : title}
             </span>
           </div>
-          <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
-            {meta.label}
-          </span>
+          {!autoLoad && !isLoading && !result ? (
+            <button
+              type="button"
+              onClick={requestAi}
+              className="text-[10px] text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors"
+            >
+              {meta.label}
+            </button>
+          ) : (
+            <span className="text-[10px] text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">
+              {meta.label}
+            </span>
+          )}
         </div>
 
         <p className="mt-1 text-[10px] text-slate-600 font-thai leading-snug">
-          {isLoading ? loadingText : detail || "—"}
+          {isLoading ? fallbackDetail || loadingText : detail || "—"}
         </p>
+      </div>
+    );
+  }
+
+  if (!autoLoad && !isLoading && !result) {
+    return (
+      <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-500 font-thai leading-snug">
+        <span className="inline-flex items-center justify-center w-4 h-4 rounded bg-slate-50 text-slate-600 border border-slate-200 shrink-0">
+          <i className="fa-solid fa-robot text-[10px]"></i>
+        </span>
+        <span className="text-slate-600 font-medium">{fallbackTitle}</span>
+        <button
+          type="button"
+          onClick={requestAi}
+          className="text-[10px] text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded hover:bg-blue-100 transition-colors"
+        >
+          สรุปด้วย AI
+        </button>
       </div>
     );
   }
@@ -214,7 +269,7 @@ export const AiInsightSnippet = ({
       </span>
       <span>
         {isLoading ? (
-          loadingText
+          fallbackTitle || loadingText
         ) : (
           <>
             <span className="text-slate-500 mr-1">AI:</span>

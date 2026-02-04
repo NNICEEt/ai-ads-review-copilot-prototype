@@ -7,9 +7,14 @@ type PriorityItem = {
   name: string;
   campaign: string;
   campaignHref?: string;
+  impact: {
+    spend: string;
+    spendShare: string | null;
+  };
   ai?: {
     adGroupId: string;
     periodDays: number;
+    autoLoad?: boolean;
   };
   issue?: {
     label: string;
@@ -46,7 +51,7 @@ export const PriorityList = ({ items }: PriorityListProps) => (
           รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับด้วยคะแนนจากตัวเลขและแนวโน้ม • AI ช่วยสรุป Insight ต่อรายการ
+          จัดลำดับแบบ Severity × Impact (คะแนน × ขนาดงบ) • AI เป็นตัวช่วยเสริม
         </p>
       </div>
       <div className="flex gap-2">
@@ -78,6 +83,17 @@ export const PriorityList = ({ items }: PriorityListProps) => (
             </th>
             <th className="p-4 font-semibold text-right">
               <div className="inline-flex items-center gap-1 justify-end w-full">
+                ยอดใช้จ่าย
+                <InfoTooltip
+                  label="คำอธิบายยอดใช้จ่าย"
+                  content={
+                    "ขนาดของเงินที่ใช้จริงในช่วงเวลาที่เลือก (Spend)\nใช้ประกอบการจัดลำดับความสำคัญแบบ Severity × Impact"
+                  }
+                />
+              </div>
+            </th>
+            <th className="p-4 font-semibold text-right">
+              <div className="inline-flex items-center gap-1 justify-end w-full">
                 ต้นทุน/ผลลัพธ์
                 <InfoTooltip
                   label="คำอธิบายต้นทุนต่อผลลัพธ์"
@@ -103,11 +119,13 @@ export const PriorityList = ({ items }: PriorityListProps) => (
         </thead>
         <tbody className="divide-y divide-slate-100 text-sm">
           {items.length > 0 ? (
-            items.map((item) => <PriorityRow key={item.name} {...item} />)
+            items.map((item) => (
+              <PriorityRow key={item.ai?.adGroupId ?? item.name} {...item} />
+            ))
           ) : (
             <tr>
               <td
-                colSpan={6}
+                colSpan={7}
                 className="p-10 text-center text-slate-500 text-sm"
               >
                 ไม่มีรายการที่ต้องจัดลำดับในช่วงเวลานี้

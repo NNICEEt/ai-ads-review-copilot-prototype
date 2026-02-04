@@ -10,9 +10,14 @@ type PriorityRowProps = {
   name: string;
   campaign: string;
   campaignHref?: string;
+  impact: {
+    spend: string;
+    spendShare: string | null;
+  };
   ai?: {
     adGroupId: string;
     periodDays: number;
+    autoLoad?: boolean;
   };
   issue?: {
     label: string;
@@ -88,6 +93,7 @@ export const PriorityRow = ({
   name,
   campaign,
   campaignHref,
+  impact,
   ai,
   issue,
   signals,
@@ -142,6 +148,7 @@ export const PriorityRow = ({
               fallbackDetail={issue?.detail ?? null}
               variant="card"
               tone={aiTone}
+              autoLoad={ai.autoLoad}
             />
           </div>
         ) : issue ? (
@@ -182,6 +189,12 @@ export const PriorityRow = ({
             ))}
           </div>
         ) : null}
+      </td>
+      <td className="p-4 text-right align-top">
+        <div className="font-bold text-slate-800">{impact.spend}</div>
+        <div className="text-[10px] text-slate-500">
+          {impact.spendShare ? `สัดส่วน ${impact.spendShare}` : "—"}
+        </div>
       </td>
       <td className="p-4 text-right">
         <div className="font-bold text-slate-800">{cost}</div>

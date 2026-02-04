@@ -155,6 +155,7 @@ export default async function AdGroupDetailPage({
         <AiCopilotPanel
           adGroupId={resolvedParams.id}
           periodDays={detail.period.days}
+          fallbackEvidence={detail.evidence}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

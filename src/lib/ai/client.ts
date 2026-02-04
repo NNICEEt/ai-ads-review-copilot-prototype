@@ -3,6 +3,30 @@ type ChatMessage = {
   content: string;
 };
 
+export class AiHttpError extends Error {
+  readonly status: number;
+  readonly statusText: string;
+  readonly url: string;
+  readonly requestId: string | null;
+  readonly bodyText: string | null;
+
+  constructor(params: {
+    status: number;
+    statusText: string;
+    url: string;
+    requestId: string | null;
+    bodyText: string | null;
+  }) {
+    super(`AI HTTP ${params.status} (${params.statusText || "unknown"})`);
+    this.name = "AiHttpError";
+    this.status = params.status;
+    this.statusText = params.statusText;
+    this.url = params.url;
+    this.requestId = params.requestId;
+    this.bodyText = params.bodyText;
+  }
+}
+
 type CallAiParams = {
   apiUrl: string;
   apiKey: string;
@@ -11,6 +35,34 @@ type CallAiParams = {
   temperature: number;
   timeoutMs: number;
   useResponseFormat?: boolean;
+};
+
+type Aishop24hErrorPayload = {
+  error?: {
+    message?: string;
+  };
+};
+
+const extractErrorMessage = (bodyText: string | null) => {
+  if (!bodyText) return null;
+  try {
+    const parsed = JSON.parse(bodyText) as Aishop24hErrorPayload;
+    const message = parsed?.error?.message;
+    return typeof message === "string" ? message : null;
+  } catch {
+    return null;
+  }
+};
+
+const getAllowedTemperatureFromBody = (bodyText: string | null) => {
+  const message = extractErrorMessage(bodyText) ?? bodyText;
+  if (!message) return null;
+  const match = message.match(
+    /invalid\s+temperature[^0-9]*only\s+([0-9]+(?:\.[0-9]+)?)\s+is\s+allowed/i,
+  );
+  if (!match?.[1]) return null;
+  const allowed = Number(match[1]);
+  return Number.isFinite(allowed) ? allowed : null;
 };
 
 const extractJsonFromText = (text: string) => {
@@ -66,39 +118,74 @@ export const callAishop24h = async ({
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const body: Record<string, unknown> = {
-      model,
-      messages,
-      temperature,
-    };
-    if (useResponseFormat) {
-      body.response_format = { type: "json_object" };
-    }
-
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`AI request failed: ${response.status}`);
-    }
-
-    const payload = await response.json();
-    const content = extractContent(payload);
-    if (content) {
-      const jsonText = extractJsonFromText(content);
-      if (jsonText) {
-        return JSON.parse(jsonText);
+    const doRequest = async (temp: number) => {
+      const body: Record<string, unknown> = {
+        model,
+        messages,
+        temperature: temp,
+      };
+      if (useResponseFormat) {
+        body.response_format = { type: "json_object" };
       }
-      return content;
+
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const requestId =
+          response.headers.get("x-request-id") ??
+          response.headers.get("x-correlation-id") ??
+          null;
+        const bodyText = await response.text().catch(() => null);
+        return {
+          ok: false as const,
+          error: new AiHttpError({
+            status: response.status,
+            statusText: response.statusText,
+            url: apiUrl,
+            requestId,
+            bodyText,
+          }),
+        };
+      }
+
+      const payload = await response.json();
+      const content = extractContent(payload);
+      if (content) {
+        const jsonText = extractJsonFromText(content);
+        if (jsonText) {
+          return { ok: true as const, value: JSON.parse(jsonText) };
+        }
+        return { ok: true as const, value: content };
+      }
+      return { ok: true as const, value: payload };
+    };
+
+    const first = await doRequest(temperature);
+    if (first.ok) return first.value;
+
+    const allowedTemperature =
+      first.error.status === 400
+        ? getAllowedTemperatureFromBody(first.error.bodyText)
+        : null;
+    if (
+      allowedTemperature != null &&
+      allowedTemperature !== temperature &&
+      Number.isFinite(allowedTemperature)
+    ) {
+      const second = await doRequest(allowedTemperature);
+      if (second.ok) return second.value;
+      throw second.error;
     }
-    return payload;
+
+    throw first.error;
   } finally {
     clearTimeout(timer);
   }
