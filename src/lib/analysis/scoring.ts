@@ -8,11 +8,16 @@ type Diagnosis = {
   reason: string;
 };
 
+type ScoringThresholds = typeof SCORING_CONFIG.thresholds;
+
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
-export const computeScore = (metrics: DerivedMetrics) => {
-  const { thresholds, weights } = SCORING_CONFIG;
+export const computeScore = (
+  metrics: DerivedMetrics,
+  thresholds: ScoringThresholds = SCORING_CONFIG.thresholds,
+) => {
+  const { weights } = SCORING_CONFIG;
   let penalty = 0;
 
   if (metrics.costPerResult != null) {
@@ -58,13 +63,14 @@ export const labelFromScore = (score: number) => {
   return SCORING_CONFIG.labels.normal;
 };
 
-export const diagnoseAdGroup = (params: {
-  totals: Totals;
-  metrics: DerivedMetrics;
-  costPerResultDelta: DeltaValue;
-}): Diagnosis => {
-  const { thresholds } = SCORING_CONFIG;
-
+export const diagnoseAdGroup = (
+  params: {
+    totals: Totals;
+    metrics: DerivedMetrics;
+    costPerResultDelta: DeltaValue;
+  },
+  thresholds: ScoringThresholds = SCORING_CONFIG.thresholds,
+): Diagnosis => {
   const cpr = params.metrics.costPerResult;
   const ctr = params.metrics.ctr;
   const freq = params.metrics.frequency;

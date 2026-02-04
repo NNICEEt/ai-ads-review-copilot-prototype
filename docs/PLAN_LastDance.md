@@ -133,24 +133,25 @@ Owner: Team Hackathon
 
 #### P0.6 Smoke test บน Vercel + Demo Script (กันพังหน้างาน)
 
-- [ ] ตรวจ env vars (AI keys/models, locale) + ไม่มี secret leak ใน log
-- [ ] Smoke endpoints:
-    - [ ] `GET /api/review?accountId=&periodDays=`
-    - [ ] `GET /api/campaign/[id]/breakdown?periodDays=`
-    - [ ] `GET /api/detail/adgroup?id=&periodDays=`
-    - [ ] `POST /api/ai/summary` (mode insight/full)
-- [ ] Run-through เดโม 2 รอบ:
-    - [ ] AI เปิด
-    - [ ] AI ปิด/timeout (fallback)
+- [x] ตรวจ env vars (AI keys/models, locale) + ไม่มี secret leak ใน log
+- [x] Smoke endpoints:
+    - [x] `GET /api/review?accountId=&periodDays=`
+    - [x] `GET /api/campaign/[id]/breakdown?periodDays=`
+    - [x] `GET /api/detail/adgroup?id=&periodDays=`
+    - [x] `POST /api/ai/summary` (mode insight/full)
+- [x] Run-through เดโม 2 รอบ:
+    - [x] AI เปิด
+    - [x] AI ปิด/timeout (fallback)
     - [x] มี guide สำหรับ smoke/run-through (`docs/DEMO_Smoke.md`)
+    - [x] มี demo script/talk track (`docs/DEMO_Script.md`)
 
 ---
 
 ### P1 — SHOULD (ทำถ้าทัน จะเพิ่ม impact)
 
-- [ ] ทำ sorting ในหน้า Campaign ให้ใช้งานจริง (ตอนนี้เป็น UI-only)
-- [ ] เพิ่ม filter preset Dashboard (Needs attention / Fatigue / Learning / Top)
-- [ ] เพิ่ม Target KPI แบบ config ต่อ objective/account (ทำให้ scoring/priority “media-like”)
+- [x] ทำ sorting ในหน้า Campaign ให้ใช้งานจริง (ตอนนี้เป็น UI-only)
+- [x] เพิ่ม filter preset Dashboard (Needs attention / Fatigue / Learning / Top)
+- [x] เพิ่ม Target KPI แบบ config ต่อ objective/account (ทำให้ scoring/priority “media-like”)
 
 ---
 
@@ -182,8 +183,8 @@ Owner: Team Hackathon
 
 - [x] `npm test`
 - [x] `npm run lint`
-- [ ] เปิด 3 หน้า: Dashboard → Campaign → AdGroup Detail
-- [ ] ปิด AI keys แล้ว refresh: ทุกหน้าไม่ crash + ไม่มีตัวเลขสมมติจาก AI fallback
+- [x] เปิด 3 หน้า: Dashboard → Campaign → AdGroup Detail
+- [x] ปิด AI keys แล้ว refresh: ทุกหน้าไม่ crash + ไม่มีตัวเลขสมมติจาก AI fallback
 
 ---
 

@@ -16,6 +16,7 @@ import {
   diagnoseAdGroup,
   labelFromScore,
 } from "@/lib/analysis/scoring";
+import { resolveScoringThresholds } from "@/lib/config/kpi";
 import { SCORING_CONFIG } from "@/lib/config/scoring";
 import { Totals } from "@/lib/types/canonical";
 import {
@@ -144,6 +145,10 @@ export const getDashboardData = async (params: {
   const metricsByAdId = mapRowsByAdId(allMetrics);
 
   const adGroupSummaries = adGroups.map((group) => {
+    const thresholds = resolveScoringThresholds({
+      accountId,
+      objective: group.campaign.objective,
+    });
     const adIdList = group.ads.map((ad) => ad.id);
     const current = buildAdGroupMetrics(
       adIdList,
@@ -155,17 +160,20 @@ export const getDashboardData = async (params: {
       metricsByAdId,
       period.previous,
     );
-    const score = computeScore(current.derived);
+    const score = computeScore(current.derived, thresholds);
     const label = labelFromScore(score);
     const costDelta = deltaValue(
       current.derived.costPerResult ?? null,
       previous.derived.costPerResult ?? null,
     );
-    const diagnosis = diagnoseAdGroup({
-      totals: current.totals,
-      metrics: current.derived,
-      costPerResultDelta: costDelta,
-    });
+    const diagnosis = diagnoseAdGroup(
+      {
+        totals: current.totals,
+        metrics: current.derived,
+        costPerResultDelta: costDelta,
+      },
+      thresholds,
+    );
     const evidence = buildEvidenceSlots({
       current: current.derived,
       previous: previous.derived,
@@ -176,6 +184,7 @@ export const getDashboardData = async (params: {
       adGroupName: group.name,
       campaignId: group.campaignId,
       campaignName: group.campaign.name,
+      objective: group.campaign.objective,
       score,
       label,
       diagnosis,
@@ -284,6 +293,10 @@ export const getCampaignBreakdown = async (params: {
   const metricsByAdId = mapRowsByAdId(allMetrics);
 
   const breakdownAdGroups = adGroups.map((group) => {
+    const thresholds = resolveScoringThresholds({
+      accountId: group.campaign.accountId,
+      objective: group.campaign.objective,
+    });
     const adIdList = group.ads.map((ad) => ad.id);
     const current = buildAdGroupMetrics(
       adIdList,
@@ -299,11 +312,14 @@ export const getCampaignBreakdown = async (params: {
       current.derived.costPerResult ?? null,
       previous.derived.costPerResult ?? null,
     );
-    const diagnosis = diagnoseAdGroup({
-      totals: current.totals,
-      metrics: current.derived,
-      costPerResultDelta: costDelta,
-    });
+    const diagnosis = diagnoseAdGroup(
+      {
+        totals: current.totals,
+        metrics: current.derived,
+        costPerResultDelta: costDelta,
+      },
+      thresholds,
+    );
 
     return {
       id: group.id,
@@ -312,7 +328,7 @@ export const getCampaignBreakdown = async (params: {
       derived: current.derived,
       costDelta,
       diagnosis,
-      label: labelFromScore(computeScore(current.derived)),
+      label: labelFromScore(computeScore(current.derived, thresholds)),
     };
   });
 
@@ -480,7 +496,12 @@ export const getAdGroupDetail = async (params: {
     previous: previous.derived,
   });
 
-  const score = computeScore(current.derived);
+  const thresholds = resolveScoringThresholds({
+    accountId: adGroup.campaign.accountId,
+    objective: adGroup.campaign.objective,
+  });
+
+  const score = computeScore(current.derived, thresholds);
   const label = labelFromScore(score);
 
   const daily = groupRowsByDate(filterByRange(metrics, period.current)).map(
@@ -506,13 +527,16 @@ export const getAdGroupDetail = async (params: {
       derived.costPerResult ?? null,
       previousDerived.costPerResult ?? null,
     );
-    const diagnosis = diagnoseAdGroup({
-      totals,
-      metrics: derived,
-      costPerResultDelta: costDelta,
-    });
+    const diagnosis = diagnoseAdGroup(
+      {
+        totals,
+        metrics: derived,
+        costPerResultDelta: costDelta,
+      },
+      thresholds,
+    );
 
-    const score = computeScore(derived);
+    const score = computeScore(derived, thresholds);
 
     return {
       ...mapAd(ad),

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { AiInsightSnippet } from "@/components/ai/AiInsightSnippet";
 import { CampaignAiRecommendation } from "@/components/campaign/CampaignAiRecommendation";
+import { CampaignSortSelect } from "@/components/campaign/CampaignSortSelect";
 import { ContextNavbar } from "@/components/navbar/ContextNavbar";
 import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { getCampaignBreakdown } from "@/lib/data/review";
@@ -8,9 +9,60 @@ import { formatCurrency, formatNumber } from "@/lib/utils/metrics";
 
 export const dynamic = "force-dynamic";
 
+type CampaignSortKey = "cpr_desc" | "roas_asc" | "spend_desc";
+
+const normalizeCampaignSortKey = (
+  value: string | undefined | null,
+): CampaignSortKey => {
+  if (value === "cpr_desc") return value;
+  if (value === "roas_asc") return value;
+  if (value === "spend_desc") return value;
+  return "cpr_desc";
+};
+
+type CampaignBreakdown = Awaited<ReturnType<typeof getCampaignBreakdown>>;
+type CampaignAdGroup = CampaignBreakdown["adGroups"][number];
+
+const compareNumber = (
+  a: number | null | undefined,
+  b: number | null | undefined,
+  direction: "asc" | "desc",
+) => {
+  const aValid = typeof a === "number" && Number.isFinite(a);
+  const bValid = typeof b === "number" && Number.isFinite(b);
+  if (!aValid && !bValid) return 0;
+  if (!aValid) return 1;
+  if (!bValid) return -1;
+  return direction === "asc" ? a - b : b - a;
+};
+
+const sortCampaignAdGroups = (
+  adGroups: CampaignAdGroup[],
+  sortKey: CampaignSortKey,
+) => {
+  return adGroups
+    .map((group, index) => ({ group, index }))
+    .sort((a, b) => {
+      const diff =
+        sortKey === "cpr_desc"
+          ? compareNumber(
+              a.group.derived.costPerResult,
+              b.group.derived.costPerResult,
+              "desc",
+            )
+          : sortKey === "roas_asc"
+            ? compareNumber(a.group.derived.roas, b.group.derived.roas, "asc")
+            : compareNumber(a.group.totals.spend, b.group.totals.spend, "desc");
+
+      if (diff !== 0) return diff;
+      return a.index - b.index;
+    })
+    .map((item) => item.group);
+};
+
 type Params = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ periodDays?: string }>;
+  searchParams: Promise<{ periodDays?: string; sort?: string }>;
 };
 
 const sleep = (ms: number) =>
@@ -304,8 +356,10 @@ const CampaignSummaryCard = ({
 
 const CampaignBreakdownCard = async ({
   breakdownPromise,
+  sortKey,
 }: {
   breakdownPromise: ReturnType<typeof getCampaignBreakdown>;
+  sortKey: CampaignSortKey;
 }) => {
   const delayPromise = sleep(500);
   const data = await breakdownPromise;
@@ -337,6 +391,8 @@ const CampaignBreakdownCard = async ({
     fromCpr != null && toCpr != null && fromCpr > 0
       ? Math.max(0, Math.round((1 - toCpr / fromCpr) * 100))
       : null;
+
+  const displayAdGroups = sortCampaignAdGroups(data.adGroups, sortKey);
 
   return (
     <div className="space-y-4">
@@ -412,8 +468,8 @@ const CampaignBreakdownCard = async ({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {data.adGroups.length > 0 ? (
-                data.adGroups.map((group) => {
+              {displayAdGroups.length > 0 ? (
+                displayAdGroups.map((group) => {
                   const styles = diagnosisStyles(group.diagnosis.label);
                   const costTrend = group.costDelta.percent
                     ? Math.round(group.costDelta.percent * 100)
@@ -548,6 +604,7 @@ export default async function CampaignDetailPage({
 }: Params) {
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
+  const sortKey = normalizeCampaignSortKey(resolvedSearchParams.sort);
   const breakdownPromise = getCampaignBreakdown({
     campaignId: resolvedParams.id,
     periodDays: resolvedSearchParams.periodDays ?? null,
@@ -586,20 +643,16 @@ export default async function CampaignDetailPage({
             <label htmlFor="campaign-sort" className="sr-only">
               จัดเรียงรายการ
             </label>
-            <select
-              id="campaign-sort"
-              className="appearance-none bg-transparent py-1 pl-2 pr-6 focus:outline-none font-bold text-slate-700 cursor-pointer"
-            >
-              <option>CPA (มาก → น้อย)</option>
-              <option>ROAS (น้อย → มาก)</option>
-              <option>ยอดใช้จ่าย (มาก → น้อย)</option>
-            </select>
+            <CampaignSortSelect />
             <i className="fa-solid fa-chevron-down text-xs text-slate-500 -ml-4 mr-2 pointer-events-none"></i>
           </div>
         </div>
 
         <Suspense fallback={<CampaignBreakdownSkeleton />}>
-          <CampaignBreakdownCard breakdownPromise={breakdownPromise} />
+          <CampaignBreakdownCard
+            breakdownPromise={breakdownPromise}
+            sortKey={sortKey}
+          />
         </Suspense>
       </main>
     </div>

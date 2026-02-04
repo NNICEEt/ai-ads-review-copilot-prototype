@@ -3,23 +3,37 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+type DashboardPreset = "attention" | "fatigue" | "learning" | "top";
+
 type DashboardFiltersClientProps = {
   accounts: Array<{ id: string; name: string }>;
   accountId: string;
   periodDays: number;
   query: string;
+  preset: DashboardPreset;
 };
+
+const DEFAULT_PRESET: DashboardPreset = "attention";
+
+const PRESET_OPTIONS: Array<{ key: DashboardPreset; label: string }> = [
+  { key: "attention", label: "Needs attention" },
+  { key: "fatigue", label: "Fatigue" },
+  { key: "learning", label: "Learning" },
+  { key: "top", label: "Top" },
+];
 
 const buildDashboardHref = (params: {
   accountId: string;
   periodDays: number;
   query: string;
+  preset: DashboardPreset;
 }) => {
   const search = new URLSearchParams();
   search.set("accountId", params.accountId);
   search.set("periodDays", String(params.periodDays));
   const trimmed = params.query.trim();
   if (trimmed) search.set("q", trimmed);
+  if (params.preset !== DEFAULT_PRESET) search.set("preset", params.preset);
   return `/?${search.toString()}`;
 };
 
@@ -28,6 +42,7 @@ export const DashboardFiltersClient = ({
   accountId,
   periodDays,
   query,
+  preset,
 }: DashboardFiltersClientProps) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -42,8 +57,9 @@ export const DashboardFiltersClient = ({
       accountId,
       periodDays,
       query: localQuery,
+      preset,
     });
-  }, [accountId, localQuery, periodDays]);
+  }, [accountId, localQuery, periodDays, preset]);
 
   return (
     <form
@@ -72,6 +88,7 @@ export const DashboardFiltersClient = ({
               accountId: nextAccountId,
               periodDays,
               query: localQuery,
+              preset,
             });
             startTransition(() => {
               router.push(href);
@@ -121,6 +138,39 @@ export const DashboardFiltersClient = ({
         </button>
       </div>
 
+      <div
+        className="flex items-center gap-1 bg-slate-100 p-1 rounded"
+        role="group"
+        aria-label="Preset"
+      >
+        {PRESET_OPTIONS.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            onClick={() => {
+              const href = buildDashboardHref({
+                accountId,
+                periodDays,
+                query: localQuery,
+                preset: option.key,
+              });
+              startTransition(() => {
+                router.push(href);
+              });
+            }}
+            className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+              option.key === preset
+                ? "text-blue-700 bg-white shadow-sm border border-slate-200"
+                : "text-slate-600 hover:text-slate-900 hover:bg-white"
+            }`}
+            disabled={isPending}
+            aria-pressed={option.key === preset}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
       <div className="flex items-center gap-1 bg-slate-100 p-1 rounded">
         {[3, 7, 14].map((days) => (
           <button
@@ -131,6 +181,7 @@ export const DashboardFiltersClient = ({
                 accountId,
                 periodDays: days,
                 query: localQuery,
+                preset,
               });
               startTransition(() => {
                 router.push(href);

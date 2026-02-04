@@ -4,6 +4,7 @@ import { SummaryCard } from "@/components/dashboard/SummaryCard";
 import { PriorityList } from "@/components/dashboard/PriorityList";
 import { DashboardFiltersClient } from "@/components/dashboard/DashboardFiltersClient";
 import { getAccounts, getDashboardData } from "@/lib/data/review";
+import { resolveScoringThresholds } from "@/lib/config/kpi";
 import { formatCurrency, formatNumber } from "@/lib/utils/metrics";
 import { SCORING_CONFIG } from "@/lib/config/scoring";
 
@@ -13,6 +14,19 @@ type SearchParams = {
   accountId?: string;
   periodDays?: string;
   q?: string;
+  preset?: string;
+};
+
+type DashboardPreset = "attention" | "fatigue" | "learning" | "top";
+
+const normalizeDashboardPreset = (
+  value: string | undefined,
+): DashboardPreset => {
+  if (value === "attention") return value;
+  if (value === "fatigue") return value;
+  if (value === "learning") return value;
+  if (value === "top") return value;
+  return "attention";
 };
 
 const sleep = (ms: number) =>
@@ -200,10 +214,12 @@ const DashboardFilters = async ({
   accountsPromise,
   dashboardPromise,
   query,
+  preset,
 }: {
   accountsPromise: ReturnType<typeof getAccounts>;
   dashboardPromise: ReturnType<typeof getDashboardData>;
   query: string;
+  preset: DashboardPreset;
 }) => {
   const delayPromise = sleep(150);
   const [accounts, dashboard] = await Promise.all([
@@ -221,6 +237,7 @@ const DashboardFilters = async ({
       accountId={dashboard.accountId}
       periodDays={periodDays}
       query={query}
+      preset={preset}
     />
   );
 };
@@ -311,9 +328,11 @@ const DashboardSummarySection = async ({
 const DashboardPrioritySection = async ({
   dashboardPromise,
   query,
+  preset,
 }: {
   dashboardPromise: ReturnType<typeof getDashboardData>;
   query: string;
+  preset: DashboardPreset;
 }) => {
   const delayPromise = sleep(650);
   const dashboard = await dashboardPromise;
@@ -322,16 +341,41 @@ const DashboardPrioritySection = async ({
   if (!dashboard) return null;
   const periodDays = dashboard.period.days;
 
+  const presetFiltered =
+    preset === "fatigue"
+      ? dashboard.priority.filter(
+          (item) => item.diagnosis.label === "Fatigue Detected",
+        )
+      : preset === "learning"
+        ? dashboard.priority.filter(
+            (item) => item.diagnosis.label === "Learning Limited",
+          )
+        : preset === "top"
+          ? dashboard.priority.filter(
+              (item) => item.diagnosis.label === "Top Performer",
+            )
+          : dashboard.priority.filter(
+              (item) =>
+                item.label === SCORING_CONFIG.labels.needsAttention ||
+                (item.diagnosis.label !== "Stable" &&
+                  item.diagnosis.label !== "Top Performer"),
+            );
+
   const normalizedQuery = query.trim().toLowerCase();
   const filtered = normalizedQuery
-    ? dashboard.priority.filter((item) => {
+    ? presetFiltered.filter((item) => {
         const haystack =
           `${item.adGroupName} ${item.campaignName}`.toLowerCase();
         return haystack.includes(normalizedQuery);
       })
-    : dashboard.priority;
+    : presetFiltered;
 
   const priorityItems = filtered.slice(0, 5).map((item, index) => {
+    const thresholds = resolveScoringThresholds({
+      accountId: dashboard.accountId,
+      objective: item.objective,
+    });
+
     const trendPercent = item.deltas.costPerResult.percent
       ? Math.round(item.deltas.costPerResult.percent * 100)
       : 0;
@@ -382,9 +426,9 @@ const DashboardPrioritySection = async ({
     const freq = item.derived.frequency;
     const freqLabel = freq != null ? freq.toFixed(1) : "—";
     const freqClass =
-      freq != null && freq >= SCORING_CONFIG.thresholds.frequencyHigh
+      freq != null && freq >= thresholds.frequencyHigh
         ? chipDanger
-        : freq != null && freq >= SCORING_CONFIG.thresholds.frequencyWarning
+        : freq != null && freq >= thresholds.frequencyWarning
           ? chipWarn
           : chipNeutral;
 
@@ -396,8 +440,7 @@ const DashboardPrioritySection = async ({
     const roasLabel =
       item.derived.roas != null ? `${item.derived.roas.toFixed(1)}x` : null;
     const roasClass =
-      item.derived.roas != null &&
-      item.derived.roas >= SCORING_CONFIG.thresholds.roasTarget
+      item.derived.roas != null && item.derived.roas >= thresholds.roasTarget
         ? chipSuccess
         : chipWarn;
 
@@ -463,7 +506,9 @@ const DashboardPrioritySection = async ({
           : []),
       ],
       cost: formatCurrency(item.derived.costPerResult ?? null),
-      costSubLabel: `เป้าหมาย: ${formatCurrency(SCORING_CONFIG.thresholds.costPerResultTarget)}`,
+      costSubLabel: `เป้าหมาย(${item.objective}): ${formatCurrency(
+        thresholds.costPerResultTarget,
+      )}`,
       trend: {
         value: `${trendPercent > 0 ? "+" : ""}${trendPercent}%`,
         iconClass: trendIcon,
@@ -496,6 +541,7 @@ export default async function Home({
     periodDays: resolvedParams.periodDays ?? null,
   });
   const query = resolvedParams.q ?? "";
+  const preset = normalizeDashboardPreset(resolvedParams.preset);
 
   return (
     <div className="min-h-screen">
@@ -515,6 +561,7 @@ export default async function Home({
               accountsPromise={accountsPromise}
               dashboardPromise={dashboardPromise}
               query={query}
+              preset={preset}
             />
           </Suspense>
         </div>
@@ -527,6 +574,7 @@ export default async function Home({
           <DashboardPrioritySection
             dashboardPromise={dashboardPromise}
             query={query}
+            preset={preset}
           />
         </Suspense>
       </main>
