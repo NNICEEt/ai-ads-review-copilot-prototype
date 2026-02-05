@@ -68,7 +68,7 @@ const buildMockDb = (): MockDb => {
 
   const account: AccountRow = {
     id: "acc_7eleven_th",
-    name: "7-Eleven Thailand (7Delivery)",
+    name: "7-Eleven Thailand",
   };
   const account2: AccountRow = {
     id: "acc_lotus_th",
