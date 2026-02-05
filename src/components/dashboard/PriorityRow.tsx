@@ -190,7 +190,7 @@ export const PriorityRow = ({
           </div>
         ) : null}
       </td>
-      <td className="p-4 text-right align-top">
+      <td className="p-4 text-right align-middle">
         <div className="font-bold text-slate-800">{impact.spend}</div>
         <div className="text-[10px] text-slate-500">
           {impact.spendShare ? `สัดส่วน ${impact.spendShare}` : "—"}
