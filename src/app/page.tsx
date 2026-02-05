@@ -82,11 +82,12 @@ const issueIcon = (label: string) => {
 };
 
 const diagnosisLabelTh = (label: string) => {
-  if (label === "Fatigue Detected") return "Creative Fatigue";
-  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น";
-  if (label === "Learning Limited") return "Learning จำกัด";
-  if (label === "Top Performer") return "ผลงานโดดเด่น";
-  if (label === "Stable") return "ปกติ";
+  if (label === "Fatigue Detected")
+    return "ครีเอทีฟเริ่มล้า (Creative Fatigue)";
+  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น (Cost Creeping)";
+  if (label === "Learning Limited") return "Learning จำกัด (Learning Limited)";
+  if (label === "Top Performer") return "ผลงานโดดเด่น (Top Performer)";
+  if (label === "Stable") return "ปกติ (Stable)";
   return label;
 };
 
@@ -137,7 +138,8 @@ const DashboardPrioritySkeleton = () => (
           รายการสิ่งที่ต้องทำก่อน
         </h2>
         <p className="text-xs text-slate-500 mt-1 font-thai">
-          จัดลำดับแบบ Severity × Impact (คะแนน × ขนาดงบ) • AI เป็นตัวช่วยเสริม
+          จัดลำดับแบบความรุนแรง × ผลกระทบ (Severity × Impact) = คะแนน × ขนาดงบ •
+          AI เป็นตัวช่วยเสริม
         </p>
       </div>
       <div className="flex gap-2 animate-pulse">
@@ -266,7 +268,7 @@ const DashboardSummarySection = async ({
 
   const summaryCards = [
     {
-      label: "ยอดใช้จ่าย",
+      label: "ยอดใช้จ่าย (Spend)",
       value: formatCurrency(dashboard.summary.spend.current ?? null),
       iconClass: "fa-solid fa-wallet",
       iconWrapperClass: "bg-blue-50 text-blue-600",
@@ -276,7 +278,7 @@ const DashboardSummarySection = async ({
       comparisonText: `เทียบกับ ${formatCurrency(dashboard.summary.spend.previous ?? null)}`,
     },
     {
-      label: "CPR (ต้นทุน/ผลลัพธ์)",
+      label: "ต้นทุนต่อผลลัพธ์ (CPR)",
       value: formatCurrency(dashboard.summary.costPerResult.current ?? null),
       iconClass: "fa-solid fa-chart-line",
       iconWrapperClass: "bg-red-50 text-red-600",
@@ -288,7 +290,7 @@ const DashboardSummarySection = async ({
       labelIconClass: "fa-solid fa-circle-info text-slate-500 text-[10px]",
     },
     {
-      label: "ROAS (ผลตอบแทน)",
+      label: "ผลตอบแทนโฆษณา (ROAS)",
       value:
         dashboard.summary.roas.current != null
           ? `${dashboard.summary.roas.current.toFixed(1)}x`
@@ -301,10 +303,10 @@ const DashboardSummarySection = async ({
       comparisonText:
         dashboard.summary.roas.previous != null
           ? `เทียบกับ ${dashboard.summary.roas.previous.toFixed(1)}x`
-          : "เทียบกับ ไม่มีข้อมูล",
+          : "เทียบกับ —",
     },
     {
-      label: "ผลลัพธ์รวม",
+      label: "ผลลัพธ์รวม (Results)",
       value: formatNumber(dashboard.summary.results.current ?? null),
       iconClass: "fa-solid fa-bullseye",
       iconWrapperClass: "bg-indigo-50 text-indigo-600",
@@ -469,44 +471,44 @@ const DashboardPrioritySection = async ({
       },
       signals: [
         {
-          label: "CTR",
+          label: "อัตราคลิก (CTR)",
           value: ctrDeltaLabel ? `${ctrLabel} (${ctrDeltaLabel})` : ctrLabel,
           iconClass: "fa-solid fa-arrow-pointer",
           className: ctrDeltaClass,
           helpText:
-            "CTR (Click-through rate)\n= Clicks ÷ Impressions\nยิ่งสูงยิ่งดี (คนสนใจ/กดคลิกมากขึ้น)\nตัวเลขในวงเล็บคือ % เทียบช่วงก่อนหน้า",
+            "อัตราคลิก (CTR)\n= Clicks ÷ Impressions\nยิ่งสูงยิ่งดี (คนสนใจ/กดคลิกมากขึ้น)\nตัวเลขในวงเล็บคือ % เทียบช่วงก่อนหน้า",
         },
         {
-          label: "Freq",
+          label: "ความถี่ (Frequency)",
           value: freqLabel,
           iconClass: "fa-solid fa-repeat",
           className: freqClass,
           helpText:
-            "Frequency (ความถี่)\n= Impressions ÷ Reach\nเฉลี่ย 1 คนเห็นโฆษณากี่ครั้ง\nสูงเกินไปอาจเสี่ยง Creative Fatigue",
+            "ความถี่ (Frequency)\n= Impressions ÷ Reach\nเฉลี่ย 1 คนเห็นโฆษณากี่ครั้ง\nสูงเกินไปอาจเสี่ยงครีเอทีฟเริ่มล้า (Creative Fatigue)",
         },
         {
-          label: "ผลลัพธ์",
+          label: "ผลลัพธ์ (Results)",
           value: formatNumber(item.totals.results),
           iconClass: "fa-solid fa-bullseye",
           className: resultsClass,
           helpText:
-            "ผลลัพธ์ (Results)\nคือจำนวนเหตุการณ์หลักตาม Objective เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยังในช่วงเวลานี้",
+            "ผลลัพธ์ (Results)\nคือจำนวนเหตุการณ์หลักตามเป้าหมาย (Objective) เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยังในช่วงเวลานี้",
         },
         ...(roasLabel
           ? [
               {
-                label: "ROAS",
+                label: "ผลตอบแทน (ROAS)",
                 value: roasLabel,
                 iconClass: "fa-solid fa-sack-dollar",
                 className: roasClass,
                 helpText:
-                  "ROAS (Return on Ad Spend)\n= Revenue ÷ Spend\nเช่น 3.0x แปลว่าใช้ 1 บาท ได้รายได้ 3 บาท\nยิ่งสูงยิ่งดี",
+                  "ผลตอบแทนโฆษณา (ROAS)\n= Revenue ÷ Spend\nเช่น 3.0x แปลว่าใช้ 1 บาท ได้รายได้ 3 บาท\nยิ่งสูงยิ่งดี",
               },
             ]
           : []),
       ],
       cost: formatCurrency(item.derived.costPerResult ?? null),
-      costSubLabel: `เป้าหมาย(${item.objective}): ${formatCurrency(
+      costSubLabel: `เป้าหมาย (Objective: ${item.objective}): ${formatCurrency(
         thresholds.costPerResultTarget,
       )}`,
       trend: {

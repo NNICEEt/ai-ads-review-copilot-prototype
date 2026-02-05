@@ -144,7 +144,7 @@ export const PriorityRow = ({
             <AiInsightSnippet
               adGroupId={ai.adGroupId}
               periodDays={ai.periodDays}
-              fallbackTitle={issue?.label ?? "Insight"}
+              fallbackTitle={issue?.label ?? "ประเด็น (Insight)"}
               fallbackDetail={issue?.detail ?? null}
               variant="card"
               tone={aiTone}

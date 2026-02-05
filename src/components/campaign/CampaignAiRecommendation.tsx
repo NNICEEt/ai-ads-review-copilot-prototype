@@ -26,7 +26,7 @@ type AiSummaryResult = {
 const MIN_LOADING_MS = 900;
 const LOADING_MESSAGES = [
   "กำลังวิเคราะห์แนวโน้มค่าใช้จ่าย (Spend) และผลลัพธ์ (Results)…",
-  "กำลังเทียบ CPA/CPR ระหว่างกลุ่มโฆษณา…",
+  "กำลังเทียบต้นทุนต่อผลลัพธ์ (CPR) ระหว่างกลุ่มโฆษณา…",
   "กำลังหาโอกาสโยกงบไปยังกลุ่มที่คุ้มค่ากว่า…",
 ] as const;
 
@@ -170,7 +170,7 @@ export const CampaignAiRecommendation = ({
       <span className="text-red-600 font-bold">{fromAdGroupName}</span> (
       {fromSpendLabel}) ไปใส่{" "}
       <span className="text-emerald-600 font-bold">{toAdGroupName}</span> แทน
-      เพราะ CPA ถูกกว่า {improvementPercent}%
+      เพราะต้นทุนต่อผลลัพธ์ (CPR) ต่ำกว่า {improvementPercent}%
     </span>
   );
 };

@@ -27,9 +27,9 @@ type AiInsightSnippetProps = {
 const MIN_LOADING_MS = 700;
 const LOADING_STEP_MS = 900;
 const LOADING_MESSAGES = [
-  "กำลังอ่านสัญญาณจาก CPR/CTR/Frequency…",
-  "กำลังสรุป insight แบบกระชับ…",
-  "กำลังจัดลำดับสิ่งที่ควรทำก่อน…",
+  "กำลังอ่านสัญญาณจากต้นทุนต่อผลลัพธ์ (CPR) / อัตราคลิก (CTR) / ความถี่ (Frequency)…",
+  "กำลังสรุปประเด็น (Insight) แบบกระชับ…",
+  "กำลังจัดลำดับสิ่งที่ควรทำก่อน (Next Actions)…",
 ] as const;
 
 const sleep = (ms: number, signal?: AbortSignal) =>

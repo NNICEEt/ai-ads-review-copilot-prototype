@@ -74,8 +74,14 @@ export default async function AdGroupDetailPage({
   const costPercent = detail.costDelta.percent
     ? Math.round(detail.costDelta.percent * 100)
     : 0;
-  const costPercentLabel = `${costPercent > 0 ? "+" : ""}${costPercent}%`;
-  const costDescription = costPercent >= 0 ? "ต้นทุนสูงขึ้น" : "ต้นทุนลดลง";
+  const costPercentAbs = Math.abs(costPercent);
+  const costPercentSigned = `${costPercent > 0 ? "+" : ""}${costPercent}%`;
+  const costDescription =
+    costPercent > 0
+      ? `ต้นทุนต่อผลลัพธ์ (CPR) สูงขึ้น ${costPercentSigned}`
+      : costPercent < 0
+        ? `ต้นทุนต่อผลลัพธ์ (CPR) ลดลง ${costPercentAbs}%`
+        : "ต้นทุนต่อผลลัพธ์ (CPR) คงที่";
 
   return (
     <div className="min-h-screen">
@@ -96,7 +102,7 @@ export default async function AdGroupDetailPage({
           <ScoreBadge
             score={detail.score}
             label={detail.label}
-            description={`${costDescription} ${costPercentLabel} และประสิทธิภาพลดลงอย่างมีนัยสำคัญ`}
+            description={`${costDescription} เทียบช่วงก่อนหน้า`}
             progressColorClass="text-red-500"
             badgeClass="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold bg-red-50 text-red-700 border border-red-100 mb-3 shadow-sm"
             badgeDotClass="bg-red-500"
@@ -106,10 +112,10 @@ export default async function AdGroupDetailPage({
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2">
                 <i className="fa-solid fa-magnifying-glass-chart text-blue-500"></i>
-                สรุปจาก Evidence
+                สรุปจากสัญญาณ (Evidence)
               </h3>
               <span className="text-[10px] text-slate-500 font-medium">
-                สรุปอัตโนมัติจากตัวเลข
+                สรุปอัตโนมัติจากตัวเลข (Deterministic)
               </span>
             </div>
 
@@ -168,11 +174,11 @@ export default async function AdGroupDetailPage({
               <div className="flex gap-2">
                 <span className="flex items-center gap-1 text-[10px] text-slate-500">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                  ต้นทุน/ผลลัพธ์
+                  ต้นทุนต่อผลลัพธ์ (CPR)
                 </span>
                 <span className="flex items-center gap-1 text-[10px] text-slate-500">
                   <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                  ยอดใช้จ่าย
+                  ยอดใช้จ่าย (Spend)
                 </span>
               </div>
             </div>

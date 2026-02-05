@@ -52,11 +52,12 @@ type AdDetailModalProps = {
 };
 
 const diagnosisLabelTh = (label: string) => {
-  if (label === "Fatigue Detected") return "Creative Fatigue";
-  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น";
-  if (label === "Learning Limited") return "Learning จำกัด";
-  if (label === "Top Performer") return "ผลงานโดดเด่น";
-  if (label === "Stable") return "ปกติ";
+  if (label === "Fatigue Detected")
+    return "ครีเอทีฟเริ่มล้า (Creative Fatigue)";
+  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น (Cost Creeping)";
+  if (label === "Learning Limited") return "Learning จำกัด (Learning Limited)";
+  if (label === "Top Performer") return "ผลงานโดดเด่น (Top Performer)";
+  if (label === "Stable") return "ปกติ (Stable)";
   return label;
 };
 
@@ -136,30 +137,30 @@ const suggestionLines = (params: {
 }) => {
   if (params.fixLevel === "ad") {
     return [
-      "เพิ่มงบ/ขยาย audience แบบค่อยเป็นค่อยไป (กัน learning reset)",
-      "ทำเป็นชุดทดสอบเพื่อหา winner เพิ่ม (Creative/Audience)",
+      "เพิ่มงบ/ขยายกลุ่มเป้าหมาย (Audience) แบบค่อยเป็นค่อยไป (กัน Learning Reset)",
+      "ทำเป็นชุดทดสอบเพื่อหาโฆษณาที่ชนะ (Winner) เพิ่ม (Creative/Audience)",
     ];
   }
 
   if (params.fixLevel === "creative") {
     return [
-      "รีเฟรชครีเอทีฟ: เปลี่ยน Hook/Thumbnail/ข้อความ และทำ A/B อย่างน้อย 2–3 ชิ้น",
-      "ถ้า Frequency สูง: กระจาย creative ใหม่ + ขยายกลุ่มเป้าหมายเพื่อลดความถี่",
-      "พิจารณา pause โฆษณานี้ถ้า CTR ต่ำและ CPR แพงกว่ากลุ่มอย่างชัดเจน",
+      "รีเฟรชครีเอทีฟ (Creative): เปลี่ยน Hook/Thumbnail/ข้อความ และทำ A/B Test อย่างน้อย 2–3 ชิ้น",
+      "ถ้าความถี่ (Frequency) สูง: กระจายครีเอทีฟ (Creative) ใหม่ + ขยายกลุ่มเป้าหมาย (Audience) เพื่อลดความถี่",
+      "พิจารณา Pause โฆษณานี้ ถ้าอัตราคลิก (CTR) ต่ำ และต้นทุนต่อผลลัพธ์ (CPR) แพงกว่ากลุ่มอย่างชัดเจน",
     ];
   }
 
   if (params.diagnosisLabel === "Learning Limited") {
     return [
-      "รวม/ลดจำนวนชุดโฆษณา เพื่อให้ผลลัพธ์ต่อชุดมากขึ้น (พ้นช่วง Learning)",
-      "ขยายกลุ่มเป้าหมายหรือเพิ่มงบเล็กน้อยให้ได้ volume เพิ่ม",
+      "รวม/ลดจำนวนชุดโฆษณา เพื่อให้ผลลัพธ์ต่อชุดมากขึ้น (ผ่านช่วง Learning)",
+      "ขยายกลุ่มเป้าหมาย (Audience) หรือเพิ่มงบเล็กน้อย เพื่อให้ได้ปริมาณ (Volume) เพิ่ม",
     ];
   }
 
   return [
-    "ตรวจ audience/placement: ลองขยายกลุ่มหรือปรับ placement เพื่อลดต้นทุน",
-    "โยกงบไปยังโฆษณาที่ CPR ถูกกว่าในกลุ่มเดียวกัน",
-    "ถ้า CTR ไม่ดีขึ้น: ค่อย ๆ ทดลอง creative ใหม่เพิ่มเติม",
+    "ตรวจกลุ่มเป้าหมาย (Audience) / ตำแหน่ง (Placement): ลองขยายกลุ่มหรือปรับ Placement เพื่อลดต้นทุนต่อผลลัพธ์ (CPR)",
+    "โยกงบไปยังโฆษณาที่ต้นทุนต่อผลลัพธ์ (CPR) ถูกกว่าในกลุ่มเดียวกัน",
+    "ถ้าอัตราคลิก (CTR) ไม่ดีขึ้น: ค่อย ๆ ทดลองครีเอทีฟ (Creative) ใหม่เพิ่มเติม",
   ];
 };
 
@@ -296,7 +297,7 @@ export const AdDetailModal = ({
 
             <div className="rounded-xl border border-slate-200 p-3 bg-white">
               <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                CPR (ต้นทุน/ผลลัพธ์)
+                ต้นทุนต่อผลลัพธ์ (CPR)
               </div>
               <div className="text-lg font-bold text-slate-900 mt-1">
                 {formatCurrency(ad.derived.costPerResult ?? null)}
@@ -310,7 +311,7 @@ export const AdDetailModal = ({
 
             <div className="rounded-xl border border-slate-200 p-3 bg-white">
               <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                CPC (ต้นทุน/คลิก)
+                ต้นทุนต่อคลิก (CPC)
               </div>
               <div className="text-lg font-bold text-slate-900 mt-1">
                 {formatCurrency(ad.derived.cpc ?? null)}
@@ -324,7 +325,7 @@ export const AdDetailModal = ({
 
             <div className="rounded-xl border border-slate-200 p-3 bg-white">
               <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                CTR (อัตราคลิก)
+                อัตราคลิก (CTR)
               </div>
               <div className="text-lg font-bold text-slate-900 mt-1">
                 {ad.derived.ctr != null
@@ -356,7 +357,7 @@ export const AdDetailModal = ({
 
             <div className="rounded-xl border border-slate-200 p-3 bg-white">
               <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                ROAS (ผลตอบแทน)
+                ผลตอบแทนโฆษณา (ROAS)
               </div>
               <div className="text-lg font-bold text-slate-900 mt-1">
                 {ad.derived.roas != null
@@ -411,7 +412,7 @@ export const AdDetailModal = ({
                 }`}
               >
                 <i className="fa-solid fa-image"></i>
-                ครีเอทีฟ (โฆษณา)
+                ครีเอทีฟ (Creative)
               </span>
               <span
                 className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border ${

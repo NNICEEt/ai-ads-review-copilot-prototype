@@ -69,17 +69,17 @@ export const AdsPerformanceItem = ({
     <div className="flex justify-between text-[10px] text-slate-500 pl-8">
       <span className="flex items-center gap-1">
         <i className="fa-solid fa-arrow-pointer text-slate-500"></i>
-        CTR: <span className={ctrStyles[variant]}>{ctr}</span>
+        อัตราคลิก (CTR): <span className={ctrStyles[variant]}>{ctr}</span>
       </span>
       <span className="inline-flex items-center gap-1">
-        ใช้ไป: {spend}
+        ใช้จ่าย (Spend): {spend}
         <i className="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
       </span>
     </div>
     {recommendation ? (
       <div className="pl-8 mt-1 text-[9px] text-red-400 hidden group-hover:block transition-all">
         <i className="fa-solid fa-circle-xmark mr-1"></i>
-        คำแนะนำ: {recommendation}
+        คำแนะนำ (Recommendation): {recommendation}
       </div>
     ) : null}
   </div>

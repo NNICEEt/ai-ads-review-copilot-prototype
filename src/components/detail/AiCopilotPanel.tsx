@@ -10,9 +10,9 @@ import { readBusinessContextFromStorage } from "@/components/ai/businessContextS
 const MIN_LOADING_MS = 900;
 const LOADING_STEP_MS = 900;
 const LOADING_MESSAGES = [
-  "กำลังอ่าน Evidence (E1–E3)…",
-  "กำลังวิเคราะห์ pattern ของ Cost/CTR/Frequency…",
-  "กำลังสร้างคำแนะนำที่ทำได้ทันที…",
+  "กำลังอ่านสัญญาณ (Evidence) E1–E3…",
+  "กำลังวิเคราะห์แพตเทิร์น (Pattern) ของต้นทุนต่อผลลัพธ์ (CPR) / อัตราคลิก (CTR) / ความถี่ (Frequency)…",
+  "กำลังสร้างคำแนะนำที่ทำได้ทันที (Next Actions)…",
 ] as const;
 
 const sleep = (ms: number, signal?: AbortSignal) =>
@@ -133,7 +133,7 @@ const buildFallbackInsights = (fallbackEvidence?: EvidenceSlot[] | null) => {
       {
         title: "AI ไม่พร้อมใช้งาน",
         detail:
-          "แสดงสรุปจาก deterministic logic เท่านั้น (โปรดดู Evidence E1–E3 และแนวโน้มรายวันเพื่อประกอบการตัดสินใจ)",
+          "แสดงสรุปจากกฎคงที่ (Deterministic) เท่านั้น (โปรดดูสัญญาณ (Evidence) E1–E3 และแนวโน้มรายวันเพื่อประกอบการตัดสินใจ)",
         ...insightStyles.low,
       },
     ] satisfies AiInsightItem[];
@@ -193,7 +193,7 @@ const buildFallbackRecommendations = (
     items.push({
       title: "รีเฟรชครีเอทีฟ (Creative)",
       detail:
-        "มีสัญญาณล้า/เห็นซ้ำจาก Evidence E3 • พิจารณาเปลี่ยนมุมข้อความ/ภาพ และกระจายชุดโฆษณาให้หลากหลายขึ้น",
+        "มีสัญญาณล้า/เห็นซ้ำจากสัญญาณ (Evidence) E3 • พิจารณาเปลี่ยนมุมข้อความ/ภาพ และกระจายชุดโฆษณาให้หลากหลายขึ้น",
       ...recommendationStyles.high,
     });
   }
@@ -201,7 +201,7 @@ const buildFallbackRecommendations = (
     items.push({
       title: "คุมต้นทุนการส่งมอบ",
       detail:
-        "Evidence E1 บ่งชี้ว่าประสิทธิภาพต้นทุนแย่ลง • ตรวจสอบการกระจายงบ, placement, และตัวแปรที่ทำให้ Cost per Result/ROAS เปลี่ยน",
+        "สัญญาณ (Evidence) E1 บ่งชี้ว่าประสิทธิภาพต้นทุนแย่ลง • ตรวจสอบการกระจายงบ, ตำแหน่ง (Placement), และตัวแปรที่ทำให้ต้นทุนต่อผลลัพธ์ (CPR) / ROAS เปลี่ยน",
       ...recommendationStyles.med,
     });
   }
@@ -209,7 +209,7 @@ const buildFallbackRecommendations = (
     items.push({
       title: "ทบทวนคุณภาพทราฟฟิก/กลุ่มเป้าหมาย",
       detail:
-        "Evidence E2 ชี้ว่าคุณภาพการคลิก/การคอนเวิร์สลดลง • ตรวจสอบ creative-message fit และการกำหนดกลุ่มเป้าหมาย",
+        "สัญญาณ (Evidence) E2 ชี้ว่าคุณภาพการคลิก/การคอนเวิร์สลดลง • ตรวจสอบความเข้ากันของครีเอทีฟกับข้อความ (Creative-Message Fit) และการกำหนดกลุ่มเป้าหมาย (Audience)",
       ...recommendationStyles.low,
     });
   }
@@ -220,7 +220,7 @@ const buildFallbackRecommendations = (
     {
       title: "ตรวจสอบสัญญาณจาก Evidence",
       detail:
-        "AI ไม่พร้อมใช้งาน • ใช้ Evidence E1–E3 + แนวโน้มรายวันเพื่อหาสาเหตุหลักก่อนตัดสินใจปรับแคมเปญ",
+        "AI ไม่พร้อมใช้งาน • ใช้สัญญาณ (Evidence) E1–E3 + แนวโน้มรายวันเพื่อหาสาเหตุหลักก่อนตัดสินใจปรับแคมเปญ",
       ...recommendationStyles.low,
     },
   ];
@@ -341,10 +341,10 @@ export const AiCopilotPanel = ({
 
   const aiSubtitle = useMemo(() => {
     if (isLoading)
-      return "กำลังวิเคราะห์ evidence เพื่อสรุป insight และคำแนะนำ…";
+      return "กำลังวิเคราะห์สัญญาณ (Evidence) เพื่อสรุปประเด็น (Insight) และคำแนะนำ…";
     return (
       result?.insight?.insightSummary ??
-      "สรุปจาก evidence เพื่อหา insight และคำแนะนำที่ทำได้ทันที"
+      "สรุปจากสัญญาณ (Evidence) เพื่อหาประเด็น (Insight) และคำแนะนำที่ทำได้ทันที"
     );
   }, [isLoading, result]);
 

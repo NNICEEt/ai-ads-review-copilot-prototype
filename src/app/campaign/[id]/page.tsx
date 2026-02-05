@@ -108,11 +108,12 @@ const diagnosisStyles = (label: string) => {
 };
 
 const diagnosisLabelTh = (label: string) => {
-  if (label === "Fatigue Detected") return "Creative Fatigue";
-  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น";
-  if (label === "Learning Limited") return "Learning จำกัด";
-  if (label === "Top Performer") return "ผลงานโดดเด่น";
-  if (label === "Stable") return "ปกติ";
+  if (label === "Fatigue Detected")
+    return "ครีเอทีฟเริ่มล้า (Creative Fatigue)";
+  if (label === "Cost Creeping") return "ต้นทุนเริ่มไหลขึ้น (Cost Creeping)";
+  if (label === "Learning Limited") return "Learning จำกัด (Learning Limited)";
+  if (label === "Top Performer") return "ผลงานโดดเด่น (Top Performer)";
+  if (label === "Stable") return "ปกติ (Stable)";
   return label;
 };
 
@@ -124,11 +125,11 @@ const CampaignBreakdownSkeleton = () => (
           <tr className="text-slate-500 text-xs uppercase tracking-wider text-right">
             <th className="p-4 text-left w-1/4">ชื่อกลุ่มโฆษณา</th>
             <th className="p-4 text-left w-1/4">AI วิเคราะห์ (Insight)</th>
-            <th className="p-4">ยอดใช้จ่าย</th>
-            <th className="p-4 text-center">ผลลัพธ์</th>
-            <th className="p-4">CPR</th>
-            <th className="p-4">ROAS</th>
-            <th className="p-4">CTR</th>
+            <th className="p-4">ยอดใช้จ่าย (Spend)</th>
+            <th className="p-4 text-center">ผลลัพธ์ (Results)</th>
+            <th className="p-4">ต้นทุนต่อผลลัพธ์ (CPR)</th>
+            <th className="p-4">ผลตอบแทนโฆษณา (ROAS)</th>
+            <th className="p-4">อัตราคลิก (CTR)</th>
             <th className="p-4 text-center">ดูรายละเอียด</th>
           </tr>
         </thead>
@@ -226,7 +227,9 @@ const CampaignSummaryCard = ({
         </div>
 
         <div className="text-right">
-          <div className="text-[10px] text-slate-500">ยอดใช้จ่ายรวม</div>
+          <div className="text-[10px] text-slate-500">
+            ยอดใช้จ่ายรวม (Spend)
+          </div>
           <div className="text-sm font-bold text-slate-900">
             {formatCurrency(summary.spendTotal)}
           </div>
@@ -238,7 +241,7 @@ const CampaignSummaryCard = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] text-slate-500 font-medium">
-                Winner (CPR ต่ำ)
+                ต้นทุนต่อผลลัพธ์ต่ำสุด (Best CPR)
               </div>
               <div className="mt-1 font-bold text-slate-900">
                 {summary.bestCprName ?? "—"}
@@ -252,7 +255,7 @@ const CampaignSummaryCard = ({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] text-slate-500 font-medium">
-                Loser (CPR สูง)
+                ต้นทุนต่อผลลัพธ์สูงสุด (Worst CPR)
               </div>
               <div className="mt-1 font-bold text-slate-900">
                 {summary.worstCprName ?? "—"}
@@ -266,7 +269,7 @@ const CampaignSummaryCard = ({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] text-slate-500 font-medium">
-                Best ROAS
+                ผลตอบแทนโฆษณาสูงสุด (Best ROAS)
               </div>
               <div className="mt-1 font-bold text-slate-900">
                 {summary.bestRoasName ?? "—"}
@@ -280,7 +283,7 @@ const CampaignSummaryCard = ({
 
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
               <div className="text-[10px] text-slate-500 font-medium">
-                Worst ROAS
+                ผลตอบแทนโฆษณาต่ำสุด (Worst ROAS)
               </div>
               <div className="mt-1 font-bold text-slate-900">
                 {summary.worstRoasName ?? "—"}
@@ -303,23 +306,27 @@ const CampaignSummaryCard = ({
 
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center justify-between bg-red-50 border border-red-100 rounded px-2 py-1">
-                <span className="text-red-700 font-bold">Fatigue</span>
+                <span className="text-red-700 font-bold">ล้า (Fatigue)</span>
                 <span className="text-red-700 font-bold">{counts.fatigue}</span>
               </div>
               <div className="flex items-center justify-between bg-amber-50 border border-amber-100 rounded px-2 py-1">
-                <span className="text-amber-800 font-bold">Cost</span>
+                <span className="text-amber-800 font-bold">ต้นทุน (Cost)</span>
                 <span className="text-amber-800 font-bold">
                   {counts.costCreeping}
                 </span>
               </div>
               <div className="flex items-center justify-between bg-indigo-50 border border-indigo-100 rounded px-2 py-1">
-                <span className="text-indigo-700 font-bold">Learning</span>
+                <span className="text-indigo-700 font-bold">
+                  เรียนรู้ (Learning)
+                </span>
                 <span className="text-indigo-700 font-bold">
                   {counts.learningLimited}
                 </span>
               </div>
               <div className="flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded px-2 py-1">
-                <span className="text-emerald-700 font-bold">Top</span>
+                <span className="text-emerald-700 font-bold">
+                  โดดเด่น (Top)
+                </span>
                 <span className="text-emerald-700 font-bold">
                   {counts.topPerformer}
                 </span>
@@ -410,14 +417,14 @@ const CampaignBreakdownCard = async ({
                     <InfoTooltip
                       label="คำอธิบาย AI วิเคราะห์"
                       content={
-                        "AI ช่วยสรุป Insight จากตัวเลขและ evidence ของกลุ่มโฆษณานี้\nเพื่อให้ตัดสินใจได้เร็วขึ้น (ยังควรตรวจสอบก่อนลงมือทำจริง)"
+                        "AI ช่วยสรุปประเด็น (Insight) จากตัวเลขและสัญญาณ (Evidence) ของกลุ่มโฆษณานี้\nเพื่อให้ตัดสินใจได้เร็วขึ้น (ยังควรตรวจสอบก่อนลงมือทำจริง)"
                       }
                     />
                   </div>
                 </th>
                 <th className="p-4">
                   <div className="inline-flex items-center gap-1 justify-end w-full">
-                    ยอดใช้จ่าย
+                    ยอดใช้จ่าย (Spend)
                     <InfoTooltip
                       label="คำอธิบายยอดใช้จ่าย"
                       content={"ยอดเงินที่ใช้จริงในช่วงเวลาที่เลือก (Spend)"}
@@ -426,41 +433,45 @@ const CampaignBreakdownCard = async ({
                 </th>
                 <th className="p-4 text-center">
                   <div className="inline-flex items-center gap-1 justify-center w-full">
-                    ผลลัพธ์
+                    ผลลัพธ์ (Results)
                     <InfoTooltip
                       label="คำอธิบายผลลัพธ์"
                       content={
-                        "จำนวนผลลัพธ์หลักตาม Objective เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยัง"
+                        "จำนวนผลลัพธ์หลักตามเป้าหมาย (Objective) เช่น Purchase/Lead/Message\nใช้ดูว่าได้ผลลัพธ์ “มากพอ” หรือยัง"
                       }
                     />
                   </div>
                 </th>
                 <th className="p-4">
                   <div className="inline-flex items-center gap-1 justify-end w-full">
-                    CPR
+                    ต้นทุนต่อผลลัพธ์ (CPR)
                     <InfoTooltip
                       label="คำอธิบาย CPR"
                       content={
-                        "CPR (Cost per Result)\n= ยอดใช้จ่าย ÷ ผลลัพธ์\nยิ่งต่ำยิ่งดี"
+                        "ต้นทุนต่อผลลัพธ์ (CPR / Cost per Result)\n= ยอดใช้จ่าย (Spend) ÷ ผลลัพธ์ (Results)\nยิ่งต่ำยิ่งดี"
                       }
                     />
                   </div>
                 </th>
                 <th className="p-4">
                   <div className="inline-flex items-center gap-1 justify-end w-full">
-                    ROAS
+                    ผลตอบแทนโฆษณา (ROAS)
                     <InfoTooltip
                       label="คำอธิบาย ROAS"
-                      content={"ROAS (Revenue ÷ Spend)\nยิ่งสูงยิ่งดี"}
+                      content={
+                        "ผลตอบแทนโฆษณา (ROAS)\n= Revenue ÷ Spend\nยิ่งสูงยิ่งดี"
+                      }
                     />
                   </div>
                 </th>
                 <th className="p-4">
                   <div className="inline-flex items-center gap-1 justify-end w-full">
-                    CTR
+                    อัตราคลิก (CTR)
                     <InfoTooltip
                       label="คำอธิบาย CTR"
-                      content={"CTR (Clicks ÷ Impressions)\nยิ่งสูงยิ่งดี"}
+                      content={
+                        "อัตราคลิก (CTR)\n= Clicks ÷ Impressions\nยิ่งสูงยิ่งดี"
+                      }
                     />
                   </div>
                 </th>
@@ -633,7 +644,7 @@ export default async function CampaignDetailPage({
               เปรียบเทียบกลุ่มโฆษณา
             </h1>
             <p className="text-sm text-slate-500 font-thai">
-              เปรียบเทียบประสิทธิภาพรายกลุ่มเป้าหมาย
+              เปรียบเทียบประสิทธิภาพรายกลุ่มโฆษณา (Ad Group)
             </p>
           </div>
           <div className="bg-white p-1 rounded-lg border border-slate-200 shadow-sm flex items-center text-sm">

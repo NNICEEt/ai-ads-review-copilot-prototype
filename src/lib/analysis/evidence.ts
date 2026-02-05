@@ -40,19 +40,19 @@ export const buildEvidenceSlots = ({
   return [
     {
       id: "E1",
-      title: useRoas ? "ประสิทธิภาพต้นทุน (ROAS)" : "ประสิทธิภาพต้นทุน",
+      title: useRoas ? "ผลตอบแทนโฆษณา (ROAS)" : "ต้นทุนต่อผลลัพธ์ (CPR)",
       metricLabel: useRoas ? "ROAS" : "Cost per Result",
       value: e1Value,
     },
     {
       id: "E2",
-      title: "คุณภาพกลุ่มเป้าหมาย",
+      title: "คุณภาพทราฟฟิก (Traffic Quality)",
       metricLabel: useConversion ? "Conversion Rate" : "CTR",
       value: e2Value,
     },
     {
       id: "E3",
-      title: "Ad Fatigue",
+      title: "ครีเอทีฟเริ่มล้า (Creative Fatigue)",
       metricLabel: useFrequency ? "Frequency" : "CTR Trend",
       value: e3Value,
     },

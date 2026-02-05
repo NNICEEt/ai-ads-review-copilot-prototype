@@ -115,14 +115,16 @@ export const AdsPerformancePanel = ({
               spend={formatCurrency(ad.totals.spend)}
               variant={ad.variant}
               recommendation={
-                ad.variant === "bad" ? "ดูครีเอทีฟ/พิจารณา pause" : undefined
+                ad.variant === "bad"
+                  ? "ตรวจครีเอทีฟ (Creative) / พิจารณา Pause (หยุดโฆษณา)"
+                  : undefined
               }
               onClick={() => setSelectedAdId(ad.id)}
             />
           ))
         ) : (
           <div className="p-6 text-center text-slate-500 text-xs font-thai">
-            ยังไม่มีข้อมูล Ads ในช่วงเวลานี้
+            ยังไม่มีข้อมูลโฆษณา (Ads) ในช่วงเวลานี้
           </div>
         )}
       </div>

@@ -45,9 +45,9 @@ export const CampaignSortSelect = () => {
         });
       }}
     >
-      <option value="cpr_desc">CPR (มาก → น้อย)</option>
-      <option value="roas_asc">ROAS (น้อย → มาก)</option>
-      <option value="spend_desc">ยอดใช้จ่าย (มาก → น้อย)</option>
+      <option value="cpr_desc">ต้นทุนต่อผลลัพธ์ (CPR): สูง → ต่ำ</option>
+      <option value="roas_asc">ผลตอบแทนโฆษณา (ROAS): ต่ำ → สูง</option>
+      <option value="spend_desc">ยอดใช้จ่าย (Spend): สูง → ต่ำ</option>
     </select>
   );
 };

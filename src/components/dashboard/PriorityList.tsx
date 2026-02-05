@@ -59,7 +59,8 @@ export const PriorityList = ({ items }: PriorityListProps) => {
             รายการสิ่งที่ต้องทำก่อน
           </h2>
           <p className="text-xs text-slate-500 mt-1 font-thai">
-            จัดลำดับแบบ Severity × Impact (คะแนน × ขนาดงบ) • AI เป็นตัวช่วยเสริม
+            จัดลำดับแบบความรุนแรง × ผลกระทบ (Severity × Impact) = คะแนน × ขนาดงบ
+            • AI เป็นตัวช่วยเสริม
           </p>
         </div>
         <div className="flex gap-2">
@@ -85,29 +86,29 @@ export const PriorityList = ({ items }: PriorityListProps) => {
                   <InfoTooltip
                     label="คำอธิบายสถานะ/ประเด็น"
                     content={
-                      "สรุปสิ่งที่ควรสนใจของกลุ่มโฆษณานี้\n- แสดงสถานะรวม (ต้องแก้ไข/เฝ้าระวัง/ผลงานดี)\n- AI ช่วยสรุป Insight แบบกระชับ\n- มีสัญญาณสำคัญ (CTR/Frequency/ผลลัพธ์/ROAS) เพื่อช่วยตัดสินใจก่อนกดดูรายละเอียด"
+                      "สรุปสิ่งที่ควรสนใจของกลุ่มโฆษณานี้\n- แสดงสถานะรวม (ต้องแก้ไข/เฝ้าระวัง/ผลงานดี)\n- AI ช่วยสรุปประเด็น (Insight) แบบกระชับ\n- มีสัญญาณสำคัญ: อัตราคลิก (CTR) / ความถี่ (Frequency) / ผลลัพธ์ (Results) / ผลตอบแทน (ROAS) เพื่อช่วยตัดสินใจก่อนกดดูรายละเอียด"
                     }
                   />
                 </div>
               </th>
               <th className="p-4 font-semibold text-right">
                 <div className="inline-flex items-center gap-1 justify-end w-full">
-                  ยอดใช้จ่าย
+                  ยอดใช้จ่าย (Spend)
                   <InfoTooltip
                     label="คำอธิบายยอดใช้จ่าย"
                     content={
-                      "ขนาดของเงินที่ใช้จริงในช่วงเวลาที่เลือก (Spend)\nใช้ประกอบการจัดลำดับความสำคัญแบบ Severity × Impact"
+                      "ยอดใช้จ่าย (Spend) คือเงินที่ใช้จริงในช่วงเวลาที่เลือก\nใช้ประกอบการจัดลำดับความสำคัญแบบความรุนแรง × ผลกระทบ (Severity × Impact)"
                     }
                   />
                 </div>
               </th>
               <th className="p-4 font-semibold text-right">
                 <div className="inline-flex items-center gap-1 justify-end w-full">
-                  ต้นทุน/ผลลัพธ์
+                  ต้นทุนต่อผลลัพธ์ (CPR)
                   <InfoTooltip
                     label="คำอธิบายต้นทุนต่อผลลัพธ์"
                     content={
-                      "CPR (Cost per Result)\n= ยอดใช้จ่าย ÷ จำนวนผลลัพธ์\nยิ่งต่ำยิ่งดี (คุ้มกว่า)"
+                      "ต้นทุนต่อผลลัพธ์ (CPR / Cost per Result)\n= ยอดใช้จ่าย (Spend) ÷ จำนวนผลลัพธ์ (Results)\nยิ่งต่ำยิ่งดี (คุ้มกว่า)"
                     }
                   />
                 </div>
@@ -118,7 +119,7 @@ export const PriorityList = ({ items }: PriorityListProps) => {
                   <InfoTooltip
                     label="คำอธิบายแนวโน้ม"
                     content={
-                      "เทียบ CPR กับช่วงก่อนหน้า (จำนวนวันเท่ากัน)\n- สีแดง: CPR แย่ลง (+)\n- สีเขียว: CPR ดีขึ้น (-)"
+                      "เทียบต้นทุนต่อผลลัพธ์ (CPR) กับช่วงก่อนหน้า (จำนวนวันเท่ากัน)\n- สีแดง: CPR แย่ลง (+)\n- สีเขียว: CPR ดีขึ้น (-)"
                     }
                   />
                 </div>

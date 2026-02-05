@@ -50,13 +50,15 @@ export const BusinessContextButton = () => {
       <button
         type="button"
         className={`text-slate-500 hover:text-slate-700 transition-colors ${hasContext ? "text-blue-700" : ""}`}
-        aria-label="Business context"
+        aria-label="บริบทธุรกิจ (Business Context)"
         onClick={() => {
           setDraft(saved);
           setOpen(true);
         }}
         title={
-          hasContext ? "Business context (ตั้งค่าแล้ว)" : "Business context"
+          hasContext
+            ? "บริบทธุรกิจ (Business Context) • ตั้งค่าแล้ว"
+            : "บริบทธุรกิจ (Business Context)"
         }
       >
         <i className="fa-solid fa-sliders text-lg"></i>
@@ -79,11 +81,11 @@ export const BusinessContextButton = () => {
               <div className="p-5 border-b border-slate-100 flex items-center justify-between">
                 <div>
                   <h2 id={titleId} className="text-sm font-bold text-slate-900">
-                    Business Context (ส่งให้ AI)
+                    บริบทธุรกิจ (Business Context) — ส่งให้ AI
                   </h2>
                   <p className="text-xs text-slate-500 font-thai mt-1">
-                    ใส่ objective/ข้อจำกัด/นโยบาย/โทนแบรนด์ เพื่อให้ AI
-                    แนะนำได้เหมาะขึ้น (ไม่เกี่ยวกับตัวเลข)
+                    ใส่เป้าหมาย (Objective)/ข้อจำกัด/นโยบาย/โทนแบรนด์ เพื่อให้
+                    AI แนะนำได้เหมาะขึ้น (ไม่เกี่ยวกับตัวเลข)
                   </p>
                 </div>
                 <button
@@ -98,7 +100,7 @@ export const BusinessContextButton = () => {
 
               <div className="p-5">
                 <label htmlFor="business-context" className="sr-only">
-                  Business context
+                  บริบทธุรกิจ (Business Context)
                 </label>
                 <textarea
                   id="business-context"
@@ -107,14 +109,14 @@ export const BusinessContextButton = () => {
                   rows={6}
                   className="w-full text-sm bg-slate-50 border border-slate-200 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-500 font-thai"
                   placeholder={
-                    "ตัวอย่าง:\n- Objective: SALES (เน้น ROAS ≥ 3.0)\n- ห้ามลดงบ retargeting ต่ำกว่า 20%\n- Creative ต้องโทน friendly\n- โปรโมชัน: 2.2 (เร่ง volume)"
+                    "ตัวอย่าง:\n- เป้าหมาย (Objective): SALES (เน้น ROAS ≥ 3.0)\n- ห้ามลดงบรีทาร์เก็ตติ้ง (Retargeting) ต่ำกว่า 20%\n- ครีเอทีฟ (Creative) ต้องโทน Friendly\n- โปรโมชัน: 2.2 (เร่ง Volume)"
                   }
                 />
 
                 <div className="mt-4 flex items-center justify-between gap-2">
                   <span className="text-[11px] text-slate-500 font-thai">
-                    ระบบจะส่งข้อความนี้ไปกับ prompt (Insight/Recommend) และแยก
-                    cache ตามบริบท
+                    ระบบจะส่งข้อความนี้ไปกับพรอมป์ต์ (Prompt) ของ
+                    Insight/Recommendation และแยกแคช (Cache) ตามบริบท
                   </span>
                   <div className="flex gap-2">
                     <button

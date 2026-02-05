@@ -88,7 +88,8 @@ export const diagnoseAdGroup = (
     return {
       label: "Fatigue Detected",
       severity: "high",
-      reason: "ความถี่สูง + CTR ลดลง พร้อมต้นทุนต่อผลลัพธ์สูงขึ้น",
+      reason:
+        "ความถี่ (Frequency) สูง + อัตราคลิก (CTR) ลดลง และต้นทุนต่อผลลัพธ์ (CPR) สูงขึ้น",
     };
   }
 
@@ -96,7 +97,7 @@ export const diagnoseAdGroup = (
     return {
       label: "Cost Creeping",
       severity: "med",
-      reason: "ต้นทุนต่อผลลัพธ์มีแนวโน้มเพิ่มขึ้น",
+      reason: "ต้นทุนต่อผลลัพธ์ (CPR) มีแนวโน้มเพิ่มขึ้น",
     };
   }
 
@@ -104,7 +105,8 @@ export const diagnoseAdGroup = (
     return {
       label: "Learning Limited",
       severity: "med",
-      reason: "มีการใช้จ่าย แต่ผลลัพธ์ยังไม่พอ (ช่วง Learning)",
+      reason:
+        "มียอดใช้จ่าย (Spend) แต่ผลลัพธ์ (Results) ยังไม่พอ (ช่วง Learning)",
     };
   }
 

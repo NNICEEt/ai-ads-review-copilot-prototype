@@ -129,11 +129,11 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
         <div className="font-bold text-slate-700">ล่าสุด: {latestLabel}</div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-          <span>CPR: {latestCprLabel}</span>
+          <span>ต้นทุนต่อผลลัพธ์ (CPR): {latestCprLabel}</span>
         </div>
         <div className="flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-          <span>ใช้จ่าย: {latestSpendLabel}</span>
+          <span>ยอดใช้จ่าย (Spend): {latestSpendLabel}</span>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
         className="w-full h-full"
         viewBox={`0 0 ${width} ${height}`}
         role="img"
-        aria-label="แนวโน้มรายวัน: CPR และยอดใช้จ่าย"
+        aria-label="แนวโน้มรายวัน: ต้นทุนต่อผลลัพธ์ (CPR) และยอดใช้จ่าย (Spend)"
       >
         <defs>
           <linearGradient id="spendArea" x1="0" y1="0" x2="0" y2="1">
@@ -201,9 +201,9 @@ export const DailyTrendChart = ({ rows }: { rows: DailyTrendRow[] }) => {
 
           const tooltipLines = [
             dateLabel,
-            `CPR: ${cprLabel}`,
-            `ผลลัพธ์: ${resultLabel}`,
-            `ใช้จ่าย: ${spendLabel}`,
+            `ต้นทุนต่อผลลัพธ์ (CPR): ${cprLabel}`,
+            `ผลลัพธ์ (Results): ${resultLabel}`,
+            `ยอดใช้จ่าย (Spend): ${spendLabel}`,
           ];
           const titleText = tooltipLines.join("\n");
           const longestLine = tooltipLines.reduce(

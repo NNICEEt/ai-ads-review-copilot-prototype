@@ -16,10 +16,10 @@ type DashboardFiltersClientProps = {
 const DEFAULT_PRESET: DashboardPreset = "attention";
 
 const PRESET_OPTIONS: Array<{ key: DashboardPreset; label: string }> = [
-  { key: "attention", label: "Needs attention" },
-  { key: "fatigue", label: "Fatigue" },
-  { key: "learning", label: "Learning" },
-  { key: "top", label: "Top" },
+  { key: "attention", label: "ต้องแก้ไข (Needs Attention)" },
+  { key: "fatigue", label: "ครีเอทีฟเริ่มล้า (Creative Fatigue)" },
+  { key: "learning", label: "Learning จำกัด (Learning Limited)" },
+  { key: "top", label: "ผลงานดี (Top Performer)" },
 ];
 
 const buildDashboardHref = (params: {
@@ -141,7 +141,7 @@ export const DashboardFiltersClient = ({
       <div
         className="flex items-center gap-1 bg-slate-100 p-1 rounded"
         role="group"
-        aria-label="Preset"
+        aria-label="พรีเซ็ต (Preset)"
       >
         {PRESET_OPTIONS.map((option) => (
           <button

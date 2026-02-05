@@ -14,10 +14,10 @@ type EvidenceSlotProps = {
 };
 
 const metricLabelTh = (label: string) => {
-  if (label === "Cost per Result") return "ต้นทุนต่อผลลัพธ์";
-  if (label === "Conversion Rate") return "อัตรา Conversion";
-  if (label === "Frequency") return "ความถี่";
-  if (label === "CTR Trend") return "แนวโน้ม CTR";
+  if (label === "Cost per Result") return "ต้นทุนต่อผลลัพธ์ (CPR)";
+  if (label === "Conversion Rate") return "อัตรา Conversion (Conversion Rate)";
+  if (label === "Frequency") return "ความถี่ (Frequency)";
+  if (label === "CTR Trend") return "แนวโน้มอัตราคลิก (CTR Trend)";
   return label;
 };
 

@@ -409,23 +409,23 @@ export const getCampaignBreakdown = async (params: {
     );
     if (improvementPercent >= 15) {
       actions.push(
-        `มีช่องว่าง CPR ระหว่างกลุ่มที่แพงสุด/คุ้มสุด ~${improvementPercent}% • พิจารณาโยกงบจาก "${worstCpr.name}" ไป "${bestCpr.name}" (ถ้า objective/creative ใกล้เคียงกัน)`,
+        `มีช่องว่างต้นทุนต่อผลลัพธ์ (CPR) ระหว่างกลุ่มที่แพงสุด/คุ้มสุด ~${improvementPercent}% • พิจารณาโยกงบจาก "${worstCpr.name}" ไป "${bestCpr.name}" (ถ้าเป้าหมาย (Objective) และครีเอทีฟ (Creative) ใกล้เคียงกัน)`,
       );
     }
   }
   if (diagnosisCounts.fatigue > 0) {
     actions.push(
-      `พบ Creative Fatigue ${diagnosisCounts.fatigue} กลุ่ม • วางแผนรีเฟรชครีเอทีฟ/หมุนเวียนชิ้นงาน และตรวจดูความถี่การเห็นซ้ำ`,
+      `พบครีเอทีฟเริ่มล้า (Creative Fatigue) ${diagnosisCounts.fatigue} กลุ่ม • วางแผนรีเฟรชครีเอทีฟ (Creative) / หมุนเวียนชิ้นงาน และตรวจดูความถี่ (Frequency) การเห็นซ้ำ`,
     );
   }
   if (diagnosisCounts.learningLimited > 0) {
     actions.push(
-      `พบ Learning จำกัด ${diagnosisCounts.learningLimited} กลุ่ม • พิจารณาลดการแตกกลุ่ม (fragmentation) หรือรวมชุดโฆษณาเพื่อเพิ่มสัญญาณต่อชุด`,
+      `พบ Learning จำกัด (Learning Limited) ${diagnosisCounts.learningLimited} กลุ่ม • พิจารณาลดการแตกกลุ่ม (Fragmentation) หรือรวมชุดโฆษณาเพื่อเพิ่มสัญญาณต่อชุด`,
     );
   }
   if (diagnosisCounts.costCreeping > 0) {
     actions.push(
-      `ต้นทุนเริ่มไหลขึ้น ${diagnosisCounts.costCreeping} กลุ่ม • ตรวจสอบ bid/placement/ช่วงเวลา และดูว่า Cost per Result แย่ลงจาก traffic หรือจาก conversion`,
+      `ต้นทุนเริ่มไหลขึ้น (Cost Creeping) ${diagnosisCounts.costCreeping} กลุ่ม • ตรวจสอบการประมูล (Bid), ตำแหน่ง (Placement), ช่วงเวลา (Time) และดูว่าต้นทุนต่อผลลัพธ์ (CPR) แย่ลงจากทราฟฟิก (Traffic) หรือจากคอนเวิร์สชัน (Conversion)`,
     );
   }
 
